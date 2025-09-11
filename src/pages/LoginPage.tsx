@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const FormSchema = z.object({
   identifier: z.string().min(2, {
@@ -22,6 +23,8 @@ const FormSchema = z.object({
 });
 
 export function LoginPage() {
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -32,6 +35,10 @@ export function LoginPage() {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
     toast.success("Otp sent successfully");
+
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
   }
 
   return (
