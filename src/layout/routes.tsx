@@ -1,6 +1,7 @@
 import { useRoutes, type RouteObject } from "react-router";
 import Dashboard from "@/pages/Dashboard";
 import LoginPage from "@/pages/LoginPage";
+import OtpPage from "@/pages/OtpPage";
 
 const routes: RouteObject[] = [
   {
@@ -10,6 +11,10 @@ const routes: RouteObject[] = [
   {
     path: "login",
     element: <LoginPage />,
+  },
+  {
+    path: "verify-otp",
+    element: <OtpPage />,
   },
   {
     path: "*",

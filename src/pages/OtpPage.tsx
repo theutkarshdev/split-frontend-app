@@ -1,9 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
 
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,46 +12,49 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import toast from "react-hot-toast";
-import { useState } from "react";
-import type { LoginResponse } from "@/types/auth";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { useAppContext } from "@/layout/AppContext";
+import axios from "axios";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 
 const FormSchema = z.object({
-  identifier: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  otp: z.string().min(6, {
+    message: "Your one-time password must be 6 characters.",
   }),
 });
 
-export function LoginPage() {
+function OtpPage() {
+  const { otpData } = useAppContext();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      identifier: "",
+      otp: "",
     },
   });
 
-  const [loading, setLoading] = useState(false);
-  const { setOtpData } = useAppContext();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const payload = { ...otpData, ...data };
     setLoading(true);
     try {
-      const res = await axios.post<LoginResponse>(
-        `https://split-backend-app.vercel.app/auth/login`,
-        data
+      const res = await axios.post(
+        `https://split-backend-app.vercel.app/auth/verify`,
+        payload
       );
-      if (res.status === 200) {
-        const { otp_id, email } = res.data;
-        setOtpData({ otp_id, email });
-        toast.success("Otp sent successfully.");
-        navigate("/verify-otp");
-      }
-    } catch (err: unknown) {
-      console.error(err);
+      console.log(res.data);
+      toast.success("OTP verified successfully.");
+      navigate("/");
+    } catch (error) {
+      console.error("error", error);
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
@@ -68,22 +70,32 @@ export function LoginPage() {
         >
           <FormField
             control={form.control}
-            name="identifier"
+            name="otp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>One-Time Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" {...field} />
+                  <InputOTP maxLength={6} {...field}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
                 </FormControl>
                 <FormDescription>
-                  This is your public display name.
+                  Please enter the one-time password sent to your email.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <Button type="submit" disabled={loading}>
-            {loading ? "Sending Otp..." : "Submit"}
+            {loading ? "Veryfing OTP" : "Submit OTP"}
           </Button>
         </form>
       </Form>
@@ -91,4 +103,4 @@ export function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default OtpPage;
