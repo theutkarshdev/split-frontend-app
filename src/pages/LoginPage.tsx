@@ -60,7 +60,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center bg-gray-50 h-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

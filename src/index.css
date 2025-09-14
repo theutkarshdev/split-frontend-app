@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-*{
+* {
   font-family: "Inter", sans-serif;
 }
 
@@ -121,4 +121,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.squircle {
+  corner-shape: squircle;
 }

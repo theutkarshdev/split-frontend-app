@@ -62,7 +62,7 @@ function OtpPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center h-full bg-gray-50">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
