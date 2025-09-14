@@ -1,7 +1,7 @@
-import { Outlet, Navigate } from "react-router";
+import { Outlet } from "react-router";
 
 const AuthLayout = () => {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   // if (token) {
   //   return <Navigate to="/" replace />;

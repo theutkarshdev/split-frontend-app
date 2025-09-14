@@ -1,8 +1,8 @@
 import { BellDotIcon, HomeIcon, PlusCircleIcon } from "lucide-react";
-import { Outlet, Navigate } from "react-router";
+import { Outlet } from "react-router";
 
 const DashboardLayout = () => {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
 
   // if (!token) {
   //   return <Navigate to="/login" replace />;
