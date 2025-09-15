@@ -126,3 +126,196 @@
 .squircle {
   corner-shape: squircle;
 }
+
+.hero--img--anim {
+  position: relative;
+  width: 500px;
+  flex-shrink: 0;
+  height: 500px;
+  transform-style: preserve-3d;
+  transform: perspective(500px) rotateX(60deg) rotateY(20deg);
+}
+.hero--img--anim span {
+  position: absolute;
+  display: block;
+  background-image: linear-gradient(
+    43deg,
+    #4158d0 0%,
+    #c850c0 46%,
+    #ffcc70 100%
+  );
+  opacity: 0.2;
+  box-sizing: border-box;
+  border-radius: 50%;
+  animation: wave 3s ease-in-out infinite;
+}
+/* Example animation */
+@keyframes wave {
+  -1%,
+  100% {
+    transform: translateZ(-110px);
+  }
+  50% {
+    transform: translateZ(110px);
+  }
+}
+/* Generate for each child */
+.hero--img--anim span:nth-child(1) {
+  top: calc(10px * 1 - 10px);
+  bottom: calc(10px * 1 - 10px);
+  left: calc(10px * 1 - 10px);
+  right: calc(10px * 1 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 1));
+}
+
+.hero--img--anim span:nth-child(2) {
+  top: calc(10px * 2 - 10px);
+  bottom: calc(10px * 2 - 10px);
+  left: calc(10px * 2 - 10px);
+  right: calc(10px * 2 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 2));
+}
+
+.hero--img--anim span:nth-child(3) {
+  top: calc(10px * 3 - 10px);
+  bottom: calc(10px * 3 - 10px);
+  left: calc(10px * 3 - 10px);
+  right: calc(10px * 3 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 3));
+}
+
+.hero--img--anim span:nth-child(4) {
+  top: calc(10px * 4 - 10px);
+  bottom: calc(10px * 4 - 10px);
+  left: calc(10px * 4 - 10px);
+  right: calc(10px * 4 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 4));
+}
+
+.hero--img--anim span:nth-child(5) {
+  top: calc(10px * 5 - 10px);
+  bottom: calc(10px * 5 - 10px);
+  left: calc(10px * 5 - 10px);
+  right: calc(10px * 5 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 5));
+}
+
+.hero--img--anim span:nth-child(6) {
+  top: calc(10px * 6 - 10px);
+  bottom: calc(10px * 6 - 10px);
+  left: calc(10px * 6 - 10px);
+  right: calc(10px * 6 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 6));
+}
+
+.hero--img--anim span:nth-child(7) {
+  top: calc(10px * 7 - 10px);
+  bottom: calc(10px * 7 - 10px);
+  left: calc(10px * 7 - 10px);
+  right: calc(10px * 7 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 7));
+}
+
+.hero--img--anim span:nth-child(8) {
+  top: calc(10px * 8 - 10px);
+  bottom: calc(10px * 8 - 10px);
+  left: calc(10px * 8 - 10px);
+  right: calc(10px * 8 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 8));
+}
+
+.hero--img--anim span:nth-child(9) {
+  top: calc(10px * 9 - 10px);
+  bottom: calc(10px * 9 - 10px);
+  left: calc(10px * 9 - 10px);
+  right: calc(10px * 9 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 9));
+}
+
+.hero--img--anim span:nth-child(10) {
+  top: calc(10px * 10 - 10px);
+  bottom: calc(10px * 10 - 10px);
+  left: calc(10px * 10 - 10px);
+  right: calc(10px * 10 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 10));
+}
+
+.hero--img--anim span:nth-child(11) {
+  top: calc(10px * 11 - 10px);
+  bottom: calc(10px * 11 - 10px);
+  left: calc(10px * 11 - 10px);
+  right: calc(10px * 11 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 11));
+}
+
+.hero--img--anim span:nth-child(12) {
+  top: calc(10px * 12 - 10px);
+  bottom: calc(10px * 12 - 10px);
+  left: calc(10px * 12 - 10px);
+  right: calc(10px * 12 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 12));
+}
+
+.hero--img--anim span:nth-child(13) {
+  top: calc(10px * 13 - 10px);
+  bottom: calc(10px * 13 - 10px);
+  left: calc(10px * 13 - 10px);
+  right: calc(10px * 13 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 13));
+}
+
+.hero--img--anim span:nth-child(14) {
+  top: calc(10px * 14 - 10px);
+  bottom: calc(10px * 14 - 10px);
+  left: calc(10px * 14 - 10px);
+  right: calc(10px * 14 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 14));
+}
+
+.hero--img--anim span:nth-child(15) {
+  top: calc(10px * 15 - 10px);
+  bottom: calc(10px * 15 - 10px);
+  left: calc(10px * 15 - 10px);
+  right: calc(10px * 15 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 15));
+}
+
+.hero--img--anim span:nth-child(16) {
+  top: calc(10px * 16 - 10px);
+  bottom: calc(10px * 16 - 10px);
+  left: calc(10px * 16 - 10px);
+  right: calc(10px * 16 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 16));
+}
+
+.hero--img--anim span:nth-child(17) {
+  top: calc(10px * 17 - 10px);
+  bottom: calc(10px * 17 - 10px);
+  left: calc(10px * 17 - 10px);
+  right: calc(10px * 17 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 17));
+}
+
+.hero--img--anim span:nth-child(18) {
+  top: calc(10px * 18 - 10px);
+  bottom: calc(10px * 18 - 10px);
+  left: calc(10px * 18 - 10px);
+  right: calc(10px * 18 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 18));
+}
+
+.hero--img--anim span:nth-child(19) {
+  top: calc(10px * 19 - 10px);
+  bottom: calc(10px * 19 - 10px);
+  left: calc(10px * 19 - 10px);
+  right: calc(10px * 19 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 19));
+}
+
+.hero--img--anim span:nth-child(20) {
+  top: calc(10px * 20 - 10px);
+  bottom: calc(10px * 20 - 10px);
+  left: calc(10px * 20 - 10px);
+  right: calc(10px * 20 - 10px);
+  animation-delay: calc(1.5s - (0.1s * 20));
+}

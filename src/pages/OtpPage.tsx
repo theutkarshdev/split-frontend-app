@@ -62,43 +62,127 @@ function OtpPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-full bg-gray-50">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full max-w-md flex flex-col gap-4 p-6 bg-white shadow-lg rounded-xl"
-        >
-          <FormField
-            control={form.control}
-            name="otp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>One-Time Password</FormLabel>
-                <FormControl>
-                  <InputOTP maxLength={6} {...field}>
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </FormControl>
-                <FormDescription>
-                  Please enter the one-time password sent to your email.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" disabled={loading}>
-            {loading ? "Veryfing OTP" : "Submit OTP"}
-          </Button>
-        </form>
-      </Form>
+    <div className="flex gap-20  items-center justify-center h-dvh">
+      <div className="flex gap-5 items-center justify-center flex-col w-full max-w-md">
+        <h3 className="text-4xl font-medium text-center">Spilly</h3>
+        <p className="text-sm text-zinc-700 text-center mb-8 max-w-60 mx-auto italic">
+          "With us splitting money is always simple and stress-free."
+        </p>
+        <p className="text-sm mb-3 max-w-xs mx-auto text-zinc-700 text-center font-normal">
+          To confirm your email address, Please enter the OTP we have sent to
+          adz*****232@gmail.com
+        </p>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full max-w-md flex flex-col gap-5"
+          >
+            <FormField
+              control={form.control}
+              name="otp"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-4">
+                  <FormLabel className="mx-auto">One-Time Password</FormLabel>
+                  <FormControl className="w-full">
+                    <InputOTP className="w-full" maxLength={6} {...field}>
+                      <InputOTPGroup className="flex justify-center items-center w-full">
+                        <InputOTPSlot
+                          index={0}
+                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                        />
+                        <InputOTPSlot
+                          index={1}
+                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                        />
+                        <InputOTPSlot
+                          index={2}
+                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                        />
+                        <InputOTPSlot
+                          index={3}
+                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                        />
+                        <InputOTPSlot
+                          index={4}
+                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                        />
+                        <InputOTPSlot
+                          index={5}
+                          className="block w-full p-3 border-2 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                        />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormDescription className="mx-auto">
+                    Please enter the one-time password sent to your email.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              disabled={loading}
+              className="cursor-pointer bg-black text-white py-2 px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 w-full"
+            >
+              {loading ? (
+                <>
+                  Verifying OTP
+                  <i className="bi bi-arrow-repeat inline-block animate-spin text-xl"></i>
+                </>
+              ) : (
+                <>
+                  Verify & Sign in <i className="bi bi-check2 text-2xl"></i>
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
+        <div className="flex justify-center items-center gap-1.5">
+          <p className="text-sm text-zinc-700 text-center">
+            Valid for 10 mins,
+          </p>
+          <button
+            type="button"
+            className="cursor-pointer flex items-center gap-1 text-black text-sm bg-transparent p-0 m-0 border-none outline-none"
+          >
+            Resend the code
+            <i className="bi text-lg leading-0 bi-arrow-counterclockwise"></i>
+          </button>
+        </div>
+      </div>
+      <div className="hero--img--anim lg:block hidden">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
   );
 }

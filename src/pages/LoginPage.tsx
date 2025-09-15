@@ -7,10 +7,8 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -60,33 +58,102 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center bg-gray-50 h-full">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full max-w-md flex flex-col gap-4 p-6 bg-white shadow-lg rounded-xl"
+    <div className="flex gap-20 items-center justify-center h-dvh">
+      <div className="flex gap-5 items-center justify-center flex-col w-full max-w-md">
+        <h3 className="text-4xl font-medium text-center">Spilly</h3>
+        <p className="text-sm text-zinc-700 text-center mb-8 max-w-60 mx-auto italic">
+          "Spilly makes it easy to share expenses and settle up with friends
+          effortlessly."
+        </p>
+        <p className="text-base text-zinc-700 text-center font-normal">
+          Log in or sign up here
+        </p>
+        <button
+          type="button"
+          className="cursor-pointer bg-black text-white py-3 px-10 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 mx-auto"
         >
-          <FormField
-            control={form.control}
-            name="identifier"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" disabled={loading}>
-            {loading ? "Sending Otp..." : "Submit"}
-          </Button>
-        </form>
-      </Form>
+          <i className="bi bi-google"></i> Continue with Google
+        </button>
+        <div className="flex gap-2 items-center w-full">
+          <span className="h-[1.6px] min-h-[1.6px] bg-zinc-400 w-full"></span>
+          <span className="text-xs uppercase">OR</span>
+          <span className="h-[1.6px] min-h-[1.6px] bg-zinc-400 w-full"></span>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full  flex flex-col gap-5"
+          >
+            <FormField
+              control={form.control}
+              name="identifier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      placeholder="Continue with email..."
+                      {...field}
+                      className="block squircle w-full py-3 px-4 rounded-lg border-2 h-12 focus:border-zinc-400 bg-white text-sm font-medium placeholder:text-zinc-800 outline-none shadow-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              disabled={loading}
+              className="cursor-pointer squircle  bg-black text-white py-2 px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 w-full"
+            >
+              {loading ? (
+                <>
+                  Sending OTP...
+                  <i className="bi bi-arrow-repeat inline-block animate-spin text-xl"></i>
+                </>
+              ) : (
+                <>
+                  Get OTP on email <i className="bi bi-download text-xl"></i>
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
+        <p className="text-sm text-center text-zinc-700">
+          By continuing, you agree to our policies.
+        </p>
+      </div>
+      <div className="hero--img--anim lg:block hidden">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
   );
 }
