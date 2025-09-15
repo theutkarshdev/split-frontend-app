@@ -9,7 +9,7 @@ const DashboardLayout = () => {
   // }
 
   return (
-    <div className="bg-black flex justify-center">
+    <div className="flex justify-center">
       <main className="w-full min-h-screen p-5 max-w-md bg-white">
         <Outlet />
       </main>
