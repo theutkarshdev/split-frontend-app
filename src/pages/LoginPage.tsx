@@ -59,13 +59,13 @@ export function LoginPage() {
 
   return (
     <div className="flex gap-20 items-center justify-center h-dvh">
-      <div className="flex gap-5 items-center justify-center flex-col w-full max-w-md">
+      <div className="flex gap-5 relative z-10 items-center justify-center flex-col w-full max-w-md">
         <h3 className="text-4xl font-medium text-center">Spilly</h3>
-        <p className="text-sm text-zinc-700 text-center mb-8 max-w-60 mx-auto italic">
+        <p className="text-sm text-black text-center mb-8 max-w-60 mx-auto italic">
           "Spilly makes it easy to share expenses and settle up with friends
           effortlessly."
         </p>
-        <p className="text-base text-zinc-700 text-center font-normal">
+        <p className="text-base text-black text-center font-normal">
           Log in or sign up here
         </p>
         <button
@@ -118,11 +118,11 @@ export function LoginPage() {
             </Button>
           </form>
         </Form>
-        <p className="text-sm text-center text-zinc-700">
+        <p className="text-sm text-center text-black">
           By continuing, you agree to our policies.
         </p>
       </div>
-      <div className="hero--img--anim lg:block hidden">
+      <div className="hero--img--anim absolute lg:top-1/3 top-1/2 left-1/2 -translate-1/2 md:w-[50dvw] md:h-[50dvw] w-dvw h-dvw">
         <span></span>
         <span></span>
         <span></span>
