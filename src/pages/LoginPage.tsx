@@ -49,7 +49,7 @@ export function LoginPage() {
         const { otp_id, email } = res.data;
         setOtpData({ otp_id, email });
         toast.success("Otp sent successfully.");
-        navigate("/verify-otp");
+        navigate("/auth/verify-otp");
       }
     } catch (err: unknown) {
       console.error(err);

@@ -12,6 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
 import {
   InputOTP,
   InputOTPGroup,
@@ -19,9 +20,9 @@ import {
 } from "@/components/ui/input-otp";
 import { useAppContext } from "@/layout/AppContext";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
+import { replace, useNavigate } from "react-router";
 
 const FormSchema = z.object({
   otp: z.string().min(6, {
@@ -30,7 +31,7 @@ const FormSchema = z.object({
 });
 
 function OtpPage() {
-  const { otpData } = useAppContext();
+  const { otpData, login } = useAppContext();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -51,6 +52,10 @@ function OtpPage() {
         payload
       );
       console.log(res.data);
+      if (res.status === 200) {
+        const { access_token } = res.data;
+        login(access_token);
+      }
       toast.success("OTP verified successfully.");
       navigate("/");
     } catch (error) {
@@ -60,6 +65,12 @@ function OtpPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (!(otpData.email && otpData.otp_id)) {
+      navigate("/auth/login", { replace: true });
+    }
+  }, []);
 
   return (
     <div className="flex items-center justify-center h-full bg-gray-50">
