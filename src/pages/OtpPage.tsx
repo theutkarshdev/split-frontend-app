@@ -22,7 +22,7 @@ import { useAppContext } from "@/layout/AppContext";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { replace, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 const FormSchema = z.object({
   otp: z.string().min(6, {

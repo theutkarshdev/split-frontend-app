@@ -119,7 +119,7 @@ function UserProfile() {
                         src={
                           field.value
                             ? URL.createObjectURL(field.value)
-                            : AvtarImg
+                            : AvtarImg || profilePicUrl
                         }
                         alt="Profile preview"
                         className="w-full rounded-full object-cover aspect-square"
