@@ -8,8 +8,8 @@ const AuthLayout = () => {
   // }
 
   return (
-    <div className="flex justify-center overflow-x-hidden">
-      <main className="w-full min-h-screen px-5 bg-white">
+    <div className="flex justify-center">
+      <main className="w-full min-h-screen overflow-x-hidden bg-white">
         <Outlet />
       </main>
     </div>
