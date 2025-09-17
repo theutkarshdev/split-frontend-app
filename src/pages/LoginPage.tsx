@@ -58,7 +58,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex gap-20 items-center justify-center h-dvh relative overflow-hidden">
+    <div className="flex gap-20 items-center justify-center h-dvh relative overflow-hidden px-5">
       <div className="flex gap-5 relative z-10 items-center justify-center flex-col w-full max-w-md">
         <h3 className="text-4xl font-medium text-center">Spilly</h3>
         <p className="text-sm text-black text-center mb-8 max-w-60 mx-auto italic">
