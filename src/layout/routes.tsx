@@ -33,7 +33,7 @@ const routes: RouteObject[] = [
   },
 
   {
-    path: "/",
+    path: "/auth",
     element: <AuthLayout />,
     children: [
       {
@@ -44,11 +44,12 @@ const routes: RouteObject[] = [
         path: "verify-otp",
         element: <OtpPage />,
       },
-      {
-        path: "*",
-        element: <p>404 Error</p>,
-      },
     ],
+  },
+
+  {
+    path: "*",
+    element: <p>404 Error</p>,
   },
 ];
 
