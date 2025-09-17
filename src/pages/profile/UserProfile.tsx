@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
+import { X } from "lucide-react";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
@@ -51,8 +51,15 @@ const FormSchema = z.object({
 });
 
 function UserProfile() {
-
   const [profilePicUrl, setProfilePicUrl] = useState("");
+  const [edit, setEdit] = useState(false);
+
+  const handleImage = () => {
+    setEdit(true);
+  };
+  const handleRemoveImage = () => {
+    setEdit(false);
+  };
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -69,7 +76,7 @@ function UserProfile() {
       const res = await axiosInstance.get("/profile/me");
 
       if (res.status === 200) {
-        setProfilePicUrl(res.data.profile_pic)
+        setProfilePicUrl(res.data.profile_pic);
         form.reset({
           username: res.data.username ?? "",
           full_name: res.data.full_name ?? "",
@@ -113,24 +120,42 @@ function UserProfile() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <div className="w-full bg-slate-100 py-5 rounded-xl">
+                  <div className="w-full bg-slate-100 py-5 rounded-xl relative">
                     <div className="relative w-[30%] mx-auto">
                       <img
                         src={
                           field.value
                             ? URL.createObjectURL(field.value)
-                            : AvtarImg
+                            : profilePicUrl || AvtarImg
                         }
                         alt="Profile preview"
                         className="w-full rounded-full object-cover aspect-square"
                       />
-                      <label
-                        htmlFor="profile_pic_input"
-                        className="absolute bottom-0 left-2/3 bg-primary rounded-full cursor-pointer shadow-md"
+                      <div
+                        onClick={handleImage}
+                        className="text-center pt-4 cursor-pointer"
                       >
-                        <Pencil className="size-8 p-2 text-white" />
-                      </label>
+                        Edit
+                      </div>
                     </div>
+                    {edit && (
+                      <>
+                        <div className="bg-black opacity-90 text-white p-5">
+                          <div className="flex justify-end">
+                            <div
+                              onClick={handleRemoveImage}
+                              className="text-black bg-white p-2 text-center cursor-pointer rounded-full"
+                            >
+                              <X className="text-xl" />
+                            </div>
+                          </div>
+                          <div className="mt-2 cursor-pointer">Add Image</div>
+                          <div className="mt-2 cursor-pointer">
+                            Delete Image
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {/* hidden file input */}
                     <Input
