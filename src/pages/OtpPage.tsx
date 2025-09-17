@@ -73,13 +73,13 @@ function OtpPage() {
   }, []);
 
   return (
-    <div className="flex gap-20  items-center justify-center h-dvh">
-      <div className="flex gap-5 items-center justify-center flex-col w-full max-w-md">
+    <div className="flex gap-20  items-center justify-center h-dvh overflow-hidden relative px-5">
+      <div className="flex gap-5 items-center justify-center flex-col w-full max-w-md relative z-10">
         <h3 className="text-4xl font-medium text-center">Spilly</h3>
-        <p className="text-sm text-zinc-700 text-center mb-8 max-w-60 mx-auto italic">
+        <p className="text-sm text-black text-center mb-8 max-w-60 mx-auto italic">
           "With us splitting money is always simple and stress-free."
         </p>
-        <p className="text-sm mb-3 max-w-xs mx-auto text-zinc-700 text-center font-normal">
+        <p className="text-sm mb-3 max-w-xs mx-auto text-black text-center font-normal">
           To confirm your email address, Please enter the OTP we have sent to
           adz*****232@gmail.com
         </p>
@@ -99,32 +99,32 @@ function OtpPage() {
                       <InputOTPGroup className="flex justify-center items-center w-full">
                         <InputOTPSlot
                           index={0}
-                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                          className="block w-full p-3 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
                         />
                         <InputOTPSlot
                           index={1}
-                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                          className="block w-full p-3 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
                         />
                         <InputOTPSlot
                           index={2}
-                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                          className="block w-full p-3 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
                         />
                         <InputOTPSlot
                           index={3}
-                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                          className="block w-full p-3 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
                         />
                         <InputOTPSlot
                           index={4}
-                          className="block w-full p-3 border-2 border-r-0 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                          className="block w-full p-3 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
                         />
                         <InputOTPSlot
                           index={5}
-                          className="block w-full p-3 border-2 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
+                          className="block w-full p-3 text-center bg-white text-sm placeholder:text-zinc-800 outline-none h-12 shadow-none outline-0"
                         />
                       </InputOTPGroup>
                     </InputOTP>
                   </FormControl>
-                  <FormDescription className="mx-auto">
+                  <FormDescription className="mx-auto text-black">
                     Please enter the one-time password sent to your email.
                   </FormDescription>
                   <FormMessage />
@@ -150,9 +150,7 @@ function OtpPage() {
           </form>
         </Form>
         <div className="flex justify-center items-center gap-1.5">
-          <p className="text-sm text-zinc-700 text-center">
-            Valid for 10 mins,
-          </p>
+          <p className="text-sm text-black text-center">Valid for 10 mins,</p>
           <button
             type="button"
             className="cursor-pointer flex items-center gap-1 text-black text-sm bg-transparent p-0 m-0 border-none outline-none"
@@ -162,7 +160,7 @@ function OtpPage() {
           </button>
         </div>
       </div>
-      <div className="hero--img--anim lg:block hidden">
+      <div className="hero--img--anim absolute lg:top-1/3 top-1/2 left-1/2 -translate-1/2 md:w-[50dvw] md:h-[50dvw] w-dvw h-dvw">
         <span></span>
         <span></span>
         <span></span>
