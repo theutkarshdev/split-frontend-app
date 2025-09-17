@@ -1,24 +1,27 @@
-import { BellDotIcon, HomeIcon, PlusCircleIcon } from "lucide-react";
-import { Outlet } from "react-router";
+import { BellDotIcon, HomeIcon, User2Icon } from "lucide-react";
+import { Navigate, Outlet } from "react-router";
+import { useAppContext } from "./AppContext";
 
 const DashboardLayout = () => {
-  // const token = localStorage.getItem("token");
+  const { auth, logout, loading } = useAppContext();
 
-  // if (!token) {
-  //   return <Navigate to="/login" replace />;
-  // }
+  if (loading) return <div>Loading...</div>;
+
+  if (!auth.isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
+  }
 
   return (
-    <div className="flex justify-center">
-      <main className="w-full min-h-screen p-5 max-w-md bg-white">
+    <div className="bg-black flex justify-center">
+      <main className="w-full min-h-screen p-5 max-w-md bg-white pb-20">
         <Outlet />
       </main>
 
-      <div className="fixed bottom-5 w-full px-5 max-w-xs">
-        <div className="bg-primary p-3 text-white squircle rounded-3xl flex justify-around">
+      <div className="fixed bottom-0 w-full border-t bg-white">
+        <div className="p-3 flex justify-around">
+          <BellDotIcon onClick={() => logout()} />
           <HomeIcon />
-          <PlusCircleIcon />
-          <BellDotIcon />
+          <User2Icon />
         </div>
       </div>
     </div>

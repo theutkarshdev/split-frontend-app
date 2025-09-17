@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, type ReactNode } from "react";
+import { setLogoutHandler } from "@/lib/logoutHelper";
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
 // 1. Define types for different slices of state
 interface AuthData {
@@ -32,6 +33,11 @@ interface AppContextType {
 
   theme: ThemeMode;
   setTheme: React.Dispatch<React.SetStateAction<ThemeMode>>;
+
+  login: (token: string) => void;
+  logout: () => void;
+
+  loading: boolean;
 }
 
 // 3. Create context
@@ -56,10 +62,63 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [theme, setTheme] = useState<ThemeMode>("light");
+  const [loading, setLoading] = useState(true);
+
+  // 👉 Load from localStorage on first render
+  useEffect(() => {
+    const storedAuth = localStorage.getItem("auth");
+    const storedTheme = localStorage.getItem("theme");
+
+    if (storedAuth) {
+      const parsedAuth: AuthData = JSON.parse(storedAuth);
+      setAuth(parsedAuth);
+    }
+
+    if (storedTheme) {
+      setTheme(storedTheme as ThemeMode);
+    }
+
+    setLoading(false)
+  }, []);
+
+  // 👉 Login method
+  const login = (token: string) => {
+    const authData = { token, isAuthenticated: true };
+    setAuth(authData);
+    localStorage.setItem("auth", JSON.stringify(authData));
+  };
+
+  // 👉 Logout method
+  const logout = () => {
+    setAuth({ token: null, isAuthenticated: false });
+    setOtpData({ email: null, otp_id: null });
+    localStorage.removeItem("auth");
+  };
+
+    useEffect(() => {
+    setLogoutHandler(logout);
+  }, [logout]);
+
+  // 👉 Persist theme change
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   return (
     <AppContext.Provider
-      value={{ auth, setAuth, otpData, setOtpData, user, setUser, theme, setTheme }}
+      value={{
+        auth,
+        setAuth,
+        otpData,
+        setOtpData,
+        user,
+        setUser,
+        theme,
+        setTheme,
+        login,
+        logout,
+        loading
+      }}
     >
       {children}
     </AppContext.Provider>
