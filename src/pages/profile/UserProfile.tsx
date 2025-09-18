@@ -1,95 +1,90 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
-import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axiosInstance";
-
-// ✅ Zod Schema
-const FormSchema = z.object({
-  full_name: z
-    .string()
-    .min(2, { message: "Full name must be at least 2 characters." }),
-  upi_id: z.string().regex(/^[\w.-]+@[\w.-]+$/, {
-    message: "Invalid UPI ID format (e.g. name@bank).",
-  }),
-  profile_pic: z
-    .any()
-    .refine(
-      (file) =>
-        file instanceof File ||
-        (Array.isArray(file) && file[0] instanceof File),
-      {
-        message: "Profile picture is required and must be an image.",
-      }
-    )
-    .refine((file) => {
-      const f = Array.isArray(file) ? file[0] : file;
-      return f && ["image/jpeg", "image/png", "image/jpg"].includes(f.type);
-    }, "Only JPG or PNG images are allowed."),
-  username: z
-    .string()
-    .regex(/^[a-z0-9_]+$/, {
-      message:
-        "Username can only include lowercase letters, numbers, and underscores.",
-    })
-    .min(2, { message: "Username must be at least 2 characters." }),
-});
+import {
+  CheckCircle2Icon,
+  ChevronRight,
+  EditIcon,
+  InfoIcon,
+  LogInIcon,
+  PersonStandingIcon,
+  SettingsIcon,
+  WalletCardsIcon,
+} from "lucide-react";
+import { Squircle } from "@squircle-js/react";
+import { Navigate, useNavigate } from "react-router";
+import { useAppContext } from "@/layout/AppContext";
+interface UserData {
+  full_name: string;
+  id: string;
+  email: string;
+  username: string;
+  profile_pic: string;
+  upi_id: string;
+  role: string;
+  is_verified: boolean;
+  created_at: Date;
+}
 
 function UserProfile() {
+  const navigate = useNavigate();
+  const { auth, logout } = useAppContext();
 
-  const [profilePicUrl, setProfilePicUrl] = useState("");
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      full_name: "",
-      upi_id: "",
-      profile_pic: undefined,
-      username: "",
-    },
-  });
-
-  const fetchProfile = async () => {
-    try {
-      const res = await axiosInstance.get("/profile/me");
-
-      if (res.status === 200) {
-        setProfilePicUrl(res.data.profile_pic)
-        form.reset({
-          username: res.data.username ?? "",
-          full_name: res.data.full_name ?? "",
-          upi_id: res.data.upi_id ?? "",
-        });
-      }
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
-      console.error(
-        "Profile fetch failed:",
-        err.response?.data?.message || err.message
-      );
-    }
-  };
-
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("Form Data:", data);
+  // Protect route if not logged in
+  if (!auth.isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
   }
 
+  const handleLogout = () => {
+    logout();
+    navigate("/auth/login");
+  };
+
+  const moreDetails = [
+    {
+      icons: <InfoIcon className="size-4 text-zinc-700" />,
+      name: "About",
+    },
+    {
+      icons: <EditIcon className="size-4 text-zinc-700" />,
+      name: "Send feedback",
+    },
+    {
+      icons: <InfoIcon className="size-4 text-zinc-700" />,
+      name: "Report a safety emergency",
+    },
+    {
+      icons: <PersonStandingIcon className="size-4 text-zinc-700" />,
+      name: "Accessibility",
+    },
+    {
+      icons: <SettingsIcon className="size-4 text-zinc-700" />,
+      name: "Settings",
+    },
+    {
+      icons: <LogInIcon className="size-4 text-zinc-700" />,
+      name: "Logout",
+      handleLogout: handleLogout,
+    },
+  ];
+  const [userData, setUserData] = useState<UserData | null>(null);
+
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get<UserData>("/profile/me");
+        if (res.status === 200) {
+          setUserData(res.data);
+        }
+      } catch (error) {
+        const err = error as AxiosError<{ message?: string }>;
+        console.error(
+          "Profile fetch failed:",
+          err.response?.data?.message || err.message
+        );
+      }
+    };
+
     fetchProfile();
   }, []);
 
@@ -99,111 +94,70 @@ function UserProfile() {
         <h1 className="text-xl mb-1 font-semibold">My Profile</h1>
         <p className="text-xs">Fill your details carefully.</p>
       </div>
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-          encType="multipart/form-data"
-        >
-          {/* Profile Picture */}
-          <FormField
-            control={form.control}
-            name="profile_pic"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="w-full bg-slate-100 py-5 rounded-xl">
-                    <div className="relative w-[30%] mx-auto">
-                      <img
-                        src={
-                          field.value
-                            ? URL.createObjectURL(field.value)
-                            : AvtarImg || profilePicUrl
-                        }
-                        alt="Profile preview"
-                        className="w-full rounded-full object-cover aspect-square"
-                      />
-                      <label
-                        htmlFor="profile_pic_input"
-                        className="absolute bottom-0 left-2/3 bg-primary rounded-full cursor-pointer shadow-md"
-                      >
-                        <Pencil className="size-8 p-2 text-white" />
-                      </label>
-                    </div>
-
-                    {/* hidden file input */}
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      id="profile_pic_input"
-                      className="hidden"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.files ? e.target.files[0] : null
-                        )
-                      }
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <Squircle
+        cornerRadius={20}
+        cornerSmoothing={1}
+        className="bg-zinc-100 p-5 rounded-xl flex items-center gap-3"
+      >
+        <div>
+          <img
+            src={userData?.profile_pic}
+            alt="profile pic"
+            className="aspect-square object-cover rounded-full w-20"
           />
+        </div>
+        <div>
+          <span className="text-xs font-medium bg-primary text-white mb-1 px-2 py-1 rounded-full inline-flex gap-2">
+            {userData?.username} <CheckCircle2Icon className="size-4" />
+          </span>
+          <p className="text-md font-semibold">{userData?.full_name}</p>
+          <p className="text-xs font-medium">{userData?.email}</p>
+        </div>
+      </Squircle>
+      <Squircle
+        cornerRadius={10}
+        cornerSmoothing={1}
+        className="bg-zinc-100 p-3 mt-4"
+      >
+        <p className="text-sm  font-normal flex gap-2 items-center">
+          <div className="size-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
+            <WalletCardsIcon className="size-4 " />
+          </div>
+          {userData?.upi_id}
+        </p>
+      </Squircle>
 
-          {/* Full Name */}
-          <FormField
-            control={form.control}
-            name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* UPI ID */}
-          <FormField
-            control={form.control}
-            name="upi_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>UPI ID</FormLabel>
-                <FormControl>
-                  <Input placeholder="username@bank" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Username */}
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="user_name" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Use lowercase letters, numbers, and underscores only.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" className="w-full h-10">
-            Submit
-          </Button>
-        </form>
-      </Form>
+      <Squircle
+        cornerRadius={10}
+        cornerSmoothing={1}
+        className="bg-zinc-100 p-3 mt-4 relative"
+      >
+        <div className="absolute left-0 top-3">
+          <span className="text-md font-semibold border-primary text-zinc-700 border-l-3 p-1 pl-2">
+            More
+          </span>
+        </div>
+        <div className="pt-10">
+          {moreDetails.map((items, index) => (
+            <div key={index} className="pb-4">
+              <div className="text-sm  font-normal flex gap-2 items-center">
+                <div className="w-9 h-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
+                  {items.icons}
+                </div>
+                <button
+                  onClick={items.handleLogout}
+                  className="flex cursor-pointer justify-between itmes-center w-full border-b pb-2 pt-2"
+                >
+                  <p className=" pb-1 text-xs font-medium text-zinc-700">
+                    {items.name}
+                  </p>
+                  <ChevronRight className="size-4 text-zinc-700" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Squircle>
     </div>
   );
 }

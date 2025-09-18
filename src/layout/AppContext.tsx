@@ -1,10 +1,17 @@
 import { setLogoutHandler } from "@/lib/logoutHelper";
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 // 1. Define types for different slices of state
 interface AuthData {
   token: string | null;
   isAuthenticated: boolean;
+  is_new: boolean;
 }
 
 interface OtpData {
@@ -34,8 +41,9 @@ interface AppContextType {
   theme: ThemeMode;
   setTheme: React.Dispatch<React.SetStateAction<ThemeMode>>;
 
-  login: (token: string) => void;
+  login: (token: string, is_new: boolean) => void;
   logout: () => void;
+  markProfileComplete: () => void; // 👈 new method
 
   loading: boolean;
 }
@@ -48,6 +56,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [auth, setAuth] = useState<AuthData>({
     token: null,
     isAuthenticated: false,
+    is_new: false,
   });
 
   const [otpData, setOtpData] = useState<OtpData>({
@@ -78,24 +87,33 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       setTheme(storedTheme as ThemeMode);
     }
 
-    setLoading(false)
+    setLoading(false);
   }, []);
 
   // 👉 Login method
-  const login = (token: string) => {
-    const authData = { token, isAuthenticated: true };
+  const login = (token: string, is_new: boolean) => {
+    const authData = { token, isAuthenticated: true, is_new };
     setAuth(authData);
     localStorage.setItem("auth", JSON.stringify(authData));
   };
 
   // 👉 Logout method
   const logout = () => {
-    setAuth({ token: null, isAuthenticated: false });
+    setAuth({ token: null, isAuthenticated: false, is_new: false });
     setOtpData({ email: null, otp_id: null });
     localStorage.removeItem("auth");
   };
 
-    useEffect(() => {
+  // 👉 Mark profile complete (turn off is_new)
+  const markProfileComplete = () => {
+    setAuth((prev) => {
+      const updated = { ...prev, is_new: false };
+      localStorage.setItem("auth", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  useEffect(() => {
     setLogoutHandler(logout);
   }, [logout]);
 
@@ -117,7 +135,8 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         setTheme,
         login,
         logout,
-        loading
+        markProfileComplete, // 👈 expose new method
+        loading,
       }}
     >
       {children}
