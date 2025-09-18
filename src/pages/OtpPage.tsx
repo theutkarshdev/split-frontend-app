@@ -51,13 +51,12 @@ function OtpPage() {
         `https://split-backend-app.vercel.app/auth/verify`,
         payload
       );
-      console.log(res.data);
+
       if (res.status === 200) {
-        const { access_token } = res.data;
-        login(access_token);
+        const { access_token, is_new } = res.data;
+        login(access_token, is_new);
       }
       toast.success("OTP verified successfully.");
-      navigate("/");
     } catch (error) {
       console.error("error", error);
       toast.error("Something went wrong.");
