@@ -40,7 +40,6 @@ function OtpPage() {
   });
 
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -71,6 +70,23 @@ function OtpPage() {
     }
   }, []);
 
+  function maskEmail(email: string | null): string {
+    if (!email) return ""; // handle null or empty email safely
+
+    const atIndex = email.indexOf("@");
+    if (atIndex === -1) return email; // not a valid email, return as-is
+
+    const user = email.slice(0, atIndex);
+    const domain = email.slice(atIndex + 1);
+
+    // Show first 2 chars and last 2 chars of the user part
+    const visibleStart = user.slice(0, 2);
+    const visibleEnd = user.slice(-2);
+    const masked = "*".repeat(Math.max(user.length - 4, 3)); // at least 3 *
+
+    return `${visibleStart}${masked}${visibleEnd}@${domain}`;
+  }
+
   return (
     <div className="flex gap-20  items-center justify-center h-dvh overflow-hidden relative px-5">
       <div className="flex gap-5 items-center justify-center flex-col w-full max-w-md relative z-10">
@@ -78,9 +94,13 @@ function OtpPage() {
         <p className="text-sm text-black text-center mb-8 max-w-60 mx-auto italic">
           "With us splitting money is always simple and stress-free."
         </p>
-        <p className="text-sm mb-3 max-w-xs mx-auto text-black text-center font-normal">
+        <p className="text-sm mb-3 mx-auto text-black text-center font-normal">
           To confirm your email address, Please enter the OTP we have sent to
-          adz*****232@gmail.com
+          {""}
+          <span className="font-medium masked-email">
+            {" "}
+            {maskEmail(otpData.email)}
+          </span>
         </p>
         <Form {...form}>
           <form

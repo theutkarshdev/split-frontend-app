@@ -276,7 +276,7 @@ function CompleteProfile() {
             className="w-full h-10"
             disabled={!!form.formState.errors.username || loading}
           >
-            Submit
+            {loading ? "Sending ..." : "Submit"}
           </Button>
         </form>
       </Form>
