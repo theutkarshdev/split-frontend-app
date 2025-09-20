@@ -6,6 +6,7 @@ import CompleteProfile from "@/pages/profile/CompleteProfile";
 import UserProfile from "@/pages/profile/UserProfile";
 import DashboardLayout from "./DashboardLayout";
 import AuthLayout from "./AuthLayout";
+import SearchProfiles from "@/pages/SearchProfiles";
 
 const routes: RouteObject[] = [
   {
@@ -28,6 +29,10 @@ const routes: RouteObject[] = [
             element: <CompleteProfile />,
           },
         ],
+      },
+      {
+        path: "search",
+        element: <SearchProfiles />,
       },
     ],
   },

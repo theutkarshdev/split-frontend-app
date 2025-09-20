@@ -1,11 +1,24 @@
 import { Input } from "@/components/ui/input";
-import { SearchIcon } from "lucide-react";
+import { BellIcon, SearchIcon } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-3">Hello, Good Morning..! </h1>
+      <div className="flex gap-3 items-center mb-4">
+        <h1 className="text-xl font-semibold grow">Hello, Good Morning..! </h1>
+        <Button
+          size="icon"
+          className="relative rounded-full bg-slate-200 hover:bg-slate-200"
+        >
+          <BellIcon className="size-5 text-primary" />
+          <span className="size-2 bg-red-400 absolute top-2 right-2 rounded-full"></span>
+        </Button>
+      </div>
+
       <Squircle
         cornerRadius={20}
         cornerSmoothing={1}
@@ -24,6 +37,7 @@ const Dashboard = () => {
         <Input
           className="h-12 squircle rounded-[4rem] border-2 font-medium"
           placeholder="Search your friends here..."
+          onClick={() => navigate("/search?friend_filter=friends")}
         />
         <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
       </div>

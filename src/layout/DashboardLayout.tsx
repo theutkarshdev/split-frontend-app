@@ -1,4 +1,4 @@
-import { BellDotIcon, HomeIcon, User2Icon } from "lucide-react";
+import { HomeIcon, SearchIcon, User2Icon } from "lucide-react";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
 import { useAppContext } from "./AppContext";
 
@@ -25,8 +25,8 @@ const DashboardLayout = () => {
 
       <div className="fixed bottom-0 w-full border-t bg-white">
         <div className="p-3 flex justify-around">
-          <BellDotIcon />
-          <HomeIcon />
+          <SearchIcon onClick={() => navigate("/search?friend_filter=all")} />
+          <HomeIcon onClick={() => navigate("/")} />
           <User2Icon onClick={() => navigate("/profile")} />
         </div>
       </div>
