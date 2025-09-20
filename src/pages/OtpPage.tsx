@@ -47,7 +47,7 @@ function OtpPage() {
     setLoading(true);
     try {
       const res = await axios.post(
-        `https://split-backend-app.vercel.app/auth/verify`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/verify`,
         payload
       );
 

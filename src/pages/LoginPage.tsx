@@ -40,7 +40,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       const res = await axios.post<LoginResponse>(
-        `https://split-backend-app.vercel.app/auth/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
         data
       );
       if (res.status === 200) {
