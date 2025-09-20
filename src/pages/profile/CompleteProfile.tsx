@@ -20,6 +20,7 @@ import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/layout/AppContext";
 import { useNavigate } from "react-router";
+import PageHeader from "@/components/PageHeader";
 
 // ✅ Zod Schema
 const FormSchema = z.object({
@@ -157,15 +158,12 @@ function CompleteProfile() {
 
   return (
     <div>
-      <div className="border-b mb-5 pb-3">
-        <h1 className="text-xl mb-1 font-semibold">Complete Profile</h1>
-        <p className="text-xs">Fill your details carefully.</p>
-      </div>
+      <PageHeader title="Complete Profile" />
 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
+          className="space-y-6 px-5"
           encType="multipart/form-data"
         >
           {/* Profile Picture */}

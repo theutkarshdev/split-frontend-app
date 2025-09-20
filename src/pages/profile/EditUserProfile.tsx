@@ -103,8 +103,7 @@ function EditUserProfile() {
   return (
     <div>
       <div className="border-b mb-5 pb-3">
-        <h1 className="text-xl mb-1 font-semibold">My Profile</h1>
-        <p className="text-xs">Fill your details carefully.</p>
+        <h1 className="text-xl mb-1 font-semibold">Edit Profile</h1>
       </div>
 
       <Form {...form}>

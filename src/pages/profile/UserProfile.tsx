@@ -14,6 +14,7 @@ import {
 import { Squircle } from "@squircle-js/react";
 import { Navigate, useNavigate } from "react-router";
 import { useAppContext } from "@/layout/AppContext";
+import PageHeader from "@/components/PageHeader";
 interface UserData {
   full_name: string;
   id: string;
@@ -43,11 +44,13 @@ function UserProfile() {
   const moreDetails = [
     {
       icons: <InfoIcon className="size-4 text-zinc-700" />,
-      name: "About",
+      name: "My Friends",
+      click: () => navigate("/search?friend_filter=friends"),
     },
     {
       icons: <EditIcon className="size-4 text-zinc-700" />,
-      name: "Send feedback",
+      name: "Invitation Manager",
+      click: () => navigate("invitation-manager"),
     },
     {
       icons: <InfoIcon className="size-4 text-zinc-700" />,
@@ -64,7 +67,7 @@ function UserProfile() {
     {
       icons: <LogInIcon className="size-4 text-zinc-700" />,
       name: "Logout",
-      handleLogout: handleLogout,
+      click: handleLogout,
     },
   ];
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -90,74 +93,73 @@ function UserProfile() {
 
   return (
     <div>
-      <div className="border-b mb-5 pb-3">
-        <h1 className="text-xl mb-1 font-semibold">My Profile</h1>
-        <p className="text-xs">Fill your details carefully.</p>
-      </div>
-      <Squircle
-        cornerRadius={20}
-        cornerSmoothing={1}
-        className="bg-zinc-100 p-5 rounded-xl flex items-center gap-3"
-      >
-        <div>
-          <img
-            src={userData?.profile_pic}
-            alt="profile pic"
-            className="aspect-square object-cover rounded-full w-20"
-          />
-        </div>
-        <div>
-          <span className="text-xs font-medium bg-primary text-white mb-1 px-2 py-1 rounded-full inline-flex gap-2">
-            {userData?.username} <CheckCircle2Icon className="size-4" />
-          </span>
-          <p className="text-md font-semibold">{userData?.full_name}</p>
-          <p className="text-xs font-medium">{userData?.email}</p>
-        </div>
-      </Squircle>
-      <Squircle
-        cornerRadius={10}
-        cornerSmoothing={1}
-        className="bg-zinc-100 p-3 mt-4"
-      >
-        <p className="text-sm  font-normal flex gap-2 items-center">
-          <div className="size-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
-            <WalletCardsIcon className="size-4 " />
+      <PageHeader title="My Profile" />
+      <div className="px-5">
+        <Squircle
+          cornerRadius={20}
+          cornerSmoothing={1}
+          className="bg-zinc-100 p-5 rounded-xl flex items-center gap-3"
+        >
+          <div>
+            <img
+              src={userData?.profile_pic || "/placeholder-avatar.png"}
+              alt="profile pic"
+              className="aspect-square object-cover rounded-full w-20"
+            />
           </div>
-          {userData?.upi_id}
-        </p>
-      </Squircle>
-
-      <Squircle
-        cornerRadius={10}
-        cornerSmoothing={1}
-        className="bg-zinc-100 p-3 mt-4 relative"
-      >
-        <div className="absolute left-0 top-3">
-          <span className="text-md font-semibold border-primary text-zinc-700 border-l-3 p-1 pl-2">
-            More
-          </span>
-        </div>
-        <div className="pt-10">
-          {moreDetails.map((items, index) => (
-            <div key={index} className="pb-4">
-              <div className="text-sm  font-normal flex gap-2 items-center">
-                <div className="w-9 h-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
-                  {items.icons}
-                </div>
-                <button
-                  onClick={items.handleLogout}
-                  className="flex cursor-pointer justify-between itmes-center w-full border-b pb-2 pt-2"
-                >
-                  <p className=" pb-1 text-xs font-medium text-zinc-700">
-                    {items.name}
-                  </p>
-                  <ChevronRight className="size-4 text-zinc-700" />
-                </button>
-              </div>
+          <div>
+            <span className="text-xs font-medium bg-primary text-white mb-1 px-2 py-1 rounded-full inline-flex gap-2">
+              {userData?.username} <CheckCircle2Icon className="size-4" />
+            </span>
+            <p className="text-md font-semibold">{userData?.full_name}</p>
+            <p className="text-xs font-medium">{userData?.email}</p>
+          </div>
+        </Squircle>
+        <Squircle
+          cornerRadius={10}
+          cornerSmoothing={1}
+          className="bg-zinc-100 p-3 mt-4"
+        >
+          <div className="text-sm  font-normal flex gap-2 items-center">
+            <div className="size-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
+              <WalletCardsIcon className="size-4 " />
             </div>
-          ))}
-        </div>
-      </Squircle>
+            {userData?.upi_id}
+          </div>
+        </Squircle>
+
+        <Squircle
+          cornerRadius={10}
+          cornerSmoothing={1}
+          className="bg-zinc-100 p-3 mt-4 relative"
+        >
+          <div className="absolute left-0 top-3">
+            <span className="text-md font-semibold border-primary text-zinc-700 border-l-3 p-1 pl-2">
+              More
+            </span>
+          </div>
+          <div className="pt-10">
+            {moreDetails.map((items, index) => (
+              <div key={index} className="pb-4">
+                <div className="text-sm  font-normal flex gap-2 items-center">
+                  <div className="w-9 h-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
+                    {items.icons}
+                  </div>
+                  <button
+                    onClick={items.click}
+                    className="flex cursor-pointer justify-between itmes-center w-full border-b pb-2 pt-2"
+                  >
+                    <p className="text-sm font-medium text-zinc-700">
+                      {items.name}
+                    </p>
+                    <ChevronRight className="size-4 text-zinc-700" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Squircle>
+      </div>
     </div>
   );
 }
