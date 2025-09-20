@@ -60,11 +60,6 @@ const SearchProfiles = () => {
     };
   }, [query]);
 
-  useEffect(() => {
-    // Focus the input when the component mounts
-    inputRef.current?.focus();
-  }, [friendFilter, location.pathname, location.search]);
-
   const fetchProfiles = async (val: string) => {
     setLoading(true);
     setError(null);
@@ -194,6 +189,7 @@ const SearchProfiles = () => {
                   friendFilter == "all" ? "anyone" : "friends"
                 } (Ex: Utkarsh)`}
                 value={query}
+                autoFocus
                 onChange={(e) => setQuery(e.target.value)}
               />
               <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
