@@ -15,6 +15,9 @@ import { Squircle } from "@squircle-js/react";
 import { Navigate, useNavigate } from "react-router";
 import { useAppContext } from "@/layout/AppContext";
 import PageHeader from "@/components/PageHeader";
+import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
+
+
 interface UserData {
   full_name: string;
   id: string;
@@ -102,7 +105,7 @@ function UserProfile() {
         >
           <div>
             <img
-              src={userData?.profile_pic || "/placeholder-avatar.png"}
+              src={userData?.profile_pic || AvtarImg}
               alt="profile pic"
               className="aspect-square object-cover rounded-full w-20"
             />

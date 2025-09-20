@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router";
 import PageHeader from "@/components/PageHeader";
+import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 
 interface Profile {
   id: string;
@@ -62,7 +63,7 @@ const SearchProfiles = () => {
   useEffect(() => {
     // Focus the input when the component mounts
     inputRef.current?.focus();
-  }, []);
+  }, [friendFilter, location.pathname, location.search]);
 
   const fetchProfiles = async (val: string) => {
     setLoading(true);
@@ -254,7 +255,7 @@ const SearchProfiles = () => {
             >
               <img
                 className="size-10 aspect-square object-cover rounded-full"
-                src={item.profile_pic || "/placeholder-avatar.png"}
+                src={item.profile_pic || AvtarImg}
                 alt={item.username}
                 loading="lazy"
               />

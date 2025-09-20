@@ -10,6 +10,7 @@ import {
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/PageHeader";
+import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 
 interface FriendRequest {
   id: string;
@@ -145,7 +146,7 @@ const InvitationManager: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <img
                         className="size-10 aspect-square object-cover rounded-full"
-                        src={req.profile_pic || "/placeholder-avatar.png"}
+                        src={req.profile_pic || AvtarImg}
                         alt={req.username}
                         loading="lazy"
                       />
