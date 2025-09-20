@@ -7,6 +7,7 @@ import UserProfile from "@/pages/profile/UserProfile";
 import DashboardLayout from "./DashboardLayout";
 import AuthLayout from "./AuthLayout";
 import SearchProfiles from "@/pages/SearchProfiles";
+import InvitationManager from "@/pages/profile/InvitationManager";
 
 const routes: RouteObject[] = [
   {
@@ -27,6 +28,10 @@ const routes: RouteObject[] = [
           {
             path: "complete",
             element: <CompleteProfile />,
+          },
+          {
+            path: "invitation-manager",
+            element: <InvitationManager />,
           },
         ],
       },

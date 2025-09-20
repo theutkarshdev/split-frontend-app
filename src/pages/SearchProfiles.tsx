@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router";
+import PageHeader from "@/components/PageHeader";
 
 interface Profile {
   id: string;
@@ -31,12 +32,17 @@ const SearchProfiles = () => {
   const [query, setQuery] = useState("");
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
   const debounceRef = useRef<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [searchParams] = useSearchParams();
   const friendFilter = searchParams.get("friend_filter");
 
-  // Debounced search
   useEffect(() => {
+    if (!query.trim()) {
+      fetchFriends();
+      return;
+    }
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (query.trim().length > 3) {
@@ -44,15 +50,19 @@ const SearchProfiles = () => {
         fetchProfiles(query);
       }, 500);
     } else {
-      setProfiles([]);
-      setError(null);
-      setLoading(false);
+      // If less than 3 chars, show default friends again
+      fetchFriends();
     }
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [query]);
+
+  useEffect(() => {
+    // Focus the input when the component mounts
+    inputRef.current?.focus();
+  }, []);
 
   const fetchProfiles = async (val: string) => {
     setLoading(true);
@@ -74,6 +84,30 @@ const SearchProfiles = () => {
       setError(
         err?.response?.data?.message ||
           "Something went wrong. Please try again."
+      );
+      setProfiles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ New function to fetch friends by default
+  const fetchFriends = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axiosInstance.get("/friends/");
+      if (Array.isArray(res.data)) {
+        setProfiles(res.data);
+      } else {
+        setProfiles([]);
+        setError("Unexpected response from server");
+      }
+    } catch (err: any) {
+      console.error("Fetch friends error:", err);
+      setError(
+        err?.response?.data?.message ||
+          "Could not load friends. Please try again."
       );
       setProfiles([]);
     } finally {
@@ -138,13 +172,9 @@ const SearchProfiles = () => {
 
   return (
     <div>
-      <div className="border-b mb-5 pb-3">
-        <h1 className="text-xl mb-1 font-semibold">
-          Search {` ${friendFilter == "all" ? "anyone" : "friends"}`}
-        </h1>
-        <p className="text-xs">Type there username, email or name.</p>
-      </div>
-      <div className="flex gap-2 items-center">
+      <PageHeader title={`Search ${friendFilter == "all" ? "Anyone" : "Friends"}`} />
+
+      <div className="flex gap-2 items-center px-5">
         <Squircle
           cornerRadius={11}
           cornerSmoothing={1}
@@ -157,10 +187,11 @@ const SearchProfiles = () => {
           >
             <div className="relative w-full">
               <Input
+                ref={inputRef}
                 className="border-none font-medium outline-none !ring-0"
                 placeholder={`Search ${
                   friendFilter == "all" ? "anyone" : "friends"
-                }`}
+                } (Ex: Utkarsh)`}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -184,7 +215,7 @@ const SearchProfiles = () => {
       </div>
 
       {/* Results Section */}
-      <div className="mt-3">
+      <div className="mt-3 px-5">
         {loading &&
           [...Array(7)].map((_, idx) => (
             <div
@@ -223,12 +254,12 @@ const SearchProfiles = () => {
             >
               <img
                 className="size-10 aspect-square object-cover rounded-full"
-                src={item.profile_pic}
+                src={item.profile_pic || "/placeholder-avatar.png"}
                 alt={item.username}
                 loading="lazy"
               />
               <div className="grow overflow-hidden">
-                <h3 className="text-sm font-medium truncate">
+                <h3 className="text-md font-medium truncate">
                   {item.username}
                 </h3>
                 <p className="text-xs capitalize opacity-65 truncate">
