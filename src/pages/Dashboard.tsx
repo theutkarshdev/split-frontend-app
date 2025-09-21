@@ -12,6 +12,7 @@ const Dashboard = () => {
         <h1 className="text-xl font-semibold grow">Hello, Good Morning..! </h1>
         <Button
           size="icon"
+          onClick={() => navigate("/notifications")}
           className="relative rounded-full bg-slate-200 hover:bg-slate-200"
         >
           <BellIcon className="size-5 text-primary" />

@@ -8,6 +8,7 @@ import DashboardLayout from "./DashboardLayout";
 import AuthLayout from "./AuthLayout";
 import SearchProfiles from "@/pages/SearchProfiles";
 import InvitationManager from "@/pages/profile/InvitationManager";
+import NotificationsPage from "@/pages/Notifications";
 
 const routes: RouteObject[] = [
   {
@@ -38,6 +39,10 @@ const routes: RouteObject[] = [
       {
         path: "search",
         element: <SearchProfiles />,
+      },
+      {
+        path: "notifications",
+        element: <NotificationsPage />,
       },
     ],
   },
