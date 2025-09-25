@@ -9,6 +9,7 @@ import AuthLayout from "./AuthLayout";
 import SearchProfiles from "@/pages/SearchProfiles";
 import InvitationManager from "@/pages/profile/InvitationManager";
 import NotificationsPage from "@/pages/Notifications";
+import UserActivity from "@/pages/UserActivity";
 
 const routes: RouteObject[] = [
   {
@@ -43,6 +44,15 @@ const routes: RouteObject[] = [
       {
         path: "notifications",
         element: <NotificationsPage />,
+      },
+      {
+        path: "activity/:id",
+        children: [
+          {
+            index: true,
+            element: <UserActivity />,
+          },
+        ],
       },
     ],
   },

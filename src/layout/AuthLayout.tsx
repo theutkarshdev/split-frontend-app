@@ -12,7 +12,7 @@ const AuthLayout = () => {
 
   return (
     <div className="flex justify-center">
-      <main className="w-full min-h-screen overflow-x-hidden bg-white">
+      <main className="w-full min-h-svh overflow-x-hidden bg-white">
         <Outlet />
       </main>
     </div>

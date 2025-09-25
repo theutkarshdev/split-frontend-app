@@ -13,7 +13,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import PageHeader from "@/components/PageHeader";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 
@@ -36,6 +36,7 @@ const SearchProfiles = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate()
   const friendFilter = searchParams.get("friend_filter");
 
   useEffect(() => {
@@ -71,6 +72,7 @@ const SearchProfiles = () => {
       );
       if (Array.isArray(res.data)) {
         setProfiles(res.data);
+        console.log(res.data)
       } else {
         setProfiles([]);
         setError("Unexpected response from server");
@@ -247,6 +249,7 @@ const SearchProfiles = () => {
           profiles.map((item, idx) => (
             <div
               key={idx}
+              onClick={()=>navigate(`/activity/${item.id}`)}
               className="flex gap-2 border-b items-center p-2 hover:bg-gray-50 transition-colors"
             >
               <img

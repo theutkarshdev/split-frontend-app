@@ -18,9 +18,14 @@ const DashboardLayout = () => {
   }
 
   const navItems = [
-    { icon: SearchIcon, path: "/search?friend_filter=all", isSearch: true },
-    { icon: HomeIcon, path: "/" },
-    { icon: User2Icon, path: "/profile" },
+    {
+      name: "Search",
+      icon: SearchIcon,
+      path: "/search?friend_filter=all",
+      isSearch: true,
+    },
+    { name: "Home", icon: HomeIcon, path: "/" },
+    { name: "Profile", icon: User2Icon, path: "/profile" },
   ];
 
   const isActive = (path: string) => {
@@ -30,12 +35,12 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="bg-black flex justify-center">
-      <main className="w-full min-h-screen max-w-md bg-white pb-20">
+    <div className="bg-black flex flex-col h-svh items-center ">
+      <main className="w-full max-w-md bg-white grow overflow-y-auto">
         <Outlet />
       </main>
 
-      <div className="fixed bottom-0 w-full border-t bg-white">
+      <div className="w-full border-t bg-white max-w-md">
         <div className="p-3 flex justify-around">
           {navItems.map((item, idx) => {
             const Icon = item.icon;
@@ -57,8 +62,12 @@ const DashboardLayout = () => {
                   />
 
                   {/* Label wraps the icon */}
-                  <label htmlFor="search-input" className="cursor-pointer">
+                  <label
+                    htmlFor="search-input"
+                    className="flex flex-col justify-center items-center"
+                  >
                     <Icon className="w-6 h-6 text-gray-700" />
+                    <p className="text-xs text-center">{item.name}</p>
                   </label>
                 </div>
               );
@@ -70,11 +79,13 @@ const DashboardLayout = () => {
                 {isActive(item.path) && (
                   <span className="w-10 h-1.5 bg-primary absolute -top-[0.78rem] rounded-b-2xl left-1/2 -translate-x-1/2"></span>
                 )}
-
-                <Icon
-                  onClick={() => navigate(item.path)}
-                  className={`cursor-pointer transition-colors`}
-                />
+                <div className="flex flex-col justify-center items-center">
+                  <Icon
+                    onClick={() => navigate(item.path)}
+                    className={`cursor-pointer transition-colors`}
+                  />
+                  <p className="text-xs">{item.name}</p>
+                </div>
               </div>
             );
           })}
