@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/PageHeader";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
+import type { AxiosError } from "axios";
 
 interface FriendRequest {
   id: string;
@@ -46,8 +47,9 @@ const InvitationManager: React.FC = () => {
           `/friends/requests?filter=${currentTab}&status=pending`
         );
         setRequests(res.data);
-      } catch (err: any) {
-        setError(err.message || "Error fetching requests");
+      } catch (err: unknown) {
+        const error = err as AxiosError;
+        setError(error.message || "Error fetching requests");
       } finally {
         setLoading(false);
       }
@@ -74,9 +76,10 @@ const InvitationManager: React.FC = () => {
       // Remove from list
       setRequests((prev) => prev.filter((r) => r.id !== request_id));
       toast.success(`Request ${action}ed successfully.`);
-    } catch (err: any) {
-      console.error(err);
-      toast.error("Action failed: " + (err.message || "unknown error"));
+    } catch (err: unknown) {
+      const error = err as AxiosError;
+      console.error(error);
+      toast.error("Action failed: " + (error.message || "unknown error"));
     } finally {
       // Clear loading state for this request
       setLoadingRequests((prev) => {

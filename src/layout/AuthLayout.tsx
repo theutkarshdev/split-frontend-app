@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router";
-import { useAppContext } from "./AppContext";
+import { useAppContext } from "@/hooks/useAppContext";
 
 const AuthLayout = () => {
   const { auth, loading } = useAppContext();

@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Pencil } from "lucide-react";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import toast from "react-hot-toast";
-import { useAppContext } from "@/layout/AppContext";
+import { useAppContext } from "@/hooks/useAppContext";
 import { useNavigate } from "react-router";
 import PageHeader from "@/components/PageHeader";
 
@@ -99,6 +99,7 @@ function CompleteProfile() {
           });
         }
       } catch (error) {
+        console.log(error);
         setUsernameAvailable(null);
         form.setError("username", {
           type: "manual",

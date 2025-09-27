@@ -12,11 +12,10 @@ import {
   WalletCardsIcon,
 } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
-import { Navigate, useNavigate } from "react-router";
-import { useAppContext } from "@/layout/AppContext";
+import { useNavigate } from "react-router";
+import { useAppContext } from "@/hooks/useAppContext";
 import PageHeader from "@/components/PageHeader";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
-
 
 interface UserData {
   full_name: string;
@@ -32,12 +31,8 @@ interface UserData {
 
 function UserProfile() {
   const navigate = useNavigate();
-  const { auth, logout } = useAppContext();
-
-  // Protect route if not logged in
-  if (!auth.isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
-  }
+  const { logout } = useAppContext();
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -73,7 +68,6 @@ function UserProfile() {
       click: handleLogout,
     },
   ];
-  const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {

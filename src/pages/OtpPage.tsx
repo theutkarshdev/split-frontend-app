@@ -18,7 +18,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useAppContext } from "@/layout/AppContext";
+import { useAppContext } from "@/hooks/useAppContext";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";

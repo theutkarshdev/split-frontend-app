@@ -1,10 +1,10 @@
 import { setLogoutHandler } from "@/lib/logoutHelper";
 import React, {
   createContext,
-  useContext,
   useState,
   useEffect,
   type ReactNode,
+  useCallback,
 } from "react";
 
 // 1. Define types for different slices of state
@@ -97,12 +97,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("auth", JSON.stringify(authData));
   };
 
-  // 👉 Logout method
-  const logout = () => {
+  const logout = useCallback(() => {
     setAuth({ token: null, isAuthenticated: false, is_new: false });
     setOtpData({ email: null, otp_id: null });
     localStorage.removeItem("auth");
-  };
+  }, []);
 
   // 👉 Mark profile complete (turn off is_new)
   const markProfileComplete = () => {
@@ -144,11 +143,4 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// 5. Custom hook for easy access
-export const useAppContext = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("useAppContext must be used within AppContextProvider");
-  }
-  return context;
-};
+export default AppContext

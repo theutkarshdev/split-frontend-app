@@ -1,6 +1,6 @@
 import { HomeIcon, SearchIcon, User2Icon } from "lucide-react";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
-import { useAppContext } from "./AppContext";
+import { useAppContext } from "@/hooks/useAppContext";
 
 const DashboardLayout = () => {
   const { auth, loading } = useAppContext();
