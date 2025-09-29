@@ -3,12 +3,14 @@ import { BellIcon, SearchIcon } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
+import PageLayout from "@/components/PageLayout";
+import CustomCard from "@/components/CustomCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   return (
-    <div>
-      <div className="flex gap-3 items-center mb-4 px-5 pt-5">
+    <PageLayout>
+      <div className="flex gap-3 items-center mb-4">
         <h1 className="text-xl font-semibold grow">Hello, Good Morning..! </h1>
         <Button
           size="icon"
@@ -19,7 +21,7 @@ const Dashboard = () => {
           <span className="size-2 bg-red-400 absolute top-2 right-2 rounded-full"></span>
         </Button>
       </div>
-      <div className="px-5">
+      <div>
         <Squircle
           cornerRadius={20}
           cornerSmoothing={1}
@@ -56,18 +58,18 @@ const Dashboard = () => {
         </Squircle>
 
         <div className="grid grid-cols-3 gap-2 mt-4">
-          {[...Array(9)].map(() => (
-            <Squircle
-              cornerRadius={20}
-              cornerSmoothing={1}
-              className="w-full aspect-square bg-slate-200 grid place-content-center"
+          {[...Array(9)].map((_, i) => (
+            <CustomCard
+              radius={25}
+              key={i}
+              className="w-full aspect-square bg-white grid place-content-center"
             >
               UK
-            </Squircle>
+            </CustomCard>
           ))}
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

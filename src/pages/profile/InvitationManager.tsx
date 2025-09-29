@@ -9,9 +9,10 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import PageHeader from "@/components/PageHeader";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import type { AxiosError } from "axios";
+import CustomCard from "@/components/CustomCard";
+import PageLayout from "@/components/PageLayout";
 
 interface FriendRequest {
   id: string;
@@ -91,10 +92,7 @@ const InvitationManager: React.FC = () => {
   };
 
   return (
-    <div>
-      <PageHeader title="Invitation Manager" />
-
-      {/* Tabs */}
+    <PageLayout title="Invitation Manager">
       <div className="flex -mt-2 mb-3 justify-center">
         <button
           onClick={() => handleTabChange("received")}
@@ -113,7 +111,7 @@ const InvitationManager: React.FC = () => {
           Sent
         </button>
       </div>
-      <div className="px-5">
+      <div>
         {loading &&
           [...Array(7)].map((_, idx) => (
             <div
@@ -140,11 +138,12 @@ const InvitationManager: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="space-y-3">
+              <div>
                 {requests.map((req) => (
-                  <div
+                  <CustomCard
+                    radius={14}
                     key={req.id}
-                    className="flex items-center justify-between border-b p-3"
+                    className="flex items-center justify-between p-3 bg-white"
                   >
                     <div className="flex items-center space-x-3">
                       <img
@@ -188,14 +187,14 @@ const InvitationManager: React.FC = () => {
                         <CircleXIcon />
                       )}
                     </div>
-                  </div>
+                  </CustomCard>
                 ))}
               </div>
             )}
           </>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

@@ -17,7 +17,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
   };
 
   return (
-    <div className="border-b pb-3 mb-5 flex gap-3 p-5 items-center sticky top-0 bg-card z-10">
+    <div className="border-b pb-3 flex gap-3 p-5 items-center sticky top-0 bg-card z-10">
       <ArrowLeftIcon
         className="cursor-pointer"
         onClick={() => navigate(-1)} // <-- Navigate back

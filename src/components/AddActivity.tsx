@@ -57,7 +57,7 @@ const FormSchema = z
 
 interface AddActivityFormProps {
   to_user_id: string;
-  onActivityAdded?: () => void; // ✅ new prop
+  onActivityAdded?: (page: number) => void; // ✅ new prop
 }
 
 function AddActivityForm({
@@ -93,7 +93,7 @@ function AddActivityForm({
       });
       toast.success("Expense added successfully!");
       form.reset();
-      if (onActivityAdded) onActivityAdded();
+      if (onActivityAdded) onActivityAdded(1);
       setOpen(false); // ✅ close drawer after submit
     } catch (err: any) {
       toast.error(

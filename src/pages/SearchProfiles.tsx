@@ -14,8 +14,9 @@ import { useState, useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router";
-import PageHeader from "@/components/PageHeader";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
+import CustomCard from "@/components/CustomCard";
+import PageLayout from "@/components/PageLayout";
 
 interface Profile {
   id: string;
@@ -36,7 +37,7 @@ const SearchProfiles = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const friendFilter = searchParams.get("friend_filter");
 
   useEffect(() => {
@@ -72,7 +73,7 @@ const SearchProfiles = () => {
       );
       if (Array.isArray(res.data)) {
         setProfiles(res.data);
-        console.log(res.data)
+        console.log(res.data);
       } else {
         setProfiles([]);
         setError("Unexpected response from server");
@@ -169,10 +170,10 @@ const SearchProfiles = () => {
   };
 
   return (
-    <div>
-      <PageHeader title={`Search ${friendFilter == "all" ? "Anyone" : "Friends"}`} />
-
-      <div className="flex gap-2 items-center px-5">
+    <PageLayout
+      title={`Search ${friendFilter == "all" ? "Anyone" : "Friends"}`}
+    >
+      <div className="flex gap-2 items-center">
         <Squircle
           cornerRadius={11}
           cornerSmoothing={1}
@@ -214,7 +215,7 @@ const SearchProfiles = () => {
       </div>
 
       {/* Results Section */}
-      <div className="mt-3 px-5">
+      <div className="mt-3">
         {loading &&
           [...Array(7)].map((_, idx) => (
             <div
@@ -242,35 +243,37 @@ const SearchProfiles = () => {
             />
           </div>
         )}
-
-        {!loading &&
-          !error &&
-          profiles.length > 0 &&
-          profiles.map((item, idx) => (
-            <div
-              key={idx}
-              onClick={()=>navigate(`/activity/${item.id}`)}
-              className="flex gap-2 border-b items-center p-2 hover:bg-gray-50 transition-colors"
-            >
-              <img
-                className="size-10 aspect-square object-cover rounded-full"
-                src={item.profile_pic || AvtarImg}
-                alt={item.username}
-                loading="lazy"
-              />
-              <div className="grow overflow-hidden">
-                <h3 className="text-md font-medium truncate">
-                  {item.username}
-                </h3>
-                <p className="text-xs capitalize opacity-65 truncate">
-                  {item.full_name}
-                </p>
+        <div className="space-y-3">
+          {!loading &&
+            !error &&
+            profiles.length > 0 &&
+            profiles.map((item, idx) => (
+              <div key={idx} onClick={() => navigate(`/activity/${item.id}`)}>
+                <CustomCard
+                  radius={14}
+                  className="flex gap-2 items-center p-2 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <img
+                    className="size-10 aspect-square object-cover rounded-full"
+                    src={item.profile_pic || AvtarImg}
+                    alt={item.username}
+                    loading="lazy"
+                  />
+                  <div className="grow overflow-hidden">
+                    <h3 className="text-md font-medium truncate">
+                      {item.username}
+                    </h3>
+                    <p className="text-xs capitalize opacity-65 truncate">
+                      {item.full_name}
+                    </p>
+                  </div>
+                  {renderStatusIcon(item)}
+                </CustomCard>
               </div>
-              {renderStatusIcon(item)}
-            </div>
-          ))}
+            ))}
+        </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

@@ -1,11 +1,10 @@
 import React from "react";
-import PageHeader from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type Notification } from "@/types/notifications";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
+import PageLayout from "@/components/PageLayout";
 
 const NotificationsPage: React.FC = () => {
-
   const notificationsData: Notification[] = [
     {
       id: 1,
@@ -79,8 +78,8 @@ const NotificationsPage: React.FC = () => {
       timestamp: "2025-09-18T18:00:00Z",
       isRead: true,
     },
-  ]
-  
+  ];
+
   const buildNotificationMessage = (item: Notification) => {
     if (item.type === "friend" && item.action === "accepted") {
       return `${item.actorName} accepted your friend request. You are now friends.`;
@@ -123,45 +122,43 @@ const NotificationsPage: React.FC = () => {
     return `${days}d ago`;
   };
 
- const renderNotificationItem = (item: Notification) => {
-   const message = buildNotificationMessage(item);
+  const renderNotificationItem = (item: Notification) => {
+    const message = buildNotificationMessage(item);
 
-   return (
-     <div
-       key={item.id}
-       className="flex gap-2 border-b items-center p-2 hover:bg-gray-50 transition-colors relative"
-     >
-       <img
-         className="w-10 h-10 object-cover rounded-full"
-         src={item.actorAvatar || AvtarImg}
-         onError={({ currentTarget }) => {
-           currentTarget.onerror = null;
-           currentTarget.src = AvtarImg;
-         }}
-         alt={item.actorName}
-         loading="lazy"
-       />
-       <div className="grow overflow-hidden">
-         <div className="flex items-center gap-2">
-           <h3 className="text-md font-medium truncate grow">
-             {item.actorName}
-           </h3>
-           <p className="text-xs opacity-55">
-             {getRelativeTime(item.timestamp)}
-           </p>
-         </div>
+    return (
+      <div
+        key={item.id}
+        className="flex gap-2 border-b items-center p-2 bg-white hover:bg-gray-50 transition-colors relative"
+      >
+        <img
+          className="w-10 h-10 object-cover rounded-full"
+          src={item.actorAvatar || AvtarImg}
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null;
+            currentTarget.src = AvtarImg;
+          }}
+          alt={item.actorName}
+          loading="lazy"
+        />
+        <div className="grow overflow-hidden">
+          <div className="flex items-center gap-2">
+            <h3 className="text-md font-medium truncate grow">
+              {item.actorName}
+            </h3>
+            <p className="text-xs opacity-55">
+              {getRelativeTime(item.timestamp)}
+            </p>
+          </div>
 
-         <p className="text-xs opacity-65">{message}</p>
+          <p className="text-xs opacity-65">{message}</p>
+        </div>
 
-       </div>
-
-       {!item.isRead && (
-         <span className="size-2 bg-red-400 absolute top-1/2 -left-1 rounded-full -translate-y-1/2"></span>
-       )}
-     </div>
-   );
- };
-
+        {!item.isRead && (
+          <span className="size-2 bg-red-400 absolute top-1/2 -left-1 rounded-full -translate-y-1/2"></span>
+        )}
+      </div>
+    );
+  };
 
   const friendNotifications = notificationsData.filter(
     (n) => n.type === "friend"
@@ -171,45 +168,42 @@ const NotificationsPage: React.FC = () => {
   );
 
   return (
-    <div>
-      <PageHeader title="Notifications" />
-      <div className="px-5">
-        <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all">
-              All{" "}
-              <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
-                {notificationsData.length}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="friend">
-              Friends{" "}
-              <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
-                {friendNotifications.length}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="activity">
-              Activity{" "}
-              <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
-                {activityNotifications.length}
-              </span>
-            </TabsTrigger>
-          </TabsList>
+    <PageLayout title="Notifications" className="!bg-white">
+      <Tabs defaultValue="all">
+        <TabsList>
+          <TabsTrigger value="all">
+            All{" "}
+            <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
+              {notificationsData.length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="friend">
+            Friends{" "}
+            <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
+              {friendNotifications.length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="activity">
+            Activity{" "}
+            <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
+              {activityNotifications.length}
+            </span>
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="all">
-            {notificationsData.map(renderNotificationItem)}
-          </TabsContent>
+        <TabsContent value="all">
+          {notificationsData.map(renderNotificationItem)}
+        </TabsContent>
 
-          <TabsContent value="friend">
-            {friendNotifications.map(renderNotificationItem)}
-          </TabsContent>
+        <TabsContent value="friend">
+          {friendNotifications.map(renderNotificationItem)}
+        </TabsContent>
 
-          <TabsContent value="activity">
-            {activityNotifications.map(renderNotificationItem)}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+        <TabsContent value="activity">
+          {activityNotifications.map(renderNotificationItem)}
+        </TabsContent>
+      </Tabs>
+    </PageLayout>
   );
 };
 

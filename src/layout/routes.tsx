@@ -10,6 +10,7 @@ import SearchProfiles from "@/pages/SearchProfiles";
 import InvitationManager from "@/pages/profile/InvitationManager";
 import NotificationsPage from "@/pages/Notifications";
 import UserActivity from "@/pages/UserActivity";
+import ActivityHistory from "@/pages/profile/ActivityHistory";
 
 const routes: RouteObject[] = [
   {
@@ -34,6 +35,10 @@ const routes: RouteObject[] = [
           {
             path: "invitation-manager",
             element: <InvitationManager />,
+          },
+          {
+            path: "history",
+            element: <ActivityHistory />,
           },
         ],
       },
