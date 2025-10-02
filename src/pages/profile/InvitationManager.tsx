@@ -143,7 +143,7 @@ const InvitationManager: React.FC = () => {
                   <CustomCard
                     radius={14}
                     key={req.id}
-                    className="flex items-center justify-between p-3 bg-white"
+                    className="flex items-center justify-between p-3"
                   >
                     <div className="flex items-center space-x-3">
                       <img

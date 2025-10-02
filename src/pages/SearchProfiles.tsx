@@ -1,6 +1,5 @@
 import { Input } from "@/components/ui/input";
 import axiosInstance from "@/lib/axiosInstance";
-import { Squircle } from "@squircle-js/react";
 import {
   SearchIcon,
   SlidersVerticalIcon,
@@ -174,44 +173,33 @@ const SearchProfiles = () => {
       title={`Search ${friendFilter == "all" ? "Anyone" : "Friends"}`}
     >
       <div className="flex gap-2 items-center">
-        <Squircle
-          cornerRadius={11}
-          cornerSmoothing={1}
-          className="group bg-border p-[1.5px] focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+        <CustomCard
+          radius={10}
+          pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+          className="h-full flex items-center w-full"
         >
-          <Squircle
-            cornerRadius={10}
-            cornerSmoothing={1}
-            className="bg-white h-full flex items-center w-full"
-          >
-            <div className="relative w-full">
-              <Input
-                ref={inputRef}
-                className="border-none font-medium outline-none !ring-0"
-                placeholder={`Search ${
-                  friendFilter == "all" ? "anyone" : "friends"
-                } (Ex: Utkarsh)`}
-                value={query}
-                autoFocus
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
-            </div>
-          </Squircle>
-        </Squircle>
-        <Squircle
-          cornerRadius={11}
-          cornerSmoothing={1}
-          className="group bg-border p-[1.5px] size-[2.8rem]"
+          <div className="relative w-full">
+            <Input
+              ref={inputRef}
+              className="border-none font-medium outline-none !ring-0"
+              placeholder={`Search ${
+                friendFilter == "all" ? "anyone" : "friends"
+              } (Ex: Utkarsh)`}
+              value={query}
+              autoFocus
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
+          </div>
+        </CustomCard>
+
+        <CustomCard
+          radius={10}
+          pClassName="size-[2.8rem]"
+          className="size-full flex items-center justify-center w-full"
         >
-          <Squircle
-            cornerRadius={10}
-            cornerSmoothing={1}
-            className="bg-white size-full flex items-center justify-center w-full"
-          >
-            <SlidersVerticalIcon className="size-5" />
-          </Squircle>
-        </Squircle>
+          <SlidersVerticalIcon className="size-5" />
+        </CustomCard>
       </div>
 
       {/* Results Section */}
@@ -249,10 +237,7 @@ const SearchProfiles = () => {
             profiles.length > 0 &&
             profiles.map((item, idx) => (
               <div key={idx} onClick={() => navigate(`/activity/${item.id}`)}>
-                <CustomCard
-                  radius={14}
-                  className="flex gap-2 items-center p-2 bg-white hover:bg-gray-50 transition-colors"
-                >
+                <CustomCard radius={14} className="flex gap-2 items-center p-2">
                   <img
                     className="size-10 aspect-square object-cover rounded-full"
                     src={item.profile_pic || AvtarImg}

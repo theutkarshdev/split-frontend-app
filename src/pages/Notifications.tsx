@@ -128,7 +128,7 @@ const NotificationsPage: React.FC = () => {
     return (
       <div
         key={item.id}
-        className="flex gap-2 border-b items-center p-2 bg-white hover:bg-gray-50 transition-colors relative"
+        className="flex gap-2 border-b items-center py-2 px-5 bg-card relative"
       >
         <img
           className="w-10 h-10 object-cover rounded-full"
@@ -154,7 +154,7 @@ const NotificationsPage: React.FC = () => {
         </div>
 
         {!item.isRead && (
-          <span className="size-2 bg-red-400 absolute top-1/2 -left-1 rounded-full -translate-y-1/2"></span>
+          <span className="size-2 bg-red-400 absolute top-1/2 left-2 rounded-full -translate-y-1/2"></span>
         )}
       </div>
     );
@@ -168,28 +168,30 @@ const NotificationsPage: React.FC = () => {
   );
 
   return (
-    <PageLayout title="Notifications" className="!bg-white">
+    <PageLayout title="My Notifications" className="p-0">
       <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">
-            All{" "}
-            <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
-              {notificationsData.length}
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="friend">
-            Friends{" "}
-            <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
-              {friendNotifications.length}
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="activity">
-            Activity{" "}
-            <span className="text-xs bg-gray-200 py-0.5 px-1.5 rounded">
-              {activityNotifications.length}
-            </span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="p-5 pb-3">
+          <TabsList>
+            <TabsTrigger value="all">
+              All{" "}
+              <span className="text-xs bg-gray-200 dark:bg-card py-0.5 px-1.5 rounded">
+                {notificationsData.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="friend">
+              Friends{" "}
+              <span className="text-xs bg-gray-200 dark:bg-card py-0.5 px-1.5 rounded">
+                {friendNotifications.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="activity">
+              Activity{" "}
+              <span className="text-xs bg-gray-200 dark:bg-card py-0.5 px-1.5 rounded">
+                {activityNotifications.length}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="all">
           {notificationsData.map(renderNotificationItem)}

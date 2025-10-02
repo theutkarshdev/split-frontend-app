@@ -8,6 +8,9 @@ import React, {
 } from "react";
 
 // 1. Define types for different slices of state
+
+type Theme = "dark" | "light" | "system";
+
 interface AuthData {
   token: string | null;
   isAuthenticated: boolean;
@@ -25,8 +28,6 @@ interface UserData {
   email: string;
 }
 
-type ThemeMode = "light" | "dark";
-
 // 2. Define the overall AppContext type
 interface AppContextType {
   auth: AuthData;
@@ -38,8 +39,8 @@ interface AppContextType {
   user: UserData;
   setUser: React.Dispatch<React.SetStateAction<UserData>>;
 
-  theme: ThemeMode;
-  setTheme: React.Dispatch<React.SetStateAction<ThemeMode>>;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 
   login: (token: string, is_new: boolean) => void;
   logout: () => void;
@@ -70,23 +71,39 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     email: "",
   });
 
-  const [theme, setTheme] = useState<ThemeMode>("light");
+  const [theme, _setTheme] = useState<Theme>(() => {
+    return (localStorage.getItem("app-theme") as Theme) || "system";
+  });
+
   const [loading, setLoading] = useState(true);
 
-  // 👉 Load from localStorage on first render
+  // 🔹 Apply theme to <html>
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
+  }, [theme]);
+
+  const setTheme = (theme: Theme) => {
+    localStorage.setItem("app-theme", theme);
+    _setTheme(theme);
+  };
+
   useEffect(() => {
     const storedAuth = localStorage.getItem("auth");
-    const storedTheme = localStorage.getItem("theme");
-
     if (storedAuth) {
       const parsedAuth: AuthData = JSON.parse(storedAuth);
       setAuth(parsedAuth);
     }
-
-    if (storedTheme) {
-      setTheme(storedTheme as ThemeMode);
-    }
-
     setLoading(false);
   }, []);
 
@@ -143,4 +160,4 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export default AppContext
+export default AppContext;

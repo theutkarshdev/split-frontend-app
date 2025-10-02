@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { Input } from "@/components/ui/input";
-import { Squircle } from "@squircle-js/react";
 import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -135,7 +134,7 @@ const ActivityHistory: React.FC = () => {
         [...Array(7)].map((_, idx) => (
           <CustomCard
             key={idx}
-            className="flex items-center border-b p-3 gap-2 bg-white"
+            className="flex items-center border-b p-3 gap-2"
           >
             <Skeleton className="size-10 rounded-full" />
             <div className="space-y-2 grow">
@@ -148,39 +147,28 @@ const ActivityHistory: React.FC = () => {
         ))
       ) : (
         <>
-          <div className="flex gap-2 items-center mb-5">
-            <Squircle
-              cornerRadius={11}
-              cornerSmoothing={1}
-              className="group bg-border p-[1.5px] focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+          <div className="flex gap-2 items-center">
+            <CustomCard
+              radius={10}
+              pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+              className="h-full flex items-center w-full"
             >
-              <Squircle
-                cornerRadius={10}
-                cornerSmoothing={1}
-                className="bg-white h-full flex items-center w-full"
-              >
-                <div className="relative w-full">
-                  <Input
-                    className="border-none font-medium outline-none !ring-0"
-                    placeholder={`Search (Ex: Utkarsh)`}
-                  />
-                  <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
-                </div>
-              </Squircle>
-            </Squircle>
-            <Squircle
-              cornerRadius={11}
-              cornerSmoothing={1}
-              className="group bg-border p-[1.5px] size-[2.8rem]"
+              <div className="relative w-full">
+                <Input
+                  className="border-none font-medium outline-none !ring-0"
+                  placeholder="search history here..."
+                />
+                <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
+              </div>
+            </CustomCard>
+
+            <CustomCard
+              radius={10}
+              pClassName="size-[2.8rem]"
+              className="size-full flex items-center justify-center w-full"
             >
-              <Squircle
-                cornerRadius={10}
-                cornerSmoothing={1}
-                className="bg-white size-full flex items-center justify-center w-full"
-              >
-                <SlidersVerticalIcon className="size-5" />
-              </Squircle>
-            </Squircle>
+              <SlidersVerticalIcon className="size-5" />
+            </CustomCard>
           </div>
 
           {activities.length === 0 ? (
@@ -204,7 +192,7 @@ const ActivityHistory: React.FC = () => {
                   <CustomCard
                     key={activity.id}
                     radius={15}
-                    className="bg-white flex gap-2 items-center p-3 hover:bg-gray-50 transition-colors"
+                    className="flex gap-2 items-center p-3"
                   >
                     <img
                       className="size-10 aspect-square object-cover rounded-full"

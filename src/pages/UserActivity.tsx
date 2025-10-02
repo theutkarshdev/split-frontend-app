@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import { Squircle } from "@squircle-js/react";
 import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
+import CustomCard from "@/components/CustomCard";
 
 interface Activity {
   id: string;
@@ -79,7 +80,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     <Squircle
       cornerRadius={20}
       cornerSmoothing={1}
-      className={`max-w-4/5 md:max-w-72 w-full shadow-md mb-3 bg-gray-200 p-[1.5px]  ${
+      className={`max-w-4/5 md:max-w-72 w-full shadow-md mb-3 bg-input p-[1.5px]  ${
         isOwed ? "" : "ml-auto"
       }`}
     >
@@ -87,7 +88,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         cornerRadius={19}
         cornerSmoothing={1}
         className={`p-3 border-b-4 border-b-primary ${
-          isOwed ? "bg-white" : "bg-blue-50 ml-auto"
+          isOwed ? "bg-card" : "bg-card/10 ml-auto"
         }`}
       >
         <div className="flex items-center justify-between">
@@ -105,26 +106,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           </span>
         </div>
 
-        {note && <div className="text-gray-700 text-sm mt-1">{note}</div>}
+        {note && <div className="text-sm my-1">{note}</div>}
 
         {attachment && (
-          <Squircle
-            cornerRadius={11}
-            cornerSmoothing={1}
-            className="mt-2 p-[1.5px] bg-border"
-          >
-            <Squircle
-              cornerRadius={10}
-              cornerSmoothing={1}
-              className="bg-white"
-            >
-              <img
-                src={attachment}
-                alt="attachment"
-                className="w-full h-32 object-cover rounded"
-              />
-            </Squircle>
-          </Squircle>
+          <CustomCard radius={12}>
+            <img
+              src={attachment}
+              alt="attachment"
+              className="w-full h-32 object-cover rounded"
+            />
+          </CustomCard>
         )}
 
         {status === "pending" && to_user_id !== current_user_id && (
@@ -329,6 +320,7 @@ const UserActivity = () => {
         </div>
       }
       className="flex flex-col !p-0"
+      isNav={false}
     >
       {loading ? (
         "Loading..."
@@ -375,7 +367,7 @@ const UserActivity = () => {
             )}
           </div>
 
-          <div className="px-5 border-t py-5 w-full bg-white flex items-center">
+          <div className="px-5 border-t py-5 w-full bg-card flex items-center">
             <p className="text-lg font-bold grow">
               You {activitiesData.type === "owed" ? "Owed" : "Paid"}:{" "}
               <span

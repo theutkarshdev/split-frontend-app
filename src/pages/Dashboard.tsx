@@ -1,6 +1,5 @@
 import { Input } from "@/components/ui/input";
 import { BellIcon, SearchIcon } from "lucide-react";
-import { Squircle } from "@squircle-js/react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import PageLayout from "@/components/PageLayout";
@@ -15,54 +14,38 @@ const Dashboard = () => {
         <Button
           size="icon"
           onClick={() => navigate("/notifications")}
-          className="relative rounded-full bg-slate-200 hover:bg-slate-200"
+          className="relative rounded-full !bg-card"
         >
           <BellIcon className="size-5 text-primary" />
           <span className="size-2 bg-red-400 absolute top-2 right-2 rounded-full"></span>
         </Button>
       </div>
       <div>
-        <Squircle
-          cornerRadius={20}
-          cornerSmoothing={1}
-          className="bg-border p-[1.5px]"
-        >
-          <Squircle
-            cornerRadius={19}
-            cornerSmoothing={1}
-            className="bg-white p-5 h-42"
-          >
-            Squircle!
-          </Squircle>
-        </Squircle>
+        <CustomCard radius={19} className="p-5 h-42">
+          Squircle!
+        </CustomCard>
 
-        <Squircle
-          cornerRadius={11}
-          cornerSmoothing={1}
-          className="group mt-4 bg-border p-[1.5px] focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+        <CustomCard
+          radius={10}
+          pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem] mt-5"
+          className="h-full flex items-center w-full"
         >
-          <Squircle
-            cornerRadius={10}
-            cornerSmoothing={1}
-            className="bg-white h-full flex items-center w-full"
-          >
-            <div className="relative w-full">
-              <Input
-                className="border-none font-medium outline-none !ring-0"
-                placeholder="Search your friends here..."
-                onClick={() => navigate("/search?friend_filter=friends")}
-              />
-              <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
-            </div>
-          </Squircle>
-        </Squircle>
+          <div className="relative w-full">
+            <Input
+              className="border-none font-medium outline-none !ring-0"
+              placeholder="Search your friends here..."
+              onClick={() => navigate("/search?friend_filter=friends")}
+            />
+            <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
+          </div>
+        </CustomCard>
 
         <div className="grid grid-cols-3 gap-2 mt-4">
           {[...Array(9)].map((_, i) => (
             <CustomCard
               radius={25}
               key={i}
-              className="w-full aspect-square bg-white grid place-content-center"
+              className="w-full aspect-square bg-card grid place-content-center"
             >
               UK
             </CustomCard>

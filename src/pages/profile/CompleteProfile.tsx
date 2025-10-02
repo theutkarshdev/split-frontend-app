@@ -20,7 +20,7 @@ import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/hooks/useAppContext";
 import { useNavigate } from "react-router";
-import PageHeader from "@/components/PageHeader";
+import PageLayout from "@/components/PageLayout";
 
 // ✅ Zod Schema
 const FormSchema = z.object({
@@ -158,13 +158,11 @@ function CompleteProfile() {
   });
 
   return (
-    <div>
-      <PageHeader title="Complete Profile" />
-
+    <PageLayout title="Complete Profile" isNav={false}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 px-5"
+          className="space-y-6"
           encType="multipart/form-data"
         >
           {/* Profile Picture */}
@@ -174,7 +172,7 @@ function CompleteProfile() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <div className="w-full bg-slate-100 py-5 rounded-xl">
+                  <div className="w-full bg-card py-5 rounded-xl">
                     <div className="relative w-[30%] mx-auto">
                       <img
                         src={
@@ -187,7 +185,7 @@ function CompleteProfile() {
                       />
                       <label
                         htmlFor="profile_pic_input"
-                        className="absolute bottom-0 left-2/3 bg-primary rounded-full cursor-pointer shadow-md"
+                        className="absolute bottom-0 left-2/3 bg-black rounded-full cursor-pointer shadow-md"
                       >
                         <Pencil className="size-8 p-2 text-white" />
                       </label>
@@ -279,7 +277,7 @@ function CompleteProfile() {
           </Button>
         </form>
       </Form>
-    </div>
+    </PageLayout>
   );
 }
 

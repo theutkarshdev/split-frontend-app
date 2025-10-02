@@ -16,6 +16,7 @@ import { useAppContext } from "@/hooks/useAppContext";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
+import { ModeSwitch } from "@/components/ModeToggle";
 
 interface UserData {
   full_name: string;
@@ -41,31 +42,31 @@ function UserProfile() {
 
   const moreDetails = [
     {
-      icons: <InfoIcon className="size-4 text-zinc-700" />,
+      icons: <InfoIcon className="size-4" />,
       name: "My Friends",
       click: () => navigate("/search?friend_filter=friends"),
     },
     {
-      icons: <EditIcon className="size-4 text-zinc-700" />,
+      icons: <EditIcon className="size-4" />,
       name: "Invitation Manager",
       click: () => navigate("invitation-manager"),
     },
     {
-      icons: <NotebookIcon className="size-4 text-zinc-700" />,
+      icons: <NotebookIcon className="size-4" />,
       name: "My History",
       click: () => navigate("history"),
     },
     {
-      icons: <InfoIcon className="size-4 text-zinc-700" />,
+      icons: <InfoIcon className="size-4" />,
       name: "Report a safety emergency",
     },
 
     {
-      icons: <SettingsIcon className="size-4 text-zinc-700" />,
+      icons: <SettingsIcon className="size-4" />,
       name: "Settings",
     },
     {
-      icons: <LogInIcon className="size-4 text-zinc-700" />,
+      icons: <LogInIcon className="size-4" />,
       name: "Logout",
       click: handleLogout,
     },
@@ -94,7 +95,7 @@ function UserProfile() {
     <PageLayout title="My Profile" className="space-y-4">
       <CustomCard
         radius={18}
-        className="bg-white p-5 rounded-xl flex items-center gap-3"
+        className="p-5 rounded-xl flex items-center gap-3"
       >
         <div>
           <img
@@ -104,25 +105,27 @@ function UserProfile() {
           />
         </div>
         <div>
-          <span className="text-xs font-medium bg-primary text-white mb-1 px-2 py-1 rounded-full inline-flex gap-2">
+          <span className="text-xs font-medium bg-primary text-white dark:text-black mb-1 px-2 py-1 rounded-full inline-flex gap-2">
             {userData?.username} <CheckCircle2Icon className="size-4" />
           </span>
           <p className="text-md font-semibold">{userData?.full_name}</p>
           <p className="text-xs font-medium">{userData?.email}</p>
         </div>
       </CustomCard>
-      <CustomCard radius={12} className="bg-white p-3">
+      <CustomCard radius={12} className="p-3">
         <div className="text-sm  font-normal flex gap-2 items-center">
-          <div className="size-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
-            <WalletCardsIcon className="size-4 " />
+          <div className="size-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
+            <WalletCardsIcon className="size-4" />
           </div>
           {userData?.upi_id}
         </div>
       </CustomCard>
 
-      <CustomCard radius={18} className="bg-white p-3 relative">
+      <ModeSwitch />
+
+      <CustomCard radius={18} className="p-3 relative">
         <div className="absolute left-0 top-4">
-          <span className="text-md font-semibold border-primary text-zinc-700 border-l-4 p-1 pl-2">
+          <span className="text-md font-semibold border-primary border-l-4 p-1 pl-2">
             Manage
           </span>
         </div>
@@ -130,17 +133,15 @@ function UserProfile() {
           {moreDetails.map((items, index) => (
             <div key={index} className="pb-4">
               <div className="text-sm  font-normal flex gap-2 items-center">
-                <div className="w-9 h-8 bg-zinc-200 rounded-full text-primary grid place-content-center">
+                <div className="w-9 h-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
                   {items.icons}
                 </div>
                 <button
                   onClick={items.click}
                   className="flex cursor-pointer justify-between itmes-center w-full border-b pb-2 pt-2"
                 >
-                  <p className="text-sm font-medium text-zinc-700">
-                    {items.name}
-                  </p>
-                  <ChevronRight className="size-4 text-zinc-700" />
+                  <p className="text-sm font-medium">{items.name}</p>
+                  <ChevronRight className="size-4" />
                 </button>
               </div>
             </div>
