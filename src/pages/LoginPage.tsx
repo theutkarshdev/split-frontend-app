@@ -73,12 +73,12 @@ export function LoginPage() {
         <p className="text-base text-center font-normal">
           Log in or sign up here
         </p>
-        <button
+        <Button
           type="button"
-          className="cursor-pointer bg-black text-white py-3 px-10 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 mx-auto"
+          className="cursor-pointer h-12 px-10 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 mx-auto"
         >
           <i className="bi bi-google"></i> Continue with Google
-        </button>
+        </Button>
         <div className="flex gap-2 items-center w-full">
           <span className="h-[1.6px] min-h-[1.6px] bg-zinc-400 w-full"></span>
           <span className="text-xs uppercase">OR</span>
@@ -108,7 +108,7 @@ export function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="cursor-pointer !bg-black text-white py-2 px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 w-full"
+              className="cursor-pointer py-2 px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 w-full"
             >
               {loading ? <>Sending OTP...</> : <>Get OTP</>}
             </Button>

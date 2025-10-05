@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, XIcon } from "lucide-react";
@@ -17,6 +17,7 @@ import { Squircle } from "@squircle-js/react";
 import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import CustomCard from "@/components/CustomCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Activity {
   id: string;
@@ -76,8 +77,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     minute: "2-digit",
   });
 
+  const navigate = useNavigate();
+
   return (
     <Squircle
+      onClick={() => navigate(id)}
       cornerRadius={20}
       cornerSmoothing={1}
       className={`max-w-4/5 md:max-w-72 w-full shadow-md mb-3 bg-input p-[1.5px]  ${
@@ -161,7 +165,7 @@ const UserActivity = () => {
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
   // ✅ Make fetch function reusable
-  const fetchUserActivities = useCallback(async (pageNum: number) => { 
+  const fetchUserActivities = useCallback(async (pageNum: number) => {
     try {
       const res = await axiosInstance.get<ActivitiesData>(
         `/activities/between/${id}?limit=${fix_limit}&page=${pageNum}`
@@ -198,7 +202,7 @@ const UserActivity = () => {
   }, [id]);
 
   const handleStatusUpdate = async (
-    activityId: string,
+    activity_id: string,
     status: "accepted" | "rejected"
   ) => {
     try {
@@ -206,10 +210,12 @@ const UserActivity = () => {
       setActivitiesData((prev) => ({
         ...prev,
         data: prev.data.map((a) =>
-          a.id === activityId ? { ...a, status } : a
+          a.id === activity_id ? { ...a, status } : a
         ),
       }));
-      await axiosInstance.patch(`/activities/${activityId}/status`, { status });
+      await axiosInstance.patch(`/activities/${activity_id}/status`, {
+        status,
+      });
       toast.success(`Activity ${status}`);
       fetchUserActivities(1);
     } catch (err) {
@@ -323,7 +329,23 @@ const UserActivity = () => {
       isNav={false}
     >
       {loading ? (
-        "Loading..."
+        <div className="flex flex-col h-full">
+          <div className="space-y-3 mt-6 flex-1 overflow-auto px-5">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="space-y-2 even:ml-auto max-w-4/5 md:max-w-72 w-full"
+              >
+                <Skeleton className="w-full h-52 rounded-xl" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center justify-between bg-card p-5">
+            <Skeleton className="h-6 w-1/3" />
+            <Skeleton className="h-10 w-28 rounded-lg" />
+          </div>
+        </div>
       ) : (
         <>
           <div

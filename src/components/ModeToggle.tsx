@@ -27,14 +27,12 @@ export function ModeSwitch() {
         <p className="text-sm font-medium">App Theme</p>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Switch
-          checked={isDark}
-          onCheckedChange={
-            (checked) => setTheme(checked ? "dark" : "light") // explicitly set, no more "system" here
-          }
-        />
-      </div>
+      <Switch
+        checked={isDark}
+        onCheckedChange={
+          (checked) => setTheme(checked ? "dark" : "light") // explicitly set, no more "system" here
+        }
+      />
     </CustomCard>
   );
 }

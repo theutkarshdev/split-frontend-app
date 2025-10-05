@@ -158,7 +158,7 @@ function OtpPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="cursor-pointer !bg-black text-white px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 w-full"
+              className="cursor-pointer px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 w-full"
             >
               {loading ? <>Verifying OTP</> : <>Verify & Sign in</>}
             </Button>

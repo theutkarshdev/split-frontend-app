@@ -236,7 +236,15 @@ const SearchProfiles = () => {
             !error &&
             profiles.length > 0 &&
             profiles.map((item, idx) => (
-              <div key={idx} onClick={() => navigate(`/activity/${item.id}`)}>
+              <div
+                key={idx}
+                onClick={() => {
+                  const status = item.friend_request_status;
+                  if (status === undefined || status === "accepted") {
+                    navigate(`/activity/${item.id}`);
+                  }
+                }}
+              >
                 <CustomCard radius={14} className="flex gap-2 items-center p-2">
                   <img
                     className="size-10 aspect-square object-cover rounded-full"

@@ -1,14 +1,22 @@
-
 export type Notification = {
-  id: string | number;
+  id: string;
   type: "friend" | "activity";
   action: "sent" | "accepted" | "declined" | "requested" | "reminder";
-  actorId: string;
-  actorName: string;
-  actorAvatar?: string;
+  actor_id: string;
+  actor_name: string;
+  actor_avatar?: string;
   amount?: number;
-  activityTitle?: string;
-  activityId?: string;
+  activity_title?: string;
+  activity_id?: string;
   timestamp: string;
-  isRead: boolean;
+  is_read: boolean;
 };
+
+export interface NotificationsApiResponse {
+  data: Notification[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+  };
+}

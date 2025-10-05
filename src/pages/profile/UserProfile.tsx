@@ -17,6 +17,7 @@ import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import { ModeSwitch } from "@/components/ModeToggle";
+import FullscreenToggle from "@/components/ToggleFullScreen";
 
 interface UserData {
   full_name: string;
@@ -122,6 +123,8 @@ function UserProfile() {
       </CustomCard>
 
       <ModeSwitch />
+
+      <FullscreenToggle />
 
       <CustomCard radius={18} className="p-3 relative">
         <div className="absolute left-0 top-4">

@@ -9,8 +9,9 @@ import AuthLayout from "./AuthLayout";
 import SearchProfiles from "@/pages/SearchProfiles";
 import InvitationManager from "@/pages/profile/InvitationManager";
 import NotificationsPage from "@/pages/Notifications";
-import UserActivity from "@/pages/UserActivity";
+import UserActivity from "@/pages/activity/UserActivity";
 import ActivityHistory from "@/pages/profile/ActivityHistory";
+import ActivityDetail from "@/pages/activity/ActivityDetail";
 
 const routes: RouteObject[] = [
   {
@@ -56,6 +57,10 @@ const routes: RouteObject[] = [
           {
             index: true,
             element: <UserActivity />,
+          },
+          {
+            path: ":activity-id",
+            element: <ActivityDetail />,
           },
         ],
       },

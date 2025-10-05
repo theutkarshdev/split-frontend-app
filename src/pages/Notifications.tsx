@@ -1,104 +1,82 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type Notification } from "@/types/notifications";
+import {
+  type Notification,
+  type NotificationsApiResponse,
+} from "@/types/notifications";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import PageLayout from "@/components/PageLayout";
+import axiosInstance from "@/lib/axiosInstance";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router";
 
 const NotificationsPage: React.FC = () => {
-  const notificationsData: Notification[] = [
-    {
-      id: 1,
-      type: "activity",
-      action: "reminder", // waiting for approval
-      actorId: "user_jhon_123",
-      actorName: "Jhon",
-      actorAvatar: "https://i.pravatar.cc/150?u=jhon",
-      amount: 500, // always positive now
-      activityTitle: "Movie Tickets",
-      activityId: "act_789",
-      timestamp: "2025-09-22T17:00:00Z",
-      isRead: false,
-    },
-    {
-      id: 2,
-      type: "activity",
-      action: "requested",
-      actorId: "user_jhon_123",
-      actorName: "Jhon",
-      actorAvatar: "https://i.pravatar.cc/150?u=jhon",
-      amount: 500,
-      activityTitle: "Movie Tickets",
-      activityId: "act_789",
-      timestamp: "2025-09-20T16:30:00Z",
-      isRead: false,
-    },
-    {
-      id: 3,
-      type: "activity",
-      action: "accepted",
-      actorId: "user_jhon_123",
-      actorName: "Jhon",
-      actorAvatar: "https://i.pravatar.cc/150?u=jhon",
-      amount: 200,
-      activityTitle: "Pizza Party",
-      activityId: "act_101",
-      timestamp: "2025-09-19T11:00:00Z",
-      isRead: true,
-    },
-    {
-      id: 4,
-      type: "activity",
-      action: "declined",
-      actorId: "user_jhon_123",
-      actorName: "Jhon",
-      actorAvatar: "https://i.pravatar.cc/150?u=jhon",
-      amount: 350,
-      activityTitle: "Weekend Groceries",
-      activityId: "act_102",
-      timestamp: "2025-09-19T19:00:00Z",
-      isRead: true,
-    },
-    {
-      id: 5,
-      type: "friend",
-      action: "accepted",
-      actorId: "user_jhon_123",
-      actorName: "Jhon",
-      actorAvatar: "https://i.pravatar.cc/150?u=jhon",
-      timestamp: "2025-09-18T18:00:00Z",
-      isRead: true,
-    },
-    {
-      id: 5,
-      type: "friend",
-      action: "sent",
-      actorId: "user_jhon_123",
-      actorName: "Maria",
-      actorAvatar: "https://i.pravatar.cc/150?img=29",
-      timestamp: "2025-09-18T18:00:00Z",
-      isRead: true,
-    },
-  ];
+  const [notificationsData, setNotificationsData] = useState<Notification[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get<NotificationsApiResponse>(
+        "/notifications"
+      );
+      setNotificationsData(res.data.data || []);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const navigate = useNavigate();
+
+  const handleNotificationClick = async (item: Notification) => {
+    try {
+      // Mark notification as read
+      if (!item.is_read) {
+        await axiosInstance.patch(`/notifications/${item.id}/read`);
+        // Optimistic UI update
+        setNotificationsData((prev) =>
+          prev.map((n) => (n.id === item.id ? { ...n, is_read: true } : n))
+        );
+      }
+
+      // Navigate based on type
+      if (item.type === "activity" && item.activity_id) {
+        navigate(`/activity/${item.actor_id}/${item.activity_id}`);
+      } else {
+        navigate("/profile/invitation-manager");
+      }
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+  };
 
   const buildNotificationMessage = (item: Notification) => {
     if (item.type === "friend" && item.action === "accepted") {
-      return `${item.actorName} accepted your friend request. You are now friends.`;
+      return `${item.actor_name} accepted your friend request. You are now friends.`;
     }
 
     if (item.type === "friend" && item.action === "sent") {
-      return `${item.actorName} sent you a friend request.`;
+      return `${item.actor_name} sent you a friend request.`;
     }
 
     if (item.type === "activity") {
       switch (item.action) {
         case "reminder":
-          return `${item.actorName} is waiting for you to approve the ₹${item.amount} expense for '${item.activityTitle}'.`;
+          return `${item.actor_name} is waiting for you to approve the ₹${item.amount} expense for '${item.activity_title}'.`;
         case "requested":
-          return `${item.actorName} sent you a ₹${item.amount} expense request for '${item.activityTitle}'.`;
+          return `${item.actor_name} sent you a ₹${item.amount} expense request for '${item.activity_title}'.`;
         case "accepted":
-          return `${item.actorName} accepted your ₹${item.amount} expense for '${item.activityTitle}'.`;
+          return `${item.actor_name} accepted your ₹${item.amount} expense for '${item.activity_title}'.`;
         case "declined":
-          return `${item.actorName} declined your ₹${item.amount} expense for '${item.activityTitle}'.`;
+          return `${item.actor_name} declined your ₹${item.amount} expense for '${item.activity_title}'.`;
         default:
           return "";
       }
@@ -128,22 +106,23 @@ const NotificationsPage: React.FC = () => {
     return (
       <div
         key={item.id}
+        onClick={() => handleNotificationClick(item)}
         className="flex gap-2 border-b items-center py-2 px-5 bg-card relative"
       >
         <img
           className="w-10 h-10 object-cover rounded-full"
-          src={item.actorAvatar || AvtarImg}
+          src={item.actor_avatar || AvtarImg}
           onError={({ currentTarget }) => {
             currentTarget.onerror = null;
             currentTarget.src = AvtarImg;
           }}
-          alt={item.actorName}
+          alt={item.actor_name}
           loading="lazy"
         />
         <div className="grow overflow-hidden">
           <div className="flex items-center gap-2">
             <h3 className="text-md font-medium truncate grow">
-              {item.actorName}
+              {item.actor_name}
             </h3>
             <p className="text-xs opacity-55">
               {getRelativeTime(item.timestamp)}
@@ -153,7 +132,7 @@ const NotificationsPage: React.FC = () => {
           <p className="text-xs opacity-65">{message}</p>
         </div>
 
-        {!item.isRead && (
+        {!item.is_read && (
           <span className="size-2 bg-red-400 absolute top-1/2 left-2 rounded-full -translate-y-1/2"></span>
         )}
       </div>
@@ -165,6 +144,23 @@ const NotificationsPage: React.FC = () => {
   );
   const activityNotifications = notificationsData.filter(
     (n) => n.type === "activity"
+  );
+
+  const renderSkeletons = () => (
+    <div>
+      {[...Array(5)].map((_, i) => (
+        <div
+          key={i}
+          className="flex gap-2 items-center py-2 border-b bg-card px-5"
+        >
+          <Skeleton className="size-8 rounded-full" />
+          <div className="grow space-y-2">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-2/3" />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 
   return (
@@ -194,15 +190,19 @@ const NotificationsPage: React.FC = () => {
         </div>
 
         <TabsContent value="all">
-          {notificationsData.map(renderNotificationItem)}
+          {loading
+            ? renderSkeletons()
+            : notificationsData.map(renderNotificationItem)}
         </TabsContent>
-
         <TabsContent value="friend">
-          {friendNotifications.map(renderNotificationItem)}
+          {loading
+            ? renderSkeletons()
+            : friendNotifications.map(renderNotificationItem)}
         </TabsContent>
-
         <TabsContent value="activity">
-          {activityNotifications.map(renderNotificationItem)}
+          {loading
+            ? renderSkeletons()
+            : activityNotifications.map(renderNotificationItem)}
         </TabsContent>
       </Tabs>
     </PageLayout>
