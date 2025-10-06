@@ -110,7 +110,7 @@ const NotificationsPage: React.FC = () => {
         className="flex gap-2 border-b items-center py-2 px-5 bg-card relative"
       >
         <img
-          className="w-10 h-10 object-cover rounded-full"
+          className="size-10 object-cover rounded-full"
           src={item.actor_avatar || AvtarImg}
           onError={({ currentTarget }) => {
             currentTarget.onerror = null;
@@ -119,9 +119,9 @@ const NotificationsPage: React.FC = () => {
           alt={item.actor_name}
           loading="lazy"
         />
-        <div className="grow overflow-hidden">
+        <div className="flex-1 overflow-hidden">
           <div className="flex items-center gap-2">
-            <h3 className="text-md font-medium truncate grow">
+            <h3 className="text-sm font-medium truncate grow">
               {item.actor_name}
             </h3>
             <p className="text-xs opacity-55">
@@ -129,7 +129,7 @@ const NotificationsPage: React.FC = () => {
             </p>
           </div>
 
-          <p className="text-xs opacity-65">{message}</p>
+          <p className="text-xs opacity-65 truncate ">{message}</p>
         </div>
 
         {!item.is_read && (

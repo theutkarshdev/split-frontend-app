@@ -21,7 +21,12 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
-import { PlusIcon } from "lucide-react";
+import {
+  CircleCheckBigIcon,
+  CircleXIcon,
+  LoaderCircleIcon,
+  PlusIcon,
+} from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import axiosInstance from "@/lib/axiosInstance";
 import { useState } from "react";
@@ -54,18 +59,19 @@ const FormSchema = z
     path: ["total_amount"], // show error under total_amount field
   });
 
-
 interface AddActivityFormProps {
   to_user_id: string;
   onActivityAdded?: (page: number) => void; // ✅ new prop
 }
 
+type Status = "idle" | "loading" | "success" | "error";
+
 function AddActivityForm({
   to_user_id,
   onActivityAdded,
 }: AddActivityFormProps) {
-  const [open, setOpen] = useState(false); // ✅ controls Drawer
-  const [loading, setLoading] = useState(false); // ✅ loading state
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -78,7 +84,7 @@ function AddActivityForm({
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    setLoading(true);
+    setStatus("loading");
     const formData = new FormData();
     formData.append("to_user_id", to_user_id);
     formData.append("type", "paid");
@@ -91,16 +97,25 @@ function AddActivityForm({
       await axiosInstance.post("/activities", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
       toast.success("Expense added successfully!");
       form.reset();
       if (onActivityAdded) onActivityAdded(1);
-      setOpen(false); // ✅ close drawer after submit
+      setStatus("success");
+
+      // Auto-close drawer after success animation
+      setTimeout(() => {
+        setOpen(false);
+        setStatus("idle");
+      }, 1500);
     } catch (err: any) {
       toast.error(
         err.response?.data?.message || err.message || "Failed to add expense"
       );
-    } finally {
-      setLoading(false);
+      setStatus("error");
+
+      // Return to form after a delay
+      setTimeout(() => setStatus("idle"), 1500);
     }
   }
 
@@ -116,28 +131,98 @@ function AddActivityForm({
           <DrawerTitle className="text-lg">Add Expense</DrawerTitle>
           <DrawerDescription>Fill out the details below.</DrawerDescription>
         </DrawerHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-6 p-5 max-h-[60vh] overflow-y-auto"
-          >
-            <div className="flex gap-3 justify-stretch">
+        {status !== "idle" ? (
+          <div className="h-[60vh] p-5 flex flex-col justify-center items-center">
+            {status === "loading" && (
+              <>
+                <LoaderCircleIcon className="size-[70%] animate-spin" />
+                <p className="text-sm text-gray-500">Submitting...</p>
+              </>
+            )}
+            {status === "success" && (
+              <>
+                <CircleCheckBigIcon className="size-[70%] text-green-500" />
+                <p className="text-sm text-green-600">Expense added!</p>
+              </>
+            )}
+            {status === "error" && (
+              <>
+                <CircleXIcon className="size-[70%] text-red-500" />
+                <p className="text-sm text-red-600">Submission failed</p>
+              </>
+            )}
+          </div>
+        ) : (
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="w-full space-y-6 p-5 max-h-[60vh] overflow-y-auto"
+            >
+              <div className="flex gap-3 justify-stretch">
+                <FormField
+                  control={form.control}
+                  name="total_amount"
+                  render={({ field }) => (
+                    <FormItem className="grow">
+                      <FormLabel>Total Amount</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          inputMode="numeric"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? Number(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem className="grow">
+                      <FormLabel>Amount</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          inputMode="numeric"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? Number(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
-                name="total_amount"
+                name="file"
                 render={({ field }) => (
-                  <FormItem className="grow">
-                    <FormLabel>Total Amount</FormLabel>
+                  <FormItem>
+                    <FormLabel>Attachment</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        placeholder="0"
-                        inputMode="numeric"
-                        {...field}
+                        type="file"
+                        accept="image/*"
                         onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined
-                          )
+                          field.onChange(e.target.files?.[0] ?? undefined)
                         }
                       />
                     </FormControl>
@@ -145,86 +230,40 @@ function AddActivityForm({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="amount"
+                name="note"
                 render={({ field }) => (
-                  <FormItem className="grow">
-                    <FormLabel>Amount</FormLabel>
+                  <FormItem>
+                    <FormLabel>Note</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        inputMode="numeric"
+                      <Textarea
+                        placeholder="Optional note..."
+                        className="resize-none"
+                        rows={3}
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined
-                          )
-                        }
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="file"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Attachment</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        field.onChange(e.target.files?.[0] ?? undefined)
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Optional note..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex gap-5 justify-end">
-              <DrawerClose asChild>
-                <Button type="button" variant="outline" disabled={loading}>
-                  Cancel
-                </Button>
-              </DrawerClose>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Submitting..." : "Submit"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              <div className="flex gap-5 justify-end">
+                <DrawerClose asChild>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
+                </DrawerClose>
+                <Button type="submit">Submit</Button>
+              </div>
+            </form>
+          </Form>
+        )}
       </DrawerContent>
     </Drawer>
   );
 }
 
 export default AddActivityForm;
- 

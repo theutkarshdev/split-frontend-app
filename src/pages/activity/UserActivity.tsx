@@ -13,7 +13,6 @@ import {
 } from "react";
 import axiosInstance from "@/lib/axiosInstance";
 import toast from "react-hot-toast";
-import { Squircle } from "@squircle-js/react";
 import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import CustomCard from "@/components/CustomCard";
@@ -80,21 +79,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Squircle
-      onClick={() => navigate(id)}
-      cornerRadius={20}
-      cornerSmoothing={1}
-      className={`max-w-4/5 md:max-w-72 w-full shadow-md mb-3 bg-input p-[1.5px]  ${
+    <CustomCard
+      radius={20}
+      pClassName={`max-w-4/5 md:max-w-72 w-full shadow-md mb-3 bg-input p-[1.5px]  ${
         isOwed ? "" : "ml-auto"
       }`}
+      className={`p-3 border-b-4 border-b-primary ${
+        isOwed ? "bg-card" : "bg-card/10 ml-auto"
+      }`}
     >
-      <Squircle
-        cornerRadius={19}
-        cornerSmoothing={1}
-        className={`p-3 border-b-4 border-b-primary ${
-          isOwed ? "bg-card" : "bg-card/10 ml-auto"
-        }`}
-      >
+      <div onClick={() => navigate(id)}>
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold">₹{amount.toLocaleString()}</span>
           <span
@@ -126,12 +120,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           <div className="flex [&_button]:grow gap-3 my-3">
             <Button
               variant="outline"
-              onClick={() => onStatusUpdate(id, "rejected")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onStatusUpdate(id, "rejected");
+              }}
             >
               <XIcon />
               Reject
             </Button>
-            <Button onClick={() => onStatusUpdate(id, "accepted")}>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onStatusUpdate(id, "accepted");
+              }}
+            >
               <CheckIcon />
               Accept
             </Button>
@@ -141,8 +143,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         <div className="text-xs text-gray-500 mt-2 text-right">
           Total: ₹{total_amount.toLocaleString()} | {formattedTime}
         </div>
-      </Squircle>
-    </Squircle>
+      </div>
+    </CustomCard>
   );
 };
 
@@ -332,12 +334,16 @@ const UserActivity = () => {
         <div className="flex flex-col h-full">
           <div className="space-y-3 mt-6 flex-1 overflow-auto px-5">
             {[...Array(6)].map((_, i) => (
-              <div
+              <CustomCard
                 key={i}
-                className="space-y-2 even:ml-auto max-w-4/5 md:max-w-72 w-full"
+                radius={20}
+                pClassName="space-y-2 even:ml-auto max-w-4/5 md:max-w-72 w-full bg-card"
+                className="p-3"
               >
-                <Skeleton className="w-full h-52 rounded-xl" />
-              </div>
+                <Skeleton className="w-20 h-9 rounded-lg mb-3" />
+                <Skeleton className="w-full h-32 rounded-xl" />
+                <Skeleton className="w-20 h-3 rounded-lg mt-2 ml-auto" />
+              </CustomCard>
             ))}
           </div>
 
