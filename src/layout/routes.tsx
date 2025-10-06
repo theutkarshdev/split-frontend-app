@@ -13,7 +13,7 @@ import UserActivity from "@/pages/activity/UserActivity";
 import ActivityHistory from "@/pages/profile/ActivityHistory";
 import ActivityDetail from "@/pages/activity/ActivityDetail";
 
-const routes: RouteObject[] = [
+export const routes: RouteObject[] = [
   {
     path: "/",
     element: <DashboardLayout />,

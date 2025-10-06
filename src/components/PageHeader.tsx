@@ -1,13 +1,13 @@
 import { ArrowLeftIcon } from "lucide-react";
-import { useNavigate } from "react-router";
 import { type ReactNode } from "react";
+import { useSmartBack } from "@/hooks/useSmartBack";
 
 interface PageHeaderProps {
   title: string | ReactNode;
 }
 
 const PageHeader = ({ title }: PageHeaderProps) => {
-  const navigate = useNavigate();
+  const smartBack = useSmartBack();
 
   const renderTitle = () => {
     if (typeof title === "string") {
@@ -20,7 +20,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
     <div className="border-b pb-3 flex gap-3 p-5 items-center bg-card z-10">
       <ArrowLeftIcon
         className="cursor-pointer"
-        onClick={() => navigate(-1)} // <-- Navigate back
+        onClick={smartBack} // <-- Navigate back
       />
       {renderTitle()}
     </div>

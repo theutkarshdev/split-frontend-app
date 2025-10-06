@@ -6,10 +6,10 @@ import { Toaster } from "react-hot-toast";
 import { AppContextProvider } from "./layout/AppContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <AppContextProvider>
-    <BrowserRouter>
+  <BrowserRouter>
+    <AppContextProvider>
       <App />
       <Toaster />
-    </BrowserRouter>
-  </AppContextProvider>
+    </AppContextProvider>
+  </BrowserRouter>
 );

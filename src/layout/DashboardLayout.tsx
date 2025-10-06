@@ -7,9 +7,9 @@ const DashboardLayout = () => {
 
   if (loading) return <div>Loading...</div>;
 
-  if (!auth.isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
-  }
+   if (!auth.isAuthenticated) {
+     return <Navigate to="/auth/login" replace state={{ from: location }} />;
+   }
 
   if (auth.is_new && location.pathname !== "/profile/complete") {
     return <Navigate to="/profile/complete" replace />;

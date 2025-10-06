@@ -1,13 +1,16 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import { useAppContext } from "@/hooks/useAppContext";
 
 const AuthLayout = () => {
   const { auth, loading } = useAppContext();
+  const location = useLocation();
 
   if (loading) return <div>Loading...</div>;
 
   if (auth.isAuthenticated) {
-    return <Navigate to="/" replace />;
+    // if user came with a `from` route, go there instead of always "/"
+    const from = (location.state as any)?.from?.pathname || "/";
+    return <Navigate to={from} replace />;
   }
 
   return (

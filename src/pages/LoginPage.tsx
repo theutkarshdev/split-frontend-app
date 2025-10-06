@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import type { LoginResponse } from "@/types/auth";
 import { useAppContext } from "@/hooks/useAppContext";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import CustomCard from "@/components/CustomCard";
 
 const FormSchema = z.object({
@@ -35,7 +35,9 @@ export function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const { setOtpData } = useAppContext();
+  const location = useLocation();
   const navigate = useNavigate();
+  
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
@@ -48,7 +50,7 @@ export function LoginPage() {
         const { otp_id, email } = res.data;
         setOtpData({ otp_id, email });
         toast.success("Otp sent successfully.");
-        navigate("/auth/verify-otp");
+        navigate("/auth/verify-otp", { state: { from: location.state?.from } });
       }
     } catch (err: unknown) {
       console.error(err);
