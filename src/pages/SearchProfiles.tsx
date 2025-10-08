@@ -72,7 +72,6 @@ const SearchProfiles = () => {
       );
       if (Array.isArray(res.data)) {
         setProfiles(res.data);
-        console.log(res.data);
       } else {
         setProfiles([]);
         setError("Unexpected response from server");
@@ -175,13 +174,13 @@ const SearchProfiles = () => {
       <div className="flex gap-2 items-center">
         <CustomCard
           radius={10}
-          pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+          pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-12"
           className="h-full flex items-center w-full"
         >
           <div className="relative w-full">
             <Input
               ref={inputRef}
-              className="border-none font-medium outline-none !ring-0"
+              className="border-none font-medium outline-none !ring-0 h-12"
               placeholder={`Search ${
                 friendFilter == "all" ? "anyone" : "friends"
               } (Ex: Utkarsh)`}
@@ -195,7 +194,7 @@ const SearchProfiles = () => {
 
         <CustomCard
           radius={10}
-          pClassName="size-[2.8rem]"
+          pClassName="size-12"
           className="size-full flex items-center justify-center w-full"
         >
           <SlidersVerticalIcon className="size-5" />

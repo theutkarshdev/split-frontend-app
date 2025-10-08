@@ -27,12 +27,12 @@ const Dashboard = () => {
 
         <CustomCard
           radius={10}
-          pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem] mt-5"
+          pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-12 mt-5"
           className="h-full flex items-center w-full"
         >
-          <div className="relative w-full">
+          <div className="relative w-full h-full">
             <Input
-              className="border-none font-medium outline-none !ring-0"
+              className="border-none font-medium outline-none !ring-0 h-12"
               placeholder="Search your friends here..."
               onClick={() => navigate("/search?friend_filter=friends")}
             />

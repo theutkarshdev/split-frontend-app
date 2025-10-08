@@ -2,7 +2,7 @@ import { Squircle } from "@squircle-js/react";
 import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface CustomCardProps {
+interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
   pClassName?: string;

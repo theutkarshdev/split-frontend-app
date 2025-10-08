@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router";
 
 // types
 interface OtherUser {
@@ -48,6 +49,7 @@ const ActivityHistory: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   const fetchHistory = useCallback(async (pageNum: number) => {
     setLoading(true);
@@ -150,12 +152,12 @@ const ActivityHistory: React.FC = () => {
           <div className="flex gap-2 items-center">
             <CustomCard
               radius={10}
-              pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-[2.8rem]"
+              pClassName="group focus-within:bg-primary/50 transition-colors duration-200 grow h-12"
               className="h-full flex items-center w-full"
             >
               <div className="relative w-full">
                 <Input
-                  className="border-none font-medium outline-none !ring-0"
+                  className="border-none font-medium outline-none !ring-0 h-12"
                   placeholder="search history here..."
                 />
                 <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-border" />
@@ -164,7 +166,7 @@ const ActivityHistory: React.FC = () => {
 
             <CustomCard
               radius={10}
-              pClassName="size-[2.8rem]"
+              pClassName="size-12"
               className="size-full flex items-center justify-center w-full"
             >
               <SlidersVerticalIcon className="size-5" />
@@ -193,6 +195,12 @@ const ActivityHistory: React.FC = () => {
                     key={activity.id}
                     radius={15}
                     className="flex gap-2 items-center p-3"
+                    onClick={() =>
+                      activity.other_user &&
+                      navigate(
+                        `/activity/${activity?.other_user?.id}/${activity.id}`
+                      )
+                    }
                   >
                     <img
                       className="size-10 aspect-square object-cover rounded-full"
