@@ -23,7 +23,7 @@ interface OtpData {
 }
 
 interface UserData {
-  id: string | null;
+  profile_pic: string | null;
   name: string;
   email: string;
 }
@@ -66,7 +66,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [user, setUser] = useState<UserData>({
-    id: null,
+    profile_pic: "",
     name: "",
     email: "",
   });

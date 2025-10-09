@@ -18,6 +18,7 @@ import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import { ModeSwitch } from "@/components/ModeToggle";
 import FullscreenToggle from "@/components/ToggleFullScreen";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserData {
   full_name: string;
@@ -35,6 +36,7 @@ function UserProfile() {
   const navigate = useNavigate();
   const { logout } = useAppContext();
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
     logout();
@@ -61,7 +63,6 @@ function UserProfile() {
       icons: <InfoIcon className="size-4" />,
       name: "Report a safety emergency",
     },
-
     {
       icons: <SettingsIcon className="size-4" />,
       name: "Settings",
@@ -86,6 +87,8 @@ function UserProfile() {
           "Profile fetch failed:",
           err.response?.data?.message || err.message
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -94,38 +97,54 @@ function UserProfile() {
 
   return (
     <PageLayout title="My Profile" className="space-y-4">
+      {/* ✅ Profile Card */}
       <CustomCard
         radius={18}
         className="p-5 rounded-xl flex items-center gap-3"
       >
-        <div>
-          <img
-            src={userData?.profile_pic || AvtarImg}
-            alt="profile pic"
-            className="aspect-square object-cover rounded-full w-20"
-          />
-        </div>
-        <div>
-          <span className="text-xs font-medium bg-primary text-white dark:text-black mb-1 px-2 py-1 rounded-full inline-flex gap-2">
-            {userData?.username} <CheckCircle2Icon className="size-4" />
-          </span>
-          <p className="text-md font-semibold">{userData?.full_name}</p>
-          <p className="text-xs font-medium">{userData?.email}</p>
-        </div>
+        {loading ? (
+          <>
+            <Skeleton className="w-20 h-20 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <img
+                src={userData?.profile_pic || AvtarImg}
+                alt="profile pic"
+                className="aspect-square object-cover rounded-full w-20"
+              />
+            </div>
+            <div>
+              <span className="text-xs font-medium bg-primary text-white dark:text-black mb-1 px-2 py-1 rounded-full inline-flex gap-2">
+                {userData?.username} <CheckCircle2Icon className="size-4" />
+              </span>
+              <p className="text-md font-semibold">{userData?.full_name}</p>
+              <p className="text-xs font-medium">{userData?.email}</p>
+            </div>
+          </>
+        )}
       </CustomCard>
+
       <CustomCard radius={12} className="p-3">
-        <div className="text-sm  font-normal flex gap-2 items-center">
+        <div className="text-sm font-normal flex gap-2 items-center">
           <div className="size-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
             <WalletCardsIcon className="size-4" />
           </div>
-          {userData?.upi_id}
+          {loading ? <Skeleton className="w-[70%] h-3" /> : userData?.upi_id}
         </div>
       </CustomCard>
 
+      {/* Toggles */}
       <ModeSwitch />
-
       <FullscreenToggle />
 
+      {/* ✅ Manage Section */}
       <CustomCard radius={18} className="p-3 relative">
         <div className="absolute left-0 top-4">
           <span className="text-md font-semibold border-primary border-l-4 p-1 pl-2">
@@ -135,13 +154,13 @@ function UserProfile() {
         <div className="pt-12">
           {moreDetails.map((items, index) => (
             <div key={index} className="pb-4">
-              <div className="text-sm  font-normal flex gap-2 items-center">
+              <div className="text-sm font-normal flex gap-2 items-center">
                 <div className="w-9 h-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
                   {items.icons}
                 </div>
                 <button
                   onClick={items.click}
-                  className="flex cursor-pointer justify-between itmes-center w-full border-b pb-2 pt-2"
+                  className="flex cursor-pointer justify-between items-center w-full border-b pb-2 pt-2"
                 >
                   <p className="text-sm font-medium">{items.name}</p>
                   <ChevronRight className="size-4" />

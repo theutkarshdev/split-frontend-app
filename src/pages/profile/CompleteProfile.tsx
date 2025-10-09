@@ -21,8 +21,22 @@ import toast from "react-hot-toast";
 import { useAppContext } from "@/hooks/useAppContext";
 import { useNavigate } from "react-router";
 import PageLayout from "@/components/PageLayout";
+import type { AxiosError } from "axios";
 
-// ✅ Zod Schema
+// ✅ User type
+interface UserData {
+  full_name: string;
+  id: string;
+  email: string;
+  username: string;
+  profile_pic: string;
+  upi_id: string;
+  role: string;
+  is_verified: boolean;
+  created_at: Date;
+}
+
+// ✅ Validation Schema
 const FormSchema = z.object({
   full_name: z
     .string()
@@ -30,26 +44,26 @@ const FormSchema = z.object({
   upi_id: z.string().regex(/^[\w.-]+@[\w.-]+$/, {
     message: "Invalid UPI ID format (e.g. name@bank).",
   }),
-  profile_pic: z
-    .any()
-    .refine(
-      (file) =>
-        file instanceof File ||
-        (Array.isArray(file) && file[0] instanceof File),
-      { message: "Profile picture is required." }
-    )
-    .refine((file) => {
-      const f = Array.isArray(file) ? file[0] : file;
-      return f && ["image/jpeg", "image/png", "image/jpg"].includes(f.type);
-    }, "Only JPG or PNG images are allowed."),
   username: z
     .string()
     .regex(/^[a-z0-9_]+$/, {
       message:
         "Username can only include lowercase letters, numbers, and underscores.",
     })
-    .min(5, { message: "Username must be at least 2 characters." })
-    .max(15, { message: "Username must be at least 15 characters." }),
+    .min(5, { message: "Username must be at least 5 characters." })
+    .max(15, { message: "Username must be at most 15 characters." }),
+  profile_pic: z
+    .union([z.instanceof(File), z.string().url().optional(), z.undefined()])
+    .refine(
+      (val) =>
+        !val ||
+        typeof val === "string" ||
+        (val instanceof File &&
+          ["image/jpeg", "image/png", "image/jpg"].includes(val.type)),
+      {
+        message: "Only JPG or PNG images are allowed.",
+      }
+    ),
 });
 
 function CompleteProfile() {
@@ -59,21 +73,53 @@ function CompleteProfile() {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
   );
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       full_name: "",
       upi_id: "",
-      profile_pic: undefined,
       username: "",
+      profile_pic: undefined,
     },
   });
 
-  // ✅ Ref for debounce timer
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // ✅ Fetch profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get<UserData>("/profile/me");
+        if (res.status === 200) {
+          setUserData(res.data);
+          form.reset({
+            full_name: res.data.full_name || "",
+            upi_id: res.data.upi_id || "",
+            username: res.data.username || "",
+            profile_pic: res.data.profile_pic || undefined,
+          });
+        }
+      } catch (error) {
+        const err = error as AxiosError<{ message?: string }>;
+        console.error(
+          "Profile fetch failed:",
+          err.response?.data?.message || err.message
+        );
+      }
+    };
 
-  // ✅ Username check (debounced)
+    fetchProfile();
+  }, [form]);
+
+  // ✅ Redirect if profile already complete
+  useEffect(() => {
+    if (!auth.is_new) {
+      navigate("/", { replace: true });
+    }
+  }, [auth.is_new, navigate]);
+
+  // ✅ Debounced username availability check
   const checkUserName = (value: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -99,21 +145,20 @@ function CompleteProfile() {
           });
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
         setUsernameAvailable(null);
         form.setError("username", {
           type: "manual",
           message: "Error checking username",
         });
       }
-    }, 500); // debounce delay
+    }, 500);
   };
 
-  // ✅ Submit
+  // ✅ Submit handler
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      // Re-check username before submitting
       const response = await axiosInstance.get("/profile/check-username", {
         params: { username: data.username },
       });
@@ -138,24 +183,19 @@ function CompleteProfile() {
       const res = await axiosInstance.post("/profile/complete", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      if (res.status == 200) {
-        form.reset();
-        toast.success("Profile completed successfully.");
+
+      if (res.status === 200) {
+        toast.success("Profile completed successfully!");
         markProfileComplete();
         navigate("/");
       }
     } catch (error) {
-      console.log("error", error);
+      console.error("Profile completion failed:", error);
+      toast.error("Error completing profile");
     } finally {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    if (!auth.is_new) {
-      navigate("/", { replace: true });
-    }
-  });
 
   return (
     <PageLayout title="Complete Profile" isNav={false}>
@@ -165,50 +205,62 @@ function CompleteProfile() {
           className="space-y-6"
           encType="multipart/form-data"
         >
-          {/* Profile Picture */}
+          {/* ✅ Profile Picture */}
           <FormField
             control={form.control}
             name="profile_pic"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="w-full bg-card py-5 rounded-xl">
-                    <div className="relative w-[30%] mx-auto">
-                      <img
-                        src={
-                          field.value
-                            ? URL.createObjectURL(field.value)
-                            : AvtarImg
+            render={({ field }) => {
+              // dynamically compute preview
+              const preview =
+                field.value instanceof File
+                  ? URL.createObjectURL(field.value)
+                  : typeof field.value === "string"
+                  ? field.value
+                  : userData?.profile_pic || AvtarImg;
+
+              // cleanup URL object
+              useEffect(() => {
+                if (field.value instanceof File) {
+                  const url = URL.createObjectURL(field.value);
+                  return () => URL.revokeObjectURL(url);
+                }
+              }, [field.value]);
+
+              return (
+                <FormItem>
+                  <FormControl>
+                    <div className="w-full bg-card py-5 rounded-xl">
+                      <div className="relative w-[30%] mx-auto">
+                        <img
+                          src={preview}
+                          alt="Profile preview"
+                          className="w-full rounded-full object-cover aspect-square"
+                        />
+                        <label
+                          htmlFor="profile_pic_input"
+                          className="absolute bottom-0 left-2/3 bg-black rounded-full cursor-pointer shadow-md"
+                        >
+                          <Pencil className="size-8 p-2 text-white" />
+                        </label>
+                      </div>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        id="profile_pic_input"
+                        className="hidden"
+                        onChange={(e) =>
+                          field.onChange(e.target.files?.[0] ?? undefined)
                         }
-                        alt="Profile preview"
-                        className="w-full rounded-full object-cover aspect-square"
                       />
-                      <label
-                        htmlFor="profile_pic_input"
-                        className="absolute bottom-0 left-2/3 bg-black rounded-full cursor-pointer shadow-md"
-                      >
-                        <Pencil className="size-8 p-2 text-white" />
-                      </label>
                     </div>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      id="profile_pic_input"
-                      className="hidden"
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.files ? e.target.files[0] : null
-                        )
-                      }
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
-          {/* Full Name */}
+          {/* ✅ Full Name */}
           <FormField
             control={form.control}
             name="full_name"
@@ -223,7 +275,7 @@ function CompleteProfile() {
             )}
           />
 
-          {/* UPI ID */}
+          {/* ✅ UPI ID */}
           <FormField
             control={form.control}
             name="upi_id"
@@ -238,7 +290,7 @@ function CompleteProfile() {
             )}
           />
 
-          {/* Username */}
+          {/* ✅ Username */}
           <FormField
             control={form.control}
             name="username"

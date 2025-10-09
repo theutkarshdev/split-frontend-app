@@ -18,6 +18,7 @@ import type { LoginResponse } from "@/types/auth";
 import { useAppContext } from "@/hooks/useAppContext";
 import { useLocation, useNavigate } from "react-router";
 import CustomCard from "@/components/CustomCard";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const FormSchema = z.object({
   identifier: z.string().min(2, {
@@ -75,12 +76,7 @@ export function LoginPage() {
         <p className="text-base text-center font-normal">
           Log in or sign up here
         </p>
-        <Button
-          type="button"
-          className="cursor-pointer h-12 px-10 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 mx-auto"
-        >
-          <i className="bi bi-google"></i> Continue with Google
-        </Button>
+        <GoogleLoginButton setLoading={setLoading} />
         <div className="flex gap-2 items-center w-full">
           <span className="h-[1.6px] min-h-[1.6px] bg-zinc-400 w-full"></span>
           <span className="text-xs uppercase">OR</span>
