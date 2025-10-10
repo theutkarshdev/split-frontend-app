@@ -59,7 +59,7 @@ export const routes: RouteObject[] = [
             element: <UserActivity />,
           },
           {
-            path: ":activity-id",
+            path: ":activityId",
             element: <ActivityDetail />,
           },
         ],

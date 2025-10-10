@@ -4,9 +4,28 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import PageLayout from "@/components/PageLayout";
 import CustomCard from "@/components/CustomCard";
+import axiosInstance from "@/lib/axiosInstance";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
+  const [notification, setNotification] = useState<number>(0);
   const navigate = useNavigate();
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await axiosInstance("/notifications/unread-count");
+      if (res.status === 200) {
+        setNotification(res.data.unread_count || 0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+  }, []);
+
   return (
     <PageLayout>
       <div className="flex gap-3 items-center mb-4">
@@ -17,7 +36,9 @@ const Dashboard = () => {
           className="relative rounded-full !bg-card"
         >
           <BellIcon className="size-5 text-primary" />
-          <span className="size-2 bg-red-400 absolute top-2 right-2 rounded-full"></span>
+          {notification > 0 && (
+            <span className="size-2 bg-red-400 absolute top-2 right-2 rounded-full"></span>
+          )}
         </Button>
       </div>
       <div>
