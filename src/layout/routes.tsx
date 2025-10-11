@@ -1,6 +1,5 @@
 import { useRoutes, type RouteObject } from "react-router";
 import Dashboard from "@/pages/Dashboard";
-import LoginPage from "@/pages/LoginPage";
 import OtpPage from "@/pages/OtpPage";
 import CompleteProfile from "@/pages/profile/CompleteProfile";
 import UserProfile from "@/pages/profile/UserProfile";
@@ -12,6 +11,8 @@ import NotificationsPage from "@/pages/Notifications";
 import UserActivity from "@/pages/activity/UserActivity";
 import ActivityHistory from "@/pages/profile/ActivityHistory";
 import ActivityDetail from "@/pages/activity/ActivityDetail";
+import NewLogin from "@/pages/NewLogin";
+import NewOtpPage from "@/pages/NewOtpPage";
 
 export const routes: RouteObject[] = [
   {
@@ -73,11 +74,11 @@ export const routes: RouteObject[] = [
     children: [
       {
         path: "login",
-        element: <LoginPage />,
+        element: <NewLogin />,
       },
       {
         path: "verify-otp",
-        element: <OtpPage />,
+        element: <NewOtpPage />,
       },
     ],
   },
