@@ -20,7 +20,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
     <Squircle
       cornerRadius={radius + 1}
       cornerSmoothing={1}
-      className={cn("bg-input p-[1.5px]", pClassName)}
+      className={cn("bg-zinc-200 dark:bg-zinc-700 p-[1.5px]", pClassName)}
       {...rest}
     >
       <Squircle

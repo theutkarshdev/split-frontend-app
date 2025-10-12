@@ -13,6 +13,7 @@ import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import type { AxiosError } from "axios";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
+import NoDataImg from "@/assets/no-data.png";
 
 interface FriendRequest {
   id: string;
@@ -131,11 +132,10 @@ const InvitationManager: React.FC = () => {
         {!loading && !error && (
           <>
             {requests.length === 0 ? (
-              <div className="text-sm text-gray-500 p-2">
-                <img
-                  className="grayscale"
-                  src="https://marketbold.com/images/no-results-found-youtube-search.gif"
-                />
+              <div className="text-sm text-gray-500 p-5 pb-14 text-center bg-card">
+                <img className="w-52 mx-auto" src={NoDataImg} />
+                <h5 className="text-xl mb-1">No results found</h5>
+                <p>Try different keywords or remove search filters</p>
               </div>
             ) : (
               <div>

@@ -8,14 +8,27 @@ import {
   XCircleIcon,
   LoaderCircleIcon,
   SendIcon,
+  XIcon,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
+import NoDataImg from "@/assets/no-data.png";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Profile {
   id: string;
@@ -35,9 +48,9 @@ const SearchProfiles = () => {
   const debounceRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const friendFilter = searchParams.get("friend_filter");
+  const friendFilter = searchParams.get("friend_filter") || "all";
 
   useEffect(() => {
     if (!query.trim()) {
@@ -51,15 +64,12 @@ const SearchProfiles = () => {
       debounceRef.current = window.setTimeout(() => {
         fetchProfiles(query);
       }, 500);
-    } else {
-      // If less than 3 chars, show default friends again
-      fetchFriends();
     }
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query]);
+  }, [query, friendFilter]);
 
   const fetchProfiles = async (val: string) => {
     setLoading(true);
@@ -192,14 +202,59 @@ const SearchProfiles = () => {
           </div>
         </CustomCard>
 
-        <CustomCard
-          radius={10}
-          pClassName="size-12"
-          className="size-full flex items-center justify-center w-full"
-        >
-          <SlidersVerticalIcon className="size-5" />
-        </CustomCard>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div>
+              <CustomCard
+                radius={10}
+                pClassName="size-12"
+                className="size-full flex items-center justify-center w-full"
+              >
+                <SlidersVerticalIcon className="size-5" />
+              </CustomCard>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-40 mt-2 border-none p-0 bg-transparent shadow-none"
+            align="end"
+          >
+            <CustomCard radius={14} className="pb-2">
+              <DropdownMenuLabel className="px-4 pt-3">
+                Add Filters
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup
+                value={friendFilter}
+                onValueChange={(value) => {
+                  setSearchParams({ friend_filter: value });
+                }}
+              >
+                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="friends">
+                  Friends
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="non-friends">
+                  Non Friends
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </CustomCard>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {friendFilter && friendFilter !== "all" && (
+        <div className="mt-3 text-sm">
+          Filters:{" "}
+          <Badge
+            asChild
+            onClick={() => setSearchParams({ friend_filter: "all" })}
+          >
+            <Button className="h-6">
+              {friendFilter} <XIcon />
+            </Button>
+          </Badge>
+        </div>
+      )}
 
       {/* Results Section */}
       <div className="mt-3">
@@ -223,11 +278,10 @@ const SearchProfiles = () => {
         )}
 
         {!loading && !error && profiles.length === 0 && (
-          <div className="text-sm text-gray-500 p-2">
-            <img
-              className="grayscale"
-              src="https://marketbold.com/images/no-results-found-youtube-search.gif"
-            />
+          <div className="text-sm text-gray-500 p-5 pb-14 text-center bg-card">
+            <img className="w-52 mx-auto" src={NoDataImg} />
+            <h5 className="text-xl mb-1">No results found</h5>
+            <p>Try different keywords or remove search filters</p>
           </div>
         )}
         <div className="space-y-3">
@@ -247,10 +301,26 @@ const SearchProfiles = () => {
                 <CustomCard radius={14} className="flex gap-2 items-center p-2">
                   <img
                     className="size-10 aspect-square object-cover rounded-full"
-                    src={item.profile_pic || AvtarImg}
+                    src={
+                      item.profile_pic
+                        ? item.profile_pic.startsWith(
+                            "https://lh3.googleusercontent.com/"
+                          )
+                          ? item.profile_pic.replace(/=s\d+-c$/, "=s63-c")
+                          : item.profile_pic
+                        : AvtarImg
+                    }
                     alt={item.username}
                     loading="lazy"
+                    onError={(
+                      e: React.SyntheticEvent<HTMLImageElement, Event>
+                    ) => {
+                      const target = e.currentTarget;
+                      target.onerror = null; // Prevent infinite loop
+                      target.src = AvtarImg;
+                    }}
                   />
+
                   <div className="grow overflow-hidden">
                     <h3 className="text-md font-medium truncate">
                       {item.username}

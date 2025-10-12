@@ -11,7 +11,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
 
   const renderTitle = () => {
     if (typeof title === "string") {
-      return <h1 className="text-xl font-semibold grow">{title}</h1>;
+      return <h1 className="text-md font-medium grow">{title}</h1>;
     }
     return <div className="grow">{title}</div>;
   };

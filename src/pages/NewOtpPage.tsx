@@ -21,6 +21,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import type { LoginResponse } from "@/types/auth";
 
 const FormSchema = z.object({
   otp: z.string().min(6, {
@@ -29,7 +30,7 @@ const FormSchema = z.object({
 });
 
 function NewOtpPage() {
-  const { otpData, login } = useAppContext();
+  const { otpData, login, setOtpData } = useAppContext();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -56,13 +57,16 @@ function NewOtpPage() {
     if (!otpData?.email) return;
     setResending(true);
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/resend-otp`,
-        { email: otpData.email }
+      const res = await axios.post<LoginResponse>(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+        { identifier: otpData.email }
       );
+
       if (res.status === 200) {
         toast.success("OTP resent successfully!");
-        setTimer(60); // restart the timer
+        setTimer(60);
+        const { otp_id, email } = res.data;
+        setOtpData({ otp_id, email });
       } else {
         toast.error("Failed to resend OTP.");
       }
@@ -96,11 +100,11 @@ function NewOtpPage() {
     }
   }
 
-    useEffect(() => {
-      if (!(otpData.email && otpData.otp_id)) {
-        navigate("/auth/login", { replace: true });
-      }
-    }, []);
+  useEffect(() => {
+    if (!(otpData.email && otpData.otp_id)) {
+      navigate("/auth/login", { replace: true });
+    }
+  }, []);
 
   function maskEmail(email: string | null): string {
     if (!email) return ""; // handle null or empty email safely
