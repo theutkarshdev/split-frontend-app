@@ -1,6 +1,5 @@
 import { useRoutes, type RouteObject } from "react-router";
 import Dashboard from "@/pages/Dashboard";
-import OtpPage from "@/pages/OtpPage";
 import CompleteProfile from "@/pages/profile/CompleteProfile";
 import UserProfile from "@/pages/profile/UserProfile";
 import DashboardLayout from "./DashboardLayout";
