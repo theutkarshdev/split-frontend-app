@@ -29,15 +29,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import type { Profile } from "@/types/auth";
 
-interface Profile {
-  id: string;
-  username: string;
-  email: string;
-  full_name: string;
-  profile_pic: string;
-  friend_request_status: string | null;
-}
 
 const SearchProfiles = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -53,10 +46,6 @@ const SearchProfiles = () => {
   const friendFilter = searchParams.get("friend_filter") || "all";
 
   useEffect(() => {
-    if (!query.trim()) {
-      fetchFriends();
-      return;
-    }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -64,6 +53,8 @@ const SearchProfiles = () => {
       debounceRef.current = window.setTimeout(() => {
         fetchProfiles(query);
       }, 500);
+    } else {
+      setProfiles([]);
     }
 
     return () => {
@@ -91,30 +82,6 @@ const SearchProfiles = () => {
       setError(
         err?.response?.data?.message ||
           "Something went wrong. Please try again."
-      );
-      setProfiles([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ New function to fetch friends by default
-  const fetchFriends = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axiosInstance.get("/friends/");
-      if (Array.isArray(res.data)) {
-        setProfiles(res.data);
-      } else {
-        setProfiles([]);
-        setError("Unexpected response from server");
-      }
-    } catch (err: any) {
-      console.error("Fetch friends error:", err);
-      setError(
-        err?.response?.data?.message ||
-          "Could not load friends. Please try again."
       );
       setProfiles([]);
     } finally {
