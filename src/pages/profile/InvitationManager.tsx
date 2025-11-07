@@ -138,7 +138,7 @@ const InvitationManager: React.FC = () => {
                 <p>Try different keywords or remove search filters</p>
               </div>
             ) : (
-              <div>
+              <div className="space-y-3">
                 {requests.map((req) => (
                   <CustomCard
                     radius={14}
@@ -188,6 +188,8 @@ const InvitationManager: React.FC = () => {
                       )}
                     </div>
                   </CustomCard>
+
+                  
                 ))}
               </div>
             )}

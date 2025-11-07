@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useParams } from "react-router";
 import axiosInstance from "@/lib/axiosInstance";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DialogClose } from "@radix-ui/react-dialog";
+import { XIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type User = {
   id: string;
@@ -30,6 +34,7 @@ type ActivityDetail = {
 const ActivityDetail = () => {
   const { activityId } = useParams<{ activityId: string }>();
   const [activityData, setActivityData] = useState<ActivityDetail | null>(null);
+  const [showImageDialog, setShowImageDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
 
@@ -211,12 +216,39 @@ const ActivityDetail = () => {
             <h2 className="text-sm font-bold mb-3">Receipt Image:</h2>
             <CustomCard radius={19}>
               <img
-                className="w-full h-60 object-cover rounded-lg"
+                className="w-full h-60 object-cover rounded-lg cursor-pointer"
                 src={activityData.attachment}
                 alt="Receipt"
                 loading="lazy"
+                onClick={() => setShowImageDialog(true)}
               />
             </CustomCard>
+            <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+              <DialogContent
+                showCloseButton={false}
+                className="w-full max-w-3xl p-4 h-screen bg-zinc-200 dark:bg-zinc-800 border-none shadow-none rounded-none flex flex-col items-center justify-center"
+              >
+                <CustomCard radius={19} pClassName="flex-1 p-0 w-full">
+                  <div className="h-[calc(100vh-5.7rem)] overflow-auto grid place-items-center">
+                    <img
+                      src={activityData.attachment}
+                      className="w-full"
+                      alt="Full Receipt"
+                    />
+                  </div>
+                </CustomCard>
+
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    aria-label="Close dialog"
+                    className="w-full h-[2.7rem]"
+                  >
+                    Close <XIcon className="size-5" />
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
           </CustomCard>
         )}
       </div>

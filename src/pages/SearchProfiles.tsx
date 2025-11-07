@@ -31,7 +31,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Profile } from "@/types/auth";
 
-
 const SearchProfiles = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,9 +45,11 @@ const SearchProfiles = () => {
   const friendFilter = searchParams.get("friend_filter") || "all";
 
   useEffect(() => {
-
+    if (friendFilter === "friends") {
+      fetchFriends();
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
-
     if (query.trim().length > 3) {
       debounceRef.current = window.setTimeout(() => {
         fetchProfiles(query);
@@ -56,11 +57,37 @@ const SearchProfiles = () => {
     } else {
       setProfiles([]);
     }
-
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [query, friendFilter]);
+
+  // Fetch friends function
+  const fetchFriends = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axiosInstance.get("/friends/");
+      if (Array.isArray(res.data)) {
+        setProfiles(res.data);
+      } else {
+        setProfiles([]);
+        setError("Unexpected response from server");
+      }
+    } catch (err: any) {
+      console.error("Fetch friends error:", err);
+      setError(
+        (err &&
+          typeof err === "object" &&
+          "response" in err &&
+          err.response?.data?.message) ||
+          "Could not load friends. Please try again."
+      );
+      setProfiles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchProfiles = async (val: string) => {
     setLoading(true);

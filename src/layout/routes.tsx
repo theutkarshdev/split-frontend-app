@@ -12,6 +12,7 @@ import ActivityHistory from "@/pages/profile/ActivityHistory";
 import ActivityDetail from "@/pages/activity/ActivityDetail";
 import NewLogin from "@/pages/NewLogin";
 import NewOtpPage from "@/pages/NewOtpPage";
+import EditUserProfile from "@/pages/profile/EditUserProfile";
 
 export const routes: RouteObject[] = [
   {
@@ -40,6 +41,10 @@ export const routes: RouteObject[] = [
           {
             path: "history",
             element: <ActivityHistory />,
+          },
+          {
+            path: "edit",
+            element: <EditUserProfile />,
           },
         ],
       },

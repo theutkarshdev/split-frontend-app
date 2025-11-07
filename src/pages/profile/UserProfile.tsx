@@ -4,11 +4,11 @@ import axiosInstance from "@/lib/axiosInstance";
 import {
   CheckCircle2Icon,
   ChevronRight,
+  Edit2Icon,
   EditIcon,
   InfoIcon,
   LogInIcon,
   NotebookIcon,
-  SettingsIcon,
   WalletCardsIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -19,6 +19,7 @@ import PageLayout from "@/components/PageLayout";
 import { ModeSwitch } from "@/components/ModeToggle";
 import FullscreenToggle from "@/components/ToggleFullScreen";
 import { Skeleton } from "@/components/ui/skeleton";
+import ReportIssue from "./ReportIssue";
 
 interface UserData {
   full_name: string;
@@ -37,6 +38,7 @@ function UserProfile() {
   const { logout } = useAppContext();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showReportDrawer, setShowReportDrawer] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -61,11 +63,8 @@ function UserProfile() {
     },
     {
       icons: <InfoIcon className="size-4" />,
-      name: "Report a safety emergency",
-    },
-    {
-      icons: <SettingsIcon className="size-4" />,
-      name: "Settings",
+      name: "Report an Issue",
+      click: () => setShowReportDrawer(true),
     },
     {
       icons: <LogInIcon className="size-4" />,
@@ -100,7 +99,7 @@ function UserProfile() {
       {/* ✅ Profile Card */}
       <CustomCard
         radius={18}
-        className="p-5 rounded-xl flex items-center gap-3"
+        className="p-5 rounded-xl flex items-center gap-3 relative"
       >
         {loading ? (
           <>
@@ -123,6 +122,13 @@ function UserProfile() {
             <div>
               <span className="text-xs font-medium bg-primary text-white dark:text-black mb-1 px-2 py-1 rounded-full inline-flex gap-2">
                 {userData?.username} <CheckCircle2Icon className="size-4" />
+              </span>
+              <span
+                onClick={() => navigate("edit")}
+                className="absolute items-center bottom-0 right-0 text-xs font-medium bg-primary px-3 py-1 text-white dark:text-black inline-flex rounded-tl-3xl"
+              >
+                <Edit2Icon className="size-3 mr-1" />
+                Edit
               </span>
               <p className="text-md font-semibold">{userData?.full_name}</p>
               <p className="text-xs font-medium">{userData?.email}</p>
@@ -170,6 +176,13 @@ function UserProfile() {
           ))}
         </div>
       </CustomCard>
+
+      {showReportDrawer && (
+        <ReportIssue
+          showReportDrawer={showReportDrawer}
+          setShowReportDrawer={setShowReportDrawer}
+        />
+      )}
     </PageLayout>
   );
 }
