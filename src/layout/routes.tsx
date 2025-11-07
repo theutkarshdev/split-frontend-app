@@ -1,13 +1,20 @@
 import { useRoutes, type RouteObject } from "react-router";
 import Dashboard from "@/pages/Dashboard";
-import LoginPage from "@/pages/LoginPage";
-import OtpPage from "@/pages/OtpPage";
 import CompleteProfile from "@/pages/profile/CompleteProfile";
 import UserProfile from "@/pages/profile/UserProfile";
 import DashboardLayout from "./DashboardLayout";
 import AuthLayout from "./AuthLayout";
+import SearchProfiles from "@/pages/SearchProfiles";
+import InvitationManager from "@/pages/profile/InvitationManager";
+import NotificationsPage from "@/pages/Notifications";
+import UserActivity from "@/pages/activity/UserActivity";
+import ActivityHistory from "@/pages/profile/ActivityHistory";
+import ActivityDetail from "@/pages/activity/ActivityDetail";
+import NewLogin from "@/pages/NewLogin";
+import NewOtpPage from "@/pages/NewOtpPage";
+import EditUserProfile from "@/pages/profile/EditUserProfile";
 
-const routes: RouteObject[] = [
+export const routes: RouteObject[] = [
   {
     path: "/",
     element: <DashboardLayout />,
@@ -27,28 +34,62 @@ const routes: RouteObject[] = [
             path: "complete",
             element: <CompleteProfile />,
           },
+          {
+            path: "invitation-manager",
+            element: <InvitationManager />,
+          },
+          {
+            path: "history",
+            element: <ActivityHistory />,
+          },
+          {
+            path: "edit",
+            element: <EditUserProfile />,
+          },
+        ],
+      },
+      {
+        path: "search",
+        element: <SearchProfiles />,
+      },
+      {
+        path: "notifications",
+        element: <NotificationsPage />,
+      },
+      {
+        path: "activity/:id",
+        children: [
+          {
+            index: true,
+            element: <UserActivity />,
+          },
+          {
+            path: ":activityId",
+            element: <ActivityDetail />,
+          },
         ],
       },
     ],
   },
 
   {
-    path: "/",
+    path: "/auth",
     element: <AuthLayout />,
     children: [
       {
         path: "login",
-        element: <LoginPage />,
+        element: <NewLogin />,
       },
       {
         path: "verify-otp",
-        element: <OtpPage />,
-      },
-      {
-        path: "*",
-        element: <p>404 Error</p>,
+        element: <NewOtpPage />,
       },
     ],
+  },
+
+  {
+    path: "*",
+    element: <p>404 Error</p>,
   },
 ];
 

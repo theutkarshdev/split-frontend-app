@@ -15,8 +15,10 @@ import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import type { LoginResponse } from "@/types/auth";
-import { useAppContext } from "@/layout/AppContext";
-import { useNavigate } from "react-router";
+import { useAppContext } from "@/hooks/useAppContext";
+import { useLocation, useNavigate } from "react-router";
+import CustomCard from "@/components/CustomCard";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const FormSchema = z.object({
   identifier: z.string().min(2, {
@@ -34,20 +36,22 @@ export function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const { setOtpData } = useAppContext();
+  const location = useLocation();
   const navigate = useNavigate();
+  
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
       const res = await axios.post<LoginResponse>(
-        `https://split-backend-app.vercel.app/auth/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
         data
       );
       if (res.status === 200) {
         const { otp_id, email } = res.data;
         setOtpData({ otp_id, email });
         toast.success("Otp sent successfully.");
-        navigate("/verify-otp");
+        navigate("/auth/verify-otp", { state: { from: location.state?.from } });
       }
     } catch (err: unknown) {
       console.error(err);
@@ -58,22 +62,21 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex gap-20 items-center justify-center h-dvh relative overflow-hidden px-5">
-      <div className="flex gap-5 relative z-10 items-center justify-center flex-col w-full max-w-md">
+    <div className="flex gap-20 items-center justify-center h-dvh relative overflow-hidden px-5 z-2">
+      <CustomCard
+        radius={25}
+        pClassName="w-full max-w-md bg-transparent border"
+        className="flex gap-5 items-center justify-center flex-col p-5 backdrop-blur-lg bg-transparent"
+      >
         <h3 className="text-4xl font-medium text-center">Spilly</h3>
-        <p className="text-sm text-black text-center mb-8 max-w-60 mx-auto italic">
+        <p className="text-sm text-center mb-8 max-w-60 mx-auto italic">
           "Spilly makes it easy to share expenses and settle up with friends
           effortlessly."
         </p>
-        <p className="text-base text-black text-center font-normal">
+        <p className="text-base text-center font-normal">
           Log in or sign up here
         </p>
-        <button
-          type="button"
-          className="cursor-pointer bg-black text-white py-3 px-10 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 mx-auto"
-        >
-          <i className="bi bi-google"></i> Continue with Google
-        </button>
+        <GoogleLoginButton setLoading={setLoading} />
         <div className="flex gap-2 items-center w-full">
           <span className="h-[1.6px] min-h-[1.6px] bg-zinc-400 w-full"></span>
           <span className="text-xs uppercase">OR</span>
@@ -91,9 +94,9 @@ export function LoginPage() {
                 <FormItem>
                   <FormControl>
                     <Input
-                      placeholder="Continue with email..."
+                      placeholder="Continue with username or email..."
                       {...field}
-                      className="block squircle w-full py-3 px-4 rounded-lg border-2 h-12 focus:border-zinc-400 bg-white text-sm font-medium placeholder:text-zinc-800 outline-none shadow-none"
+                      className="w-full px-4 rounded-lg border-2 h-12 text-sm font-medium outline-none shadow-none bg-card"
                     />
                   </FormControl>
                   <FormMessage />
@@ -103,26 +106,18 @@ export function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="cursor-pointer squircle  bg-black text-white py-2 px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 hover:bg-zinc-700 transition duration-200 w-full"
+              className="cursor-pointer py-2 px-10 h-12 rounded-lg text-center flex justify-center items-center gap-2 w-full"
             >
-              {loading ? (
-                <>
-                  Sending OTP...
-                  <i className="bi bi-arrow-repeat inline-block animate-spin text-xl"></i>
-                </>
-              ) : (
-                <>
-                  Get OTP on email <i className="bi bi-download text-xl"></i>
-                </>
-              )}
+              {loading ? <>Sending OTP...</> : <>Get OTP</>}
             </Button>
           </form>
         </Form>
-        <p className="text-sm text-center text-black">
+        <p className="text-sm text-center">
           By continuing, you agree to our policies.
         </p>
-      </div>
-      <div className="hero--img--anim absolute lg:top-1/3 top-1/2 left-1/2 -translate-1/2 md:w-[50dvw] md:h-[50dvw] w-dvw h-dvw">
+      </CustomCard>
+
+      <div className="hero--img--anim absolute -z-1 lg:top-1/3 top-1/2 left-1/2 -translate-1/2 md:w-[50dvw] md:h-[50dvw] w-dvw h-dvw [&_span]:bg-[linear-gradient(43deg,#000000_0%,#ffffff_46%,#d4d4d4_100%)] [&_span]:dark:bg-[linear-gradient(43deg,#000000_0%,gray_46%,#d4d4d4_100%)]">
         <span></span>
         <span></span>
         <span></span>

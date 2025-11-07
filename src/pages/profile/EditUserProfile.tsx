@@ -66,9 +66,9 @@ const FormSchema = z.object({
     ),
 });
 
-function CompleteProfile() {
+function EditProfile() {
   const navigate = useNavigate();
-  const { markProfileComplete, auth } = useAppContext();
+  const { markProfileComplete } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
@@ -112,13 +112,6 @@ function CompleteProfile() {
     fetchProfile();
   }, [form]);
 
-  // ✅ Redirect if profile already complete
-  useEffect(() => {
-    if (!auth.is_new) {
-      navigate("/", { replace: true });
-    }
-  }, [auth.is_new, navigate]);
-
   // ✅ Debounced username availability check
   const checkUserName = (value: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -159,39 +152,47 @@ function CompleteProfile() {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/profile/check-username", {
-        params: { username: data.username },
-      });
-
-      if (!response.data.available) {
-        form.setError("username", {
-          type: "manual",
-          message: "This username is already taken",
+      if (userData?.username !== data.username) {
+        const response = await axiosInstance.get("/profile/check-username", {
+          params: { username: data.username },
         });
-        return;
-      }
 
+        if (!response.data.available) {
+          form.setError("username", {
+            type: "manual",
+            message: "This username is already taken",
+          });
+          return;
+        }
+      }
       const formData = new FormData();
-      formData.append("full_name", data.full_name);
-      formData.append("upi_id", data.upi_id);
-      formData.append("username", data.username);
+      // Only append if changed
+      if (userData?.full_name !== data.full_name) {
+        formData.append("full_name", data.full_name);
+      }
+      if (userData?.upi_id !== data.upi_id) {
+        formData.append("upi_id", data.upi_id);
+      }
+      if (userData?.username !== data.username) {
+        formData.append("username", data.username);
+      }
 
       if (data.profile_pic instanceof File) {
         formData.append("profile_pic", data.profile_pic);
       }
 
-      const res = await axiosInstance.post("/profile/complete", formData, {
+      const res = await axiosInstance.put("/profile/edit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (res.status === 200) {
-        toast.success("Profile completed successfully!");
+        toast.success("Profile edit successfully!");
         markProfileComplete();
-        navigate("/");
+        navigate("/profile");
       }
     } catch (error) {
       console.error("Profile completion failed:", error);
-      toast.error("Error completing profile");
+      toast.error("Error editing profile");
     } finally {
       setLoading(false);
     }
@@ -333,4 +334,4 @@ function CompleteProfile() {
   );
 }
 
-export default CompleteProfile;
+export default EditProfile;

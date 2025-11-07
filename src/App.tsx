@@ -1,5 +1,5 @@
 import routeConfig from "@/layout/routes";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import "@/lib/toastSetup"
 
 function App() {
   return routeConfig();
