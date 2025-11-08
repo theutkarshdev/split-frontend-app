@@ -226,10 +226,10 @@ const ActivityDetail = () => {
             <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
               <DialogContent
                 showCloseButton={false}
-                className="w-full max-w-3xl p-4 h-screen bg-zinc-200 dark:bg-zinc-800 border-none shadow-none rounded-none flex flex-col items-center justify-center"
+                className="w-full max-w-3xl p-4 h-svh bg-zinc-200 dark:bg-zinc-800 border-none shadow-none rounded-none flex flex-col items-center justify-center"
               >
                 <CustomCard radius={19} pClassName="flex-1 p-0 w-full">
-                  <div className="h-[calc(100vh-5.7rem)] overflow-auto grid place-items-center">
+                  <div className="h-[calc(100svh-5.7rem)] overflow-auto grid place-items-center">
                     <img
                       src={activityData.attachment}
                       className="w-full"
