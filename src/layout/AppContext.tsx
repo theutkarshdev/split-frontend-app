@@ -133,10 +133,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     setLogoutHandler(logout);
   }, [logout]);
 
-  // 👉 Persist theme change
-  useEffect(() => {
-    localStorage.setItem("theme", theme);
-  }, [theme]);
 
   return (
     <AppContext.Provider
