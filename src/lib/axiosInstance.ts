@@ -56,8 +56,14 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await axiosInstance.post("/auth/refresh");
-
+        console.log("Refreshing token....");
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`,
+          null, // Or any required body
+          {
+            withCredentials: true, // Must include cookies (Refresh Token)
+          }
+        );
         const newToken = response.data.access_token;
 
         localStorage.setItem(
@@ -77,6 +83,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         isRefreshing = false;
+        console.log("logout....");
 
         callLogout();
         toast.error("Session expired. Please login again.");
