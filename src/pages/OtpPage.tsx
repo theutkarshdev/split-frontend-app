@@ -49,7 +49,10 @@ function OtpPage() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/verify`,
-        payload
+        payload,
+        {
+          withCredentials: true,
+        }
       );
 
       if (res.status === 200) {
