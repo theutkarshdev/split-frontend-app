@@ -13,7 +13,7 @@ import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router";
-import NoDataImg from "@/assets/no-data.png";
+import NoDataFound from "@/components/NoDataFound";
 // types
 interface OtherUser {
   id: string;
@@ -174,11 +174,7 @@ const ActivityHistory: React.FC = () => {
           </div>
 
           {activities.length === 0 ? (
-            <div className="text-sm text-gray-500 p-5 pb-14 text-center bg-card">
-              <img className="w-52 mx-auto" src={NoDataImg} />
-              <h5 className="text-xl mb-1">No results found</h5>
-              <p>Try different keywords or remove search filters</p>
-            </div>
+            <NoDataFound errorMsg={"No activities found."} />
           ) : (
             <div className="flex flex-col gap-2">
               {activities.map((activity) => {

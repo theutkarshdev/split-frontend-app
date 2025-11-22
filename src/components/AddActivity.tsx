@@ -126,7 +126,7 @@ function AddActivityForm({
           <PlusIcon className="mr-2" /> Add Expense
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="!rounded-4xl">
+      <DrawerContent className="!rounded-t-4xl">
         <DrawerHeader className="items-start border-b">
           <DrawerTitle className="text-lg">Add Expense</DrawerTitle>
           <DrawerDescription>Fill out the details below.</DrawerDescription>

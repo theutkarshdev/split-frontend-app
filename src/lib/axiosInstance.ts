@@ -21,7 +21,7 @@ const axiosInstance = axios.create({
 
 // Attach Access Token
 axiosInstance.interceptors.request.use((config) => {
-  config.headers["Content-Type"] = "application/json";
+
   const raw = localStorage.getItem("auth");
   if (raw) {
     const { token } = JSON.parse(raw);

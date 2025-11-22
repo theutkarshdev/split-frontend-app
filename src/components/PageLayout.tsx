@@ -9,9 +9,10 @@ interface PageLayoutProps {
   children: ReactNode;
   className?: string;
   isNav?: boolean;
+  rightElement?: ReactNode;
 }
 
-const PageLayout = ({ title, className, isNav=true, children }: PageLayoutProps) => {
+const PageLayout = ({ title, className, isNav=true, rightElement, children }: PageLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,7 +36,7 @@ const PageLayout = ({ title, className, isNav=true, children }: PageLayoutProps)
   return (
     <div className="bg-foreground">
       <main className="w-full max-w-md flex flex-col h-svh mx-auto">
-        {title && <PageHeader title={title} />}
+        {title && <PageHeader title={title} rightElement={rightElement} />}
         <div
           className={cn(`p-5 bg-slate-50 dark:bg-black flex-1 overflow-y-auto`, className)}
         >

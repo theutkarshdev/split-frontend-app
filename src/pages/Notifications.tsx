@@ -9,12 +9,26 @@ import PageLayout from "@/components/PageLayout";
 import axiosInstance from "@/lib/axiosInstance";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import { ListChecksIcon } from "lucide-react";
+import CustomCard from "@/components/CustomCard";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 const NotificationsPage: React.FC = () => {
   const [notificationsData, setNotificationsData] = useState<Notification[]>(
     []
   );
   const [loading, setLoading] = useState(true);
+  const [openMarkAllDialog, setOpenMarkAllDialog] = useState(false);
+  const [markingAll, setMarkingAll] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -55,6 +69,24 @@ const NotificationsPage: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      setMarkingAll(true);
+      await axiosInstance.patch("/notifications/read-all");
+      // Optimistic UI update
+      setNotificationsData((prev) =>
+        prev.map((n) => ({ ...n, is_read: true }))
+      );
+      toast.success("All notifications marked as read");
+      setOpenMarkAllDialog(false);
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+      toast.error("Failed to mark all as read");
+    } finally {
+      setMarkingAll(false);
     }
   };
 
@@ -164,7 +196,54 @@ const NotificationsPage: React.FC = () => {
   );
 
   return (
-    <PageLayout title="My Notifications" className="p-0">
+    <PageLayout
+      title="My Notifications"
+      className="p-0"
+      rightElement={
+        <button
+          type="button"
+          aria-label="Mark all as read"
+          onClick={() => setOpenMarkAllDialog(true)}
+          className="rounded-md"
+        >
+          <CustomCard
+            radius={7}
+            pClassName="size-8"
+            className="size-full flex items-center justify-center w-full"
+          >
+            <ListChecksIcon className="size-4" />
+          </CustomCard>
+        </button>
+      }
+    >
+      <Dialog open={openMarkAllDialog} onOpenChange={setOpenMarkAllDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark all as read?</DialogTitle>
+            <DialogDescription>
+              This will mark all your notifications as read. You cannot undo
+              this action.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpenMarkAllDialog(false)}
+              disabled={markingAll}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleMarkAllRead}
+              disabled={markingAll}
+            >
+              {markingAll ? "Marking..." : "Mark All Read"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Tabs defaultValue="all">
         <div className="p-5 pb-3">
           <TabsList>

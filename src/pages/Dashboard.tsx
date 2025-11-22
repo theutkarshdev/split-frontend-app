@@ -256,7 +256,7 @@ const Dashboard = () => {
 
             {/* Error / Empty State */}
             {!activitiesLoading && activities.length === 0 && (
-              <NoDataFound errorMsg={activitiesError} />
+              <NoDataFound isBorder={false} errorMsg={activitiesError} />
             )}
 
             {/* Loaded Activities */}

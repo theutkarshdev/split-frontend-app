@@ -4,6 +4,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import {
   CheckCircle2Icon,
   ChevronRight,
+  CopyIcon,
   Edit2Icon,
   EditIcon,
   InfoIcon,
@@ -20,6 +21,7 @@ import { ModeSwitch } from "@/components/ModeToggle";
 import FullscreenToggle from "@/components/ToggleFullScreen";
 import { Skeleton } from "@/components/ui/skeleton";
 import ReportIssue from "./ReportIssue";
+import toast from "react-hot-toast";
 
 interface UserData {
   full_name: string;
@@ -94,6 +96,15 @@ function UserProfile() {
     fetchProfile();
   }, []);
 
+  const copyUpiId = (upi_id: string) => {
+    if (upi_id) {
+      navigator.clipboard.writeText(upi_id);
+      toast.success("UPI ID Copied.");
+    } else {
+      toast.error("Value not found.");
+    }
+  };
+
   return (
     <PageLayout title="My Profile" className="space-y-4">
       {/* ✅ Profile Card */}
@@ -142,7 +153,16 @@ function UserProfile() {
           <div className="size-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
             <WalletCardsIcon className="size-4" />
           </div>
-          {loading ? <Skeleton className="w-[70%] h-3" /> : userData?.upi_id}
+          <p className="grow">
+            {loading ? <Skeleton className="w-[70%] h-3" /> : userData?.upi_id}
+          </p>
+
+          <div className="size-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
+            <CopyIcon
+              onClick={() => copyUpiId(userData?.upi_id || "")}
+              className="size-4 cursor-pointer"
+            />
+          </div>
         </div>
       </CustomCard>
 

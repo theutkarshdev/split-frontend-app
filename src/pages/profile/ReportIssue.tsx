@@ -64,7 +64,7 @@ const ReportIssue = ({
 
   return (
     <Drawer open={showReportDrawer} onOpenChange={setShowReportDrawer}>
-      <DrawerContent className="!rounded-4xl">
+      <DrawerContent className="!rounded-t-4xl">
         <DrawerHeader className="items-start border-b">
           <DrawerTitle>Report an Issue</DrawerTitle>
           <DrawerDescription className="text-left">
