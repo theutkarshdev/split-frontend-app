@@ -1,51 +1,125 @@
 import { Label, Pie, PieChart } from "recharts";
+import { useMemo } from "react";
 
 import {
   type ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useMemo } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
+type DashboardEntry = {
+  username: string;
+  fullName: string;
+  amount: number;
+  type: "owed" | "paid" | string;
+};
+
+type DashboardPayload = {
+  totalAmount: number;
+  type: "owed" | "paid" | string;
+  data: DashboardEntry[];
+} | null;
+
+const PIE_COLORS = [
+  "var(--pie-chart-1)",
+  "var(--pie-chart-2)",
+  "var(--pie-chart-3)",
+  "var(--pie-chart-4)",
+  "var(--pie-chart-5)",
 ];
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "var(--pie-chart-1)",
-  },
-  safari: {
-    label: "Safari",
-    color: "var(--pie-chart-2)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "var(--pie-chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--pie-chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--pie-chart-5)",
-  },
-} satisfies ChartConfig;
+export function ChartPieDonutText({
+  loading,
+  data,
+}: {
+  loading: boolean;
+  data: DashboardPayload;
+}) {
+  // Build dynamic chart config and data from payload
+  const { chartConfig, pieData, total, labelText } = useMemo(() => {
+    const empty = {
+      chartConfig: { visitors: { label: "Amount" } } as ChartConfig,
+      pieData: [] as Array<{
+        username: string;
+        visitors: number;
+        fill: string;
+      }>,
+      total: 0,
+      labelText: "",
+    };
 
-export function ChartPieDonutText() {
-  const totalVisitors = useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
-  }, []);
+    if (!data || !Array.isArray(data.data) || data.data.length === 0) {
+      return empty;
+    }
+
+    const config: ChartConfig = { visitors: { label: "Amount" } };
+
+    // Assign a color per entry (cycle through palette if needed)
+    const mapped = data.data.map((item, idx) => {
+      const colorVar = PIE_COLORS[idx % PIE_COLORS.length];
+      // ChartStyle maps --color-<key> from config.color
+      config[item.username] = {
+        label: item.fullName.split(" ")[0] || item.username,
+        color: colorVar,
+      };
+      return {
+        username: item.username,
+        fullName: item.fullName,
+        visitors: Math.max(0, Number(item.amount) || 0),
+        fill: `var(--color-${item.username})`,
+        type: item.type,
+      };
+    });
+
+    return {
+      chartConfig: config,
+      pieData: mapped,
+      total:
+        typeof data.totalAmount === "number"
+          ? data.totalAmount
+          : mapped.reduce((a, c) => a + (c.visitors || 0), 0),
+      labelText: data.type === "owed" ? "Total Owed" : "Total Paid",
+    };
+  }, [data]);
+
+  const isPaid = (data?.type ?? "") === "paid";
+
+  if (loading) {
+    return (
+      <div className="h-full w-full grid grid-cols-[1fr_1fr] items-center">
+        <div className="flex items-center justify-center">
+          <div className="relative h-40 w-40">
+            <Skeleton className="h-full w-full rounded-full" />
+            <div className="absolute inset-10">
+              <Skeleton className="h-full w-full rounded-full" />
+            </div>
+          </div>
+        </div>
+        <div className="px-4">
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Skeleton className="h-2 w-2 rounded-sm" />
+                <Skeleton className="h-3 w-28" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!pieData.length) {
+    return (
+      <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
+        No data to display
+      </div>
+    );
+  }
 
   return (
     <ChartContainer
@@ -54,9 +128,9 @@ export function ChartPieDonutText() {
     >
       <PieChart>
         <Pie
-          data={chartData}
+          data={pieData}
           dataKey="visitors"
-          nameKey="browser"
+          nameKey="username"
           innerRadius={55}
           strokeWidth={5}
           paddingAngle={3}
@@ -76,16 +150,18 @@ export function ChartPieDonutText() {
                     <tspan
                       x={viewBox.cx}
                       y={viewBox.cy}
-                      className="fill-foreground text-xl font-bold"
+                      className={`text-lg font-bold ${
+                        isPaid ? "fill-green-500" : "fill-red-400"
+                      }`}
                     >
-                      ₹{" "}{totalVisitors.toLocaleString()}
+                      ₹ {total.toLocaleString()}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
                       y={(viewBox.cy || 0) + 24}
                       className="fill-muted-foreground"
                     >
-                      Total Paid
+                      {labelText}
                     </tspan>
                   </text>
                 );
@@ -94,10 +170,38 @@ export function ChartPieDonutText() {
           />
         </Pie>
 
+        <ChartTooltip
+          cursor={{ fill: "transparent" }}
+          content={
+            <ChartTooltipContent
+              nameKey="username"
+              formatter={(value: any, _name, item) => {
+                const amt =
+                  typeof value === "number" ? value : Number(value) || 0;
+                const sliceType = (item && (item.payload as any)?.type) as
+                  | string
+                  | undefined;
+                const colorClass =
+                  sliceType === "paid" ? "text-green-500" : "text-red-400";
+                return (
+                  <div className="flex justify-between w-full">
+                    <span>{item?.payload?.fullName.split(" ")[0]}</span>
+                    <span
+                      className={`font-mono font-medium tabular-nums ${colorClass}`}
+                    >
+                      ₹ {amt.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              }}
+            />
+          }
+        />
+
         <ChartLegend
           verticalAlign="middle"
           layout="vertical"
-          content={<ChartLegendContent nameKey="browser" />}
+          content={<ChartLegendContent nameKey="username" />}
           className="grid grid-cols-1 gap-y-2"
           wrapperStyle={{
             position: "absolute",

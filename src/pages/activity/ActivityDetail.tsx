@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useParams } from "react-router";
+import { replace, useNavigate, useParams } from "react-router";
 import axiosInstance from "@/lib/axiosInstance";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
@@ -38,6 +38,7 @@ const ActivityDetail = () => {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
 
   const fetchActivityData = async () => {
     try {
@@ -244,7 +245,10 @@ const ActivityDetail = () => {
           </div>
 
           <div className="flex text-sm font-normal gap-2 pt-3 pb-5">
-            <button className="border text-xs font-normal px-3 py-2 rounded-md cursor-pointer hover:bg-muted transition">
+            <button
+              onClick={() => navigate(`/activity/${activityData.other_user.id}`, { replace: true })}
+              className="border text-xs font-normal px-3 py-2 rounded-md cursor-pointer hover:bg-muted transition"
+            >
               View History
             </button>
           </div>
