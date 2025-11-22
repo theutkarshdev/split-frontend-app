@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { replace, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import axiosInstance from "@/lib/axiosInstance";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
