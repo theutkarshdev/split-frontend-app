@@ -15,7 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
-import NoDataImg from "@/assets/no-data.png";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import {
@@ -30,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Profile } from "@/types/auth";
+import NoDataFound from "@/components/NoDataFound";
 
 const SearchProfiles = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -220,7 +220,7 @@ const SearchProfiles = () => {
               <DropdownMenuRadioGroup
                 value={friendFilter}
                 onValueChange={(value) => {
-                  setSearchParams({ friend_filter: value });
+                  setSearchParams({ friend_filter: value }, { replace: true });
                 }}
               >
                 <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
@@ -241,7 +241,9 @@ const SearchProfiles = () => {
           Filters:{" "}
           <Badge
             asChild
-            onClick={() => setSearchParams({ friend_filter: "all" })}
+            onClick={() =>
+              setSearchParams({ friend_filter: "all" }, { replace: true })
+            }
           >
             <Button className="h-6">
               {friendFilter} <XIcon />
@@ -271,13 +273,7 @@ const SearchProfiles = () => {
           <p className="text-sm text-red-500 p-2">{error}</p>
         )}
 
-        {!loading && !error && profiles.length === 0 && (
-          <div className="text-sm text-gray-500 p-5 pb-14 text-center bg-card">
-            <img className="w-52 mx-auto" src={NoDataImg} />
-            <h5 className="text-xl mb-1">No results found</h5>
-            <p>Try different keywords or remove search filters</p>
-          </div>
-        )}
+        {!loading && !error && profiles.length === 0 && <NoDataFound />}
         <div className="space-y-3">
           {!loading &&
             !error &&

@@ -4,9 +4,10 @@ import { useSmartBack } from "@/hooks/useSmartBack";
 
 interface PageHeaderProps {
   title: string | ReactNode;
+  rightElement?: ReactNode;
 }
 
-const PageHeader = ({ title }: PageHeaderProps) => {
+const PageHeader = ({ title, rightElement }: PageHeaderProps) => {
   const smartBack = useSmartBack();
 
   const renderTitle = () => {
@@ -23,6 +24,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
         onClick={smartBack} // <-- Navigate back
       />
       {renderTitle()}
+      {rightElement && <div>{rightElement}</div>}
     </div>
   );
 };

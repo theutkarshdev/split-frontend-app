@@ -65,8 +65,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   status,
   note,
   attachment,
-  to_user_id,
-  current_user_id,
   onStatusUpdate,
 }) => {
   const isOwed = type === "owed";
@@ -116,7 +114,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           </CustomCard>
         )}
 
-        {status === "pending" && to_user_id !== current_user_id && (
+        {status === "pending" && isOwed && (
           <div className="flex [&_button]:grow gap-3 my-3">
             <Button
               variant="outline"

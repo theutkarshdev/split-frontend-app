@@ -180,6 +180,8 @@ function CompleteProfile() {
         formData.append("profile_pic", data.profile_pic);
       }
 
+      console.log(data)
+
       const res = await axiosInstance.post("/profile/complete", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

@@ -6,8 +6,9 @@ import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 
 type User = {
   id: string;
@@ -19,7 +20,7 @@ type User = {
 
 type ActivityDetail = {
   id: string;
-  type: "paid" | "received";
+  type: "paid" | "owed";
   amount: number;
   total_amount: number;
   note: string;
@@ -38,27 +39,46 @@ const ActivityDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
 
+  const fetchActivityData = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await axiosInstance.get<ActivityDetail>(
+        `/activities/${activityId}`
+      );
+
+      setActivityData(res.data);
+    } catch (err: any) {
+      console.error("Error fetching activity data:", err);
+      setError(
+        err?.response?.data?.message || "Failed to load activity details."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (
+    activity_id: string,
+    status: "accepted" | "rejected"
+  ) => {
+    setLoading(true);
+    try {
+      await axiosInstance.patch(`/activities/${activity_id}/status`, {
+        status,
+      });
+      toast.success(`Activity ${status}`);
+      fetchActivityData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchActivityData = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const res = await axiosInstance.get<ActivityDetail>(
-          `/activities/${activityId}`
-        );
-
-        setActivityData(res.data);
-      } catch (err: any) {
-        console.error("Error fetching activity data:", err);
-        setError(
-          err?.response?.data?.message || "Failed to load activity details."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (activityId) fetchActivityData();
   }, [activityId]);
 
@@ -132,6 +152,7 @@ const ActivityDetail = () => {
   }
 
   const isPaid = activityData.type === "paid";
+  const isOwed = activityData.type === "owed";
   const fromUser = isPaid ? activityData.current_user : activityData.other_user;
   const toUser = isPaid ? activityData.other_user : activityData.current_user;
 
@@ -139,7 +160,7 @@ const ActivityDetail = () => {
     <PageLayout title="Activity Details" isNav={false}>
       <div className="space-y-5">
         {/* Amount Details */}
-        <CustomCard radius={19} className="p-5">
+        <CustomCard radius={19} pClassName="relative" className="p-5">
           <div className="grid grid-cols-2 mb-3">
             <div>
               <h2 className="text-sm font-bold mb-1">Amount</h2>
@@ -150,19 +171,59 @@ const ActivityDetail = () => {
                     : "text-red-500"
                 }`}
               >
-                ₹ {activityData.amount}
+                ₹ {activityData.amount.toString().slice(0, 8)}
               </p>
             </div>
             <div className="border-l-2 pl-5">
               <h2 className="text-sm font-bold mb-1">Total Amount</h2>
               <p className="text-2xl font-bold mb-3">
-                ₹ {activityData.total_amount}
+                ₹ {activityData.total_amount.toString().slice(0, 8)}
               </p>
             </div>
           </div>
 
+          <div className="flex gap-2">
+            <h2 className="text-sm font-bold mb-1">Status: </h2>
+            <p
+              className={`text-sm ${
+                activityData.status === "accepted"
+                  ? "text-green-600"
+                  : activityData.status === "pending"
+                  ? "text-yellow-600"
+                  : "text-red-600"
+              }`}
+            >
+              {activityData.status}
+            </p>
+          </div>
+
           {activityData.note && (
-            <p className="text-sm mb-3">Note: {activityData.note}</p>
+            <div className="flex gap-2">
+              <h2 className="text-sm font-bold mb-1">Note: </h2>
+              <p className="text-sm">{activityData.note}</p>
+            </div>
+          )}
+
+          {activityData.status === "pending" && isOwed && (
+            <div className="flex [&_button]:grow gap-3 border-t border-dashed pt-5 mt-5">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  handleStatusUpdate(activityData.id, "rejected");
+                }}
+              >
+                <XIcon />
+                Reject
+              </Button>
+              <Button
+                onClick={() => {
+                  handleStatusUpdate(activityData.id, "accepted");
+                }}
+              >
+                <CheckIcon />
+                Accept
+              </Button>
+            </div>
           )}
         </CustomCard>
 

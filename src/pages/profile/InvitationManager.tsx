@@ -13,7 +13,7 @@ import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import type { AxiosError } from "axios";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
-import NoDataImg from "@/assets/no-data.png";
+import NoDataFound from "@/components/NoDataFound";
 
 interface FriendRequest {
   id: string;
@@ -61,7 +61,8 @@ const InvitationManager: React.FC = () => {
   }, [currentTab]);
 
   const handleTabChange = (tab: string) => {
-    setSearchParams({ tab });
+    // Use replace to avoid adding a new history entry on tab switch
+    setSearchParams({ tab }, { replace: true });
   };
 
   const handleAction = async (
@@ -132,11 +133,7 @@ const InvitationManager: React.FC = () => {
         {!loading && !error && (
           <>
             {requests.length === 0 ? (
-              <div className="text-sm text-gray-500 p-5 pb-14 text-center bg-card">
-                <img className="w-52 mx-auto" src={NoDataImg} />
-                <h5 className="text-xl mb-1">No results found</h5>
-                <p>Try different keywords or remove search filters</p>
-              </div>
+              <NoDataFound errorMsg={"No invitations found."} />
             ) : (
               <div className="space-y-3">
                 {requests.map((req) => (
@@ -188,8 +185,6 @@ const InvitationManager: React.FC = () => {
                       )}
                     </div>
                   </CustomCard>
-
-                  
                 ))}
               </div>
             )}
