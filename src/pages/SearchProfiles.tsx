@@ -67,7 +67,7 @@ const SearchProfiles = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axiosInstance.get("/friends/");
+      const res = await axiosInstance.get("/friends");
       if (Array.isArray(res.data)) {
         setProfiles(res.data);
       } else {

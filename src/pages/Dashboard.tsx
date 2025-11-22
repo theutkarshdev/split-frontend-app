@@ -28,11 +28,30 @@ const Dashboard = () => {
   // --- State Management ---
   const [notification, setNotification] = useState(0);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [dashboard, setDashboard] = useState(null);
   const [activities, setActivities] = useState<Activity[]>([]);
 
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [friendsLoading, setFriendsLoading] = useState(false);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [activitiesError, setActivitiesError] = useState<string | null>(null);
+
+  const fetchDashboardData = useCallback(async () => {
+    setDashboardLoading(true);
+    try {
+      const res = await axiosInstance.get("/profile/dashboard");
+      if (Array.isArray(res.data.data)) {
+        setDashboard(res.data);
+      } else {
+        setDashboard(null);
+      }
+    } catch (err: any) {
+      console.error("Fetch friends error:", err);
+      setDashboard(null);
+    } finally {
+      setDashboardLoading(false);
+    }
+  }, []);
 
   // --- Fetch unread notifications ---
   const fetchUnreadCount = useCallback(async () => {
@@ -50,7 +69,7 @@ const Dashboard = () => {
   const fetchFriends = useCallback(async () => {
     setFriendsLoading(true);
     try {
-      const res = await axiosInstance.get("/friends/");
+      const res = await axiosInstance.get("/friends");
       if (Array.isArray(res.data)) {
         setProfiles(res.data);
       } else {
@@ -93,6 +112,7 @@ const Dashboard = () => {
 
   // --- Initial Load ---
   useEffect(() => {
+    fetchDashboardData();
     fetchUnreadCount();
     fetchFriends();
     fetchHistory(1);
@@ -144,10 +164,10 @@ const Dashboard = () => {
           </div>
 
           <div className="flex-1 grow overflow-hidden border-t border-b border-dashed">
-            <ChartPieDonutText />
+            <ChartPieDonutText loading={dashboardLoading} data={dashboard} />
           </div>
           <p className="text-xs pt-4 text-center">
-            Showing total visitors for the last 6 months
+            Summary of amounts by person
           </p>
         </CustomCard>
       </div>
@@ -184,7 +204,7 @@ const Dashboard = () => {
 
             {/* Loading State */}
             {friendsLoading &&
-              [...Array(7)].map((_, idx) => (
+              [...Array(9)].map((_, idx) => (
                 <div key={idx}>
                   <CustomCard radius={50} className="w-full aspect-square">
                     <Skeleton className="size-full" />
