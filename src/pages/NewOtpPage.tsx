@@ -84,15 +84,12 @@ function NewOtpPage() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/verify`,
-        payload,
-        {
-          withCredentials: true,
-        }
+        payload
       );
 
       if (res.status === 200) {
-        const { access_token, is_new } = res.data;
-        login(access_token, is_new);
+        const { access_token, refresh_token, is_new } = res.data;
+        login(access_token, refresh_token, is_new);
       }
       toast.success("OTP verified successfully.");
     } catch (error) {

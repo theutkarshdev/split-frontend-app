@@ -23,14 +23,13 @@ const GoogleLoginButton = ({ setLoading }: GoogleLoginButtonProps) => {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/google/token`,
-        { id_token },
-        { withCredentials: true }
+        { id_token }
       );
 
       const data = res.data;
 
       // ✅ Update context and user state
-      login(data.access_token, data.is_new);
+      login(data.access_token, data.refresh_token, data.is_new);
 
       toast.dismiss();
       toast.success("Google login successful!");

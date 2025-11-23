@@ -13,6 +13,7 @@ type Theme = "dark" | "light" | "system";
 
 interface AuthData {
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   is_new: boolean;
 }
@@ -42,7 +43,7 @@ interface AppContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
 
-  login: (token: string, is_new: boolean) => void;
+  login: (token: string, refreshToken: string, is_new: boolean) => void;
   logout: () => void;
   markProfileComplete: () => void; // 👈 new method
 
@@ -56,6 +57,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const [auth, setAuth] = useState<AuthData>({
     token: null,
+    refreshToken: null,
     isAuthenticated: false,
     is_new: false,
   });
@@ -108,14 +110,14 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // 👉 Login method
-  const login = (token: string, is_new: boolean) => {
-    const authData = { token, isAuthenticated: true, is_new };
+  const login = (token: string, refreshToken: string, is_new: boolean) => {
+    const authData = { token, refreshToken, isAuthenticated: true, is_new };
     setAuth(authData);
     localStorage.setItem("auth", JSON.stringify(authData));
   };
 
   const logout = useCallback(() => {
-    setAuth({ token: null, isAuthenticated: false, is_new: false });
+    setAuth({ token: null, refreshToken: null, isAuthenticated: false, is_new: false });
     setOtpData({ email: null, otp_id: null });
     localStorage.removeItem("auth");
   }, []);
