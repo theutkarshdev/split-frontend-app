@@ -16,12 +16,11 @@ const processQueue = (error: any, token: string | null = null) => {
 // MAIN INSTANCE
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true,
+  withCredentials: false, // No longer using cookies
 });
 
 // Attach Access Token
 axiosInstance.interceptors.request.use((config) => {
-
   const raw = localStorage.getItem("auth");
   if (raw) {
     const { token } = JSON.parse(raw);
@@ -57,19 +56,29 @@ axiosInstance.interceptors.response.use(
 
       try {
         console.log("Refreshing token....");
+
+        // Get refresh token from localStorage
+        const authData = JSON.parse(localStorage.getItem("auth") || "{}");
+        const refreshToken = authData.refreshToken;
+
+        if (!refreshToken) {
+          throw new Error("No refresh token available");
+        }
+
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`,
-          null, // Or any required body
           {
-            withCredentials: true, // Must include cookies (Refresh Token)
+            refresh_token: refreshToken,
           }
         );
         const newToken = response.data.access_token;
+        const newRefreshToken = response.data.refresh_token; // Get new refresh token if provided
 
         localStorage.setItem(
           "auth",
           JSON.stringify({
             token: newToken,
+            refreshToken: newRefreshToken || refreshToken, // Use new refresh token or keep existing
             isAuthenticated: true,
             is_new: false,
           })
