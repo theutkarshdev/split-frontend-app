@@ -9,7 +9,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 
 type DashboardEntry = {
   username: string;
@@ -40,7 +39,7 @@ export function ChartPieDonutText({
   data: DashboardPayload;
 }) {
   // Build dynamic chart config and data from payload
-  const [selectedRadialBar, setSelectedRadialBar] = useState<string | null>(
+  const [selectedPie, setSelectedPie] = useState<string | null>(
     null
   );
 
@@ -79,13 +78,13 @@ export function ChartPieDonutText({
       };
     });
 
-    // Filter data based on selectedRadialBar
-    const filteredData = selectedRadialBar
-      ? mapped.filter((item) => item.username === selectedRadialBar)
+    // Filter data based on selectedPie
+    const filteredData = selectedPie
+      ? mapped.filter((item) => item.username === selectedPie)
       : mapped;
 
     // Calculate total for filtered data
-    const filteredTotal = selectedRadialBar
+    const filteredTotal = selectedPie
       ? filteredData.reduce((a, c) => a + (c.visitors || 0), 0)
       : typeof data.totalAmount === "number"
       ? data.totalAmount
@@ -97,7 +96,7 @@ export function ChartPieDonutText({
       total: filteredTotal,
       labelText: data.type === "owed" ? "Total Owed" : "Total Paid",
     };
-  }, [data, selectedRadialBar]);
+  }, [data, selectedPie]);
 
   const isPaid = (data?.type ?? "") === "paid";
 
@@ -218,17 +217,17 @@ export function ChartPieDonutText({
             <div>
               <ul>
                 {data?.data?.map((user, index) => {
-                  const isActive = selectedRadialBar === user.username;
+                  const isActive = selectedPie === user.username;
                   const isFiltered =
-                    selectedRadialBar && selectedRadialBar !== user.username;
+                    selectedPie && selectedPie !== user.username;
 
                   return (
                     <li
                       onClick={() => {
-                        if (selectedRadialBar === user.username) {
-                          setSelectedRadialBar(null); // Reset if clicking the same item
+                        if (selectedPie === user.username) {
+                          setSelectedPie(null); // Reset if clicking the same item
                         } else {
-                          setSelectedRadialBar(user.username);
+                          setSelectedPie(user.username);
                         }
                       }}
                       key={`item-${user.username}`}
