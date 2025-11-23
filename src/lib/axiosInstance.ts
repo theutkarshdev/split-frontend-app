@@ -21,7 +21,6 @@ const axiosInstance = axios.create({
 
 // Attach Access Token
 axiosInstance.interceptors.request.use((config) => {
-
   const raw = localStorage.getItem("auth");
   if (raw) {
     const { token } = JSON.parse(raw);
@@ -57,19 +56,19 @@ axiosInstance.interceptors.response.use(
 
       try {
         console.log("Refreshing token....");
-        
+
         // Get refresh token from localStorage
         const authData = JSON.parse(localStorage.getItem("auth") || "{}");
         const refreshToken = authData.refreshToken;
-        
+
         if (!refreshToken) {
           throw new Error("No refresh token available");
         }
-        
+
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/auth/refresh`,
           {
-            refresh_token: refreshToken
+            refresh_token: refreshToken,
           }
         );
         const newToken = response.data.access_token;

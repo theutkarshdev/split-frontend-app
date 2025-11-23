@@ -117,7 +117,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = useCallback(() => {
-    setAuth({ token: null, refreshToken: null, isAuthenticated: false, is_new: false });
+    setAuth({
+      token: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      is_new: false,
+    });
     setOtpData({ email: null, otp_id: null });
     localStorage.removeItem("auth");
   }, []);
@@ -134,7 +139,6 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setLogoutHandler(logout);
   }, [logout]);
-
 
   return (
     <AppContext.Provider
