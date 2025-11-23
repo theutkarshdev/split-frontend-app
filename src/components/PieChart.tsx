@@ -1,15 +1,15 @@
 import { Label, Pie, PieChart } from "recharts";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import {
   type ChartConfig,
   ChartContainer,
   ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 type DashboardEntry = {
   username: string;
@@ -40,6 +40,10 @@ export function ChartPieDonutText({
   data: DashboardPayload;
 }) {
   // Build dynamic chart config and data from payload
+  const [selectedRadialBar, setSelectedRadialBar] = useState<string | null>(
+    null
+  );
+
   const { chartConfig, pieData, total, labelText } = useMemo(() => {
     const empty = {
       chartConfig: { visitors: { label: "Amount" } } as ChartConfig,
@@ -75,16 +79,25 @@ export function ChartPieDonutText({
       };
     });
 
+    // Filter data based on selectedRadialBar
+    const filteredData = selectedRadialBar
+      ? mapped.filter((item) => item.username === selectedRadialBar)
+      : mapped;
+
+    // Calculate total for filtered data
+    const filteredTotal = selectedRadialBar
+      ? filteredData.reduce((a, c) => a + (c.visitors || 0), 0)
+      : typeof data.totalAmount === "number"
+      ? data.totalAmount
+      : mapped.reduce((a, c) => a + (c.visitors || 0), 0);
+
     return {
       chartConfig: config,
-      pieData: mapped,
-      total:
-        typeof data.totalAmount === "number"
-          ? data.totalAmount
-          : mapped.reduce((a, c) => a + (c.visitors || 0), 0),
+      pieData: filteredData,
+      total: filteredTotal,
       labelText: data.type === "owed" ? "Total Owed" : "Total Paid",
     };
-  }, [data]);
+  }, [data, selectedRadialBar]);
 
   const isPaid = (data?.type ?? "") === "paid";
 
@@ -201,7 +214,48 @@ export function ChartPieDonutText({
         <ChartLegend
           verticalAlign="middle"
           layout="vertical"
-          content={<ChartLegendContent nameKey="username" />}
+          content={() => (
+            <div>
+              <ul>
+                {data?.data?.map((user, index) => {
+                  const isActive = selectedRadialBar === user.username;
+                  const isFiltered =
+                    selectedRadialBar && selectedRadialBar !== user.username;
+
+                  return (
+                    <li
+                      onClick={() => {
+                        if (selectedRadialBar === user.username) {
+                          setSelectedRadialBar(null); // Reset if clicking the same item
+                        } else {
+                          setSelectedRadialBar(user.username);
+                        }
+                      }}
+                      key={`item-${user.username}`}
+                      className={`flex items-center gap-2 cursor-pointer p-1 rounded transition-all ${
+                        isActive
+                          ? "shadow-sm"
+                          : isFiltered
+                          ? "opacity-40 hover:opacity-70"
+                          : "hover:bg-muted/30"
+                      }`}
+                    >
+                      <div
+                        className="size-2 rounded-xs shrink-0"
+                        style={{
+                          backgroundColor:
+                            PIE_COLORS[index % PIE_COLORS.length],
+                        }}
+                      />
+                      <span className="text-xs">
+                        {user.fullName.split(" ")[0] || user.username}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
           className="grid grid-cols-1 gap-y-2"
           wrapperStyle={{
             position: "absolute",
