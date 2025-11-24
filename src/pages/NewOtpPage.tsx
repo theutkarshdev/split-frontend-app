@@ -88,8 +88,8 @@ function NewOtpPage() {
       );
 
       if (res.status === 200) {
-        const { access_token, is_new } = res.data;
-        login(access_token, is_new);
+        const { access_token, refresh_token, is_new } = res.data;
+        login(access_token, refresh_token, is_new);
       }
       toast.success("OTP verified successfully.");
     } catch (error) {

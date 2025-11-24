@@ -126,7 +126,7 @@ function AddActivityForm({
           <PlusIcon className="mr-2" /> Add Expense
         </Button>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="!rounded-t-4xl">
         <DrawerHeader className="items-start border-b">
           <DrawerTitle className="text-lg">Add Expense</DrawerTitle>
           <DrawerDescription>Fill out the details below.</DrawerDescription>
@@ -135,19 +135,19 @@ function AddActivityForm({
           <div className="h-[60vh] p-5 flex flex-col justify-center items-center">
             {status === "loading" && (
               <>
-                <LoaderCircleIcon className="size-[70%] animate-spin" />
+                <LoaderCircleIcon className="size-[60%] animate-spin" />
                 <p className="text-sm text-gray-500">Submitting...</p>
               </>
             )}
             {status === "success" && (
               <>
-                <CircleCheckBigIcon className="size-[70%] text-green-500" />
+                <CircleCheckBigIcon className="size-[60%] text-green-500" />
                 <p className="text-sm text-green-600">Expense added!</p>
               </>
             )}
             {status === "error" && (
               <>
-                <CircleXIcon className="size-[70%] text-red-500" />
+                <CircleXIcon className="size-[60%] text-red-500" />
                 <p className="text-sm text-red-600">Submission failed</p>
               </>
             )}

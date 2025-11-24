@@ -15,7 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
-import NoDataImg from "@/assets/no-data.png";
 import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import {
@@ -30,7 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Profile } from "@/types/auth";
-
+import NoDataFound from "@/components/NoDataFound";
 
 const SearchProfiles = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -46,9 +45,11 @@ const SearchProfiles = () => {
   const friendFilter = searchParams.get("friend_filter") || "all";
 
   useEffect(() => {
-
+    if (friendFilter === "friends") {
+      fetchFriends();
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
-
     if (query.trim().length > 3) {
       debounceRef.current = window.setTimeout(() => {
         fetchProfiles(query);
@@ -56,11 +57,37 @@ const SearchProfiles = () => {
     } else {
       setProfiles([]);
     }
-
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [query, friendFilter]);
+
+  // Fetch friends function
+  const fetchFriends = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axiosInstance.get("/friends");
+      if (Array.isArray(res.data)) {
+        setProfiles(res.data);
+      } else {
+        setProfiles([]);
+        setError("Unexpected response from server");
+      }
+    } catch (err: any) {
+      console.error("Fetch friends error:", err);
+      setError(
+        (err &&
+          typeof err === "object" &&
+          "response" in err &&
+          err.response?.data?.message) ||
+          "Could not load friends. Please try again."
+      );
+      setProfiles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchProfiles = async (val: string) => {
     setLoading(true);
@@ -193,7 +220,7 @@ const SearchProfiles = () => {
               <DropdownMenuRadioGroup
                 value={friendFilter}
                 onValueChange={(value) => {
-                  setSearchParams({ friend_filter: value });
+                  setSearchParams({ friend_filter: value }, { replace: true });
                 }}
               >
                 <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
@@ -214,7 +241,9 @@ const SearchProfiles = () => {
           Filters:{" "}
           <Badge
             asChild
-            onClick={() => setSearchParams({ friend_filter: "all" })}
+            onClick={() =>
+              setSearchParams({ friend_filter: "all" }, { replace: true })
+            }
           >
             <Button className="h-6">
               {friendFilter} <XIcon />
@@ -244,13 +273,7 @@ const SearchProfiles = () => {
           <p className="text-sm text-red-500 p-2">{error}</p>
         )}
 
-        {!loading && !error && profiles.length === 0 && (
-          <div className="text-sm text-gray-500 p-5 pb-14 text-center bg-card">
-            <img className="w-52 mx-auto" src={NoDataImg} />
-            <h5 className="text-xl mb-1">No results found</h5>
-            <p>Try different keywords or remove search filters</p>
-          </div>
-        )}
+        {!loading && !error && profiles.length === 0 && <NoDataFound />}
         <div className="space-y-3">
           {!loading &&
             !error &&
