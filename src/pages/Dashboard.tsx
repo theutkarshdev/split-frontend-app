@@ -207,7 +207,7 @@ const Dashboard = () => {
               [...Array(9)].map((_, idx) => (
                 <div key={idx}>
                   <CustomCard radius={50} className="w-full aspect-square">
-                    <Skeleton className="size-full" />
+                    <Skeleton className="size-full rounded-full" />
                   </CustomCard>
                   <Skeleton className="h-3 w-[90%] mt-2 mx-auto" />
                 </div>

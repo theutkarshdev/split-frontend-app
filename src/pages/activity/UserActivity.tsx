@@ -148,7 +148,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
 const UserActivity = () => {
   const { id } = useParams();
-  const fix_limit = 5;
+  const fix_limit = 20;
   const [activitiesData, setActivitiesData] = useState<ActivitiesData>({
     data: [],
     finalAmount: 0,
