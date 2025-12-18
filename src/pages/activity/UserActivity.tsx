@@ -308,22 +308,32 @@ const UserActivity = () => {
   return (
     <PageLayout
       title={
-        <div className="flex gap-2 items-center">
-          <img
-            className="w-10 h-10 aspect-square object-cover rounded-full"
-            src={user.profile_pic || AvtarImg}
-            loading="lazy"
-            alt="Profile"
-          />
-          <div className="grow overflow-hidden">
-            <h3 className="text-md font-medium truncate">
-              {user.username || "john_doe"}
-            </h3>
-            <p className="text-xs capitalize opacity-65 truncate">
-              {user.full_name || "John Doe"}
-            </p>
+        loading ? (
+          <div className="flex gap-2 items-center">
+            <Skeleton className="w-10 h-10 aspect-square object-cover rounded-full" />
+            <div className="grow overflow-hidden">
+              <Skeleton className="w-32 h-4 mb-1 rounded-lg" />
+              <Skeleton className="w-24 h-3 rounded-lg" />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex gap-2 items-center">
+            <img
+              className="w-10 h-10 aspect-square object-cover rounded-full"
+              src={user.profile_pic || AvtarImg}
+              loading="lazy"
+              alt="Profile"
+            />
+            <div className="grow overflow-hidden">
+              <h3 className="text-md font-medium truncate">
+                {user.username || "john_doe"}
+              </h3>
+              <p className="text-xs capitalize opacity-65 truncate">
+                {user.full_name || "John Doe"}
+              </p>
+            </div>
+          </div>
+        )
       }
       className="flex flex-col !p-0"
       isNav={false}
