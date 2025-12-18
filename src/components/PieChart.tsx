@@ -41,7 +41,7 @@ export function ChartPieDonutText({
   // Build dynamic chart config and data from payload
   const [selectedPie, setSelectedPie] = useState<string | null>(null);
 
-  const { chartConfig, pieData, total, labelText } = useMemo(() => {
+  const { chartConfig, pieData, total } = useMemo(() => {
     const empty = {
       chartConfig: { visitors: { label: "Amount" } } as ChartConfig,
       pieData: [] as Array<{
@@ -50,7 +50,6 @@ export function ChartPieDonutText({
         fill: string;
       }>,
       total: 0,
-      labelText: "",
     };
 
     if (!data || !Array.isArray(data.data) || data.data.length === 0) {
@@ -92,7 +91,6 @@ export function ChartPieDonutText({
       chartConfig: config,
       pieData: filteredData,
       total: filteredTotal,
-      labelText: data.type === "owed" ? "Total Owed" : "Total Paid",
     };
   }, [data, selectedPie]);
 
@@ -179,7 +177,7 @@ export function ChartPieDonutText({
                       y={(viewBox.cy || 0) + 24}
                       className="fill-muted-foreground"
                     >
-                      {labelText}
+                      {paidType === "owed" ? "Total Owed" : "Total Paid"}
                     </tspan>
                   </text>
                 );
