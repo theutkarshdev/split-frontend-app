@@ -39,9 +39,7 @@ export function ChartPieDonutText({
   data: DashboardPayload;
 }) {
   // Build dynamic chart config and data from payload
-  const [selectedPie, setSelectedPie] = useState<string | null>(
-    null
-  );
+  const [selectedPie, setSelectedPie] = useState<string | null>(null);
 
   const { chartConfig, pieData, total, labelText } = useMemo(() => {
     const empty = {
@@ -98,8 +96,6 @@ export function ChartPieDonutText({
     };
   }, [data, selectedPie]);
 
-  const isPaid = (data?.type ?? "") === "paid";
-
   if (loading) {
     return (
       <div className="h-full w-full grid grid-cols-[1fr_1fr] items-center">
@@ -152,6 +148,18 @@ export function ChartPieDonutText({
           <Label
             content={({ viewBox }) => {
               if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                // Determine color based on selected data type if a pie is selected
+                let paidType = data?.type;
+                if (selectedPie && data?.data) {
+                  const selectedUser = data.data.find(
+                    (item) => item.username === selectedPie
+                  );
+                  if (selectedUser) {
+                    paidType = selectedUser.type;
+                  }
+                }
+                const colorClass =
+                  paidType === "paid" ? "fill-green-500" : "fill-red-400";
                 return (
                   <text
                     x={viewBox.cx}
@@ -162,9 +170,7 @@ export function ChartPieDonutText({
                     <tspan
                       x={viewBox.cx}
                       y={viewBox.cy}
-                      className={`text-lg font-bold ${
-                        isPaid ? "fill-green-500" : "fill-red-400"
-                      }`}
+                      className={`text-lg font-bold ${colorClass}`}
                     >
                       ₹ {total.toLocaleString()}
                     </tspan>

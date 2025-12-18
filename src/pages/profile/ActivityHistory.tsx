@@ -55,7 +55,7 @@ const ActivityHistory: React.FC = () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get<ActivitiesResponse>(
-        `/activities/my-history?limit=10&page=${pageNum}`
+        `/activities/my-history?limit=20&page=${pageNum}`
       );
 
       const newData = res.data?.data || [];

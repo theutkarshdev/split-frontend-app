@@ -16,7 +16,7 @@ import NoDataFound from "@/components/NoDataFound";
 import axiosInstance from "@/lib/axiosInstance";
 import { formatDateTime } from "@/lib/utils";
 
-import type { Profile } from "@/types/auth";
+import type { DashboardData, Profile } from "@/types/auth";
 import type { ActivitiesResponse, Activity } from "@/types/activity";
 
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
@@ -28,7 +28,7 @@ const Dashboard = () => {
   // --- State Management ---
   const [notification, setNotification] = useState(0);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [dashboard, setDashboard] = useState(null);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
 
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -149,7 +149,7 @@ const Dashboard = () => {
         >
           <div className="flex gap-3 items-center mb-4 mt-14">
             <h1 className="text-xl grow font-semibold">
-              Hey, Utkarsh Kushwaha
+              Hey, {dashboard?.current_user?.full_name}
             </h1>
             <Button
               size="icon"
@@ -207,7 +207,7 @@ const Dashboard = () => {
               [...Array(9)].map((_, idx) => (
                 <div key={idx}>
                   <CustomCard radius={50} className="w-full aspect-square">
-                    <Skeleton className="size-full" />
+                    <Skeleton className="size-full rounded-full" />
                   </CustomCard>
                   <Skeleton className="h-3 w-[90%] mt-2 mx-auto" />
                 </div>

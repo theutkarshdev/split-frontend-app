@@ -20,6 +20,15 @@ import PageLayout from "@/components/PageLayout";
 import { ModeSwitch } from "@/components/ModeToggle";
 import FullscreenToggle from "@/components/ToggleFullScreen";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import ReportIssue from "./ReportIssue";
 import toast from "react-hot-toast";
 
@@ -41,10 +50,15 @@ function UserProfile() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showReportDrawer, setShowReportDrawer] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
     logout();
-    navigate("/auth/login");
   };
 
   const moreDetails = [
@@ -71,7 +85,7 @@ function UserProfile() {
     {
       icons: <LogInIcon className="size-4" />,
       name: "Logout",
-      click: handleLogout,
+      click: handleLogoutClick,
     },
   ];
 
@@ -203,6 +217,29 @@ function UserProfile() {
           setShowReportDrawer={setShowReportDrawer}
         />
       )}
+
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Logout</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to logout?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowLogoutConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" onClick={confirmLogout}>
+              Logout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 }
