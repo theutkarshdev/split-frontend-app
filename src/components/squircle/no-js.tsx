@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export const SquircleNoScript = () => {
   return (
     <noscript>
