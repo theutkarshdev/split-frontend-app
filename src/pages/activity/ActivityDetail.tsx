@@ -10,6 +10,9 @@ import { CheckIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/helpers";
+
 type User = {
   id: string;
   full_name: string;
@@ -237,16 +240,25 @@ const ActivityDetail = () => {
               <p className="text-md font-bold">{toUser.full_name}</p>
               <p className="text-xs text-gray-500">@{toUser.username}</p>
             </div>
-            <img
-              className="size-12 object-cover rounded-full border"
-              src={toUser.profile_pic}
-              alt={toUser.username}
-            />
+            <Avatar className="size-12 border">
+              <AvatarImage
+                src={toUser.profile_pic}
+                alt={toUser.username}
+                className="object-cover"
+              />
+              <AvatarFallback>
+                {getInitials(toUser.full_name, "F")}
+              </AvatarFallback>
+            </Avatar>
           </div>
 
           <div className="flex text-sm font-normal gap-2 pt-3 pb-5">
             <button
-              onClick={() => navigate(`/activity/${activityData.other_user.id}`, { replace: true })}
+              onClick={() =>
+                navigate(`/activity/${activityData.other_user.id}`, {
+                  replace: true,
+                })
+              }
               className="border text-xs font-normal px-3 py-2 rounded-md cursor-pointer hover:bg-muted transition"
             >
               View History
@@ -262,11 +274,16 @@ const ActivityDetail = () => {
               <p className="text-md font-bold">{fromUser.full_name}</p>
               <p className="text-xs text-gray-500">@{fromUser.username}</p>
             </div>
-            <img
-              className="size-12 object-cover rounded-full border"
-              src={fromUser.profile_pic}
-              alt={fromUser.username}
-            />
+            <Avatar className="size-12 border">
+              <AvatarImage
+                src={fromUser.profile_pic}
+                alt={fromUser.username}
+                className="object-cover"
+              />
+              <AvatarFallback>
+                {getInitials(fromUser.full_name, "F")}
+              </AvatarFallback>
+            </Avatar>
           </div>
 
           <div className="pt-3 text-xs text-gray-500">

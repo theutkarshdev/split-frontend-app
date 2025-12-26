@@ -68,7 +68,7 @@ const FormSchema = z.object({
 
 function CompleteProfile() {
   const navigate = useNavigate();
-  const { markProfileComplete, auth } = useAppContext();
+  const { markProfileComplete, auth, logout } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
@@ -180,7 +180,7 @@ function CompleteProfile() {
         formData.append("profile_pic", data.profile_pic);
       }
 
-      console.log(data)
+      console.log(data);
 
       const res = await axiosInstance.post("/profile/complete", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -324,10 +324,19 @@ function CompleteProfile() {
 
           <Button
             type="submit"
-            className="w-full h-10"
+            className="w-full"
+            size="lg"
             disabled={!!form.formState.errors.username || loading}
           >
             {loading ? "Sending ..." : "Submit"}
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            size="lg"
+            onClick={() => logout()}
+          >
+            Back to SignIn
           </Button>
         </form>
       </Form>

@@ -9,18 +9,16 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageLayout from "@/components/PageLayout";
 import CustomCard from "@/components/CustomCard";
 import NoDataFound from "@/components/NoDataFound";
-
 import axiosInstance from "@/lib/axiosInstance";
 import { formatDateTime } from "@/lib/utils";
-
 import type { DashboardData, Profile } from "@/types/auth";
 import type { ActivitiesResponse, Activity } from "@/types/activity";
-
-import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import { ChartPieDonutText } from "@/components/PieChart";
+import { getInitials } from "@/lib/helpers";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -227,15 +225,16 @@ const Dashboard = () => {
                   }}
                 >
                   <CustomCard radius={50} className="w-full aspect-square">
-                    <img
-                      className="size-full object-cover rounded-full"
-                      src={friend.profile_pic || AvtarImg}
-                      alt={friend.username}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src = AvtarImg;
-                      }}
-                    />
+                    <Avatar className="size-full">
+                      <AvatarImage
+                        src={friend.profile_pic}
+                        alt={friend.username}
+                        className="object-cover"
+                      />
+                      <AvatarFallback>
+                        {getInitials(friend.full_name, "F")}
+                      </AvatarFallback>
+                    </Avatar>
                   </CustomCard>
                   <h3 className="text-xs font-medium mt-2 truncate">
                     {friend.full_name?.split(" ")[0] || "Friend"}
@@ -293,15 +292,16 @@ const Dashboard = () => {
                     )
                   }
                 >
-                  <img
-                    className="size-10 rounded-full object-cover"
-                    src={activity.other_user?.profile_pic ?? AvtarImg}
-                    alt={activity.other_user?.full_name ?? "No Name"}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = AvtarImg;
-                    }}
-                  />
+                  <Avatar className="size-10">
+                    <AvatarImage
+                      src={activity.other_user?.profile_pic || undefined}
+                      alt={activity.other_user?.full_name ?? "No Name"}
+                      className="object-cover"
+                    />
+                    <AvatarFallback>
+                      {getInitials(activity.other_user?.full_name)}
+                    </AvatarFallback>
+                  </Avatar>
 
                   <div className="grow overflow-hidden">
                     <h3 className="text-md font-medium truncate">

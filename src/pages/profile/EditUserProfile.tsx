@@ -199,7 +199,7 @@ function EditProfile() {
   }
 
   return (
-    <PageLayout title="Complete Profile" isNav={false}>
+    <PageLayout title="Edit Profile" isNav={false}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

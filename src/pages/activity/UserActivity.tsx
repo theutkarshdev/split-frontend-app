@@ -17,6 +17,8 @@ import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import CustomCard from "@/components/CustomCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/helpers";
 
 interface Activity {
   id: string;
@@ -318,12 +320,17 @@ const UserActivity = () => {
           </div>
         ) : (
           <div className="flex gap-2 items-center">
-            <img
-              className="w-10 h-10 aspect-square object-cover rounded-full"
-              src={user.profile_pic || AvtarImg}
-              loading="lazy"
-              alt="Profile"
-            />
+            <Avatar className="size-10 border">
+              <AvatarImage
+                src={user.profile_pic}
+                alt={user.username}
+                className="object-cover"
+              />
+              <AvatarFallback>
+                {getInitials(user.full_name, "F")}
+              </AvatarFallback>
+            </Avatar>
+
             <div className="grow overflow-hidden">
               <h3 className="text-md font-medium truncate">
                 {user.username || "john_doe"}
