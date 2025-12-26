@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router";
-import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, XIcon } from "lucide-react";
 import AddActivityForm from "@/components/AddActivity";
