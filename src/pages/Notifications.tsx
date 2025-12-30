@@ -62,10 +62,13 @@ const NotificationsPage: React.FC = () => {
       }
 
       // Navigate based on type
-      if (item.type === "activity" && item.activity_id) {
+      if (item.type === "ACTIVITY" && item.activity_id) {
         navigate(`/activity/${item.actor_id}/${item.activity_id}`);
-      } else {
+      } else if (item.type === "FRIEND") {
         navigate("/profile/invitation-manager");
+      } else if (item.type === "GROUP") {
+        // Navigate to group or activity based on action
+        navigate("/groups");
       }
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -91,26 +94,51 @@ const NotificationsPage: React.FC = () => {
   };
 
   const buildNotificationMessage = (item: Notification) => {
-    if (item.type === "friend" && item.action === "accepted") {
-      return `${item.actor_name} accepted your friend request. You are now friends.`;
-    }
-
-    if (item.type === "friend" && item.action === "sent") {
-      return `${item.actor_name} sent you a friend request.`;
-    }
-
-    if (item.type === "activity") {
+    // Friend notifications
+    if (item.type === "FRIEND") {
       switch (item.action) {
-        case "reminder":
+        case "ACCEPTED":
+          return `${item.actor_name} accepted your friend request. You are now friends.`;
+        case "SENT":
+          return `${item.actor_name} sent you a friend request.`;
+        case "DECLINED":
+          return `${item.actor_name} declined your friend request.`;
+        default:
+          return `${item.actor_name} interacted with your friend request.`;
+      }
+    }
+
+    // Activity notifications
+    if (item.type === "ACTIVITY") {
+      switch (item.action) {
+        case "REMINDER":
           return `${item.actor_name} is waiting for you to approve the ₹${item.amount} expense for '${item.activity_title}'.`;
-        case "requested":
+        case "REQUESTED":
           return `${item.actor_name} sent you a ₹${item.amount} expense request for '${item.activity_title}'.`;
-        case "accepted":
+        case "ACCEPTED":
           return `${item.actor_name} accepted your ₹${item.amount} expense for '${item.activity_title}'.`;
-        case "declined":
+        case "DECLINED":
           return `${item.actor_name} declined your ₹${item.amount} expense for '${item.activity_title}'.`;
         default:
-          return "";
+          return `${item.actor_name} interacted with expense '${item.activity_title}'.`;
+      }
+    }
+
+    // Group notifications
+    if (item.type === "GROUP") {
+      switch (item.action) {
+        case "ADDED_TO_GROUP":
+          return `${item.actor_name} added you to a group.`;
+        case "REMOVED_FROM_GROUP":
+          return `${item.actor_name} removed you from a group.`;
+        case "GROUP_EXPENSE_CREATED":
+          return `${item.actor_name} created a ₹${item.amount} group expense for '${item.activity_title}'.`;
+        case "GROUP_EXPENSE_ACCEPTED":
+          return `${item.actor_name} accepted your ₹${item.amount} group expense for '${item.activity_title}'.`;
+        case "GROUP_EXPENSE_REJECTED":
+          return `${item.actor_name} rejected your ₹${item.amount} group expense for '${item.activity_title}'.`;
+        default:
+          return `${item.actor_name} interacted with a group.`;
       }
     }
 
@@ -172,10 +200,13 @@ const NotificationsPage: React.FC = () => {
   };
 
   const friendNotifications = notificationsData.filter(
-    (n) => n.type === "friend"
+    (n) => n.type === "FRIEND"
   );
   const activityNotifications = notificationsData.filter(
-    (n) => n.type === "activity"
+    (n) => n.type === "ACTIVITY"
+  );
+  const groupNotifications = notificationsData.filter(
+    (n) => n.type === "GROUP"
   );
 
   const renderSkeletons = () => (
@@ -265,6 +296,12 @@ const NotificationsPage: React.FC = () => {
                 {activityNotifications.length}
               </span>
             </TabsTrigger>
+            <TabsTrigger value="group">
+              Group{" "}
+              <span className="text-xs bg-gray-200 dark:bg-card py-0.5 px-1.5 rounded">
+                {groupNotifications.length}
+              </span>
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -282,6 +319,11 @@ const NotificationsPage: React.FC = () => {
           {loading
             ? renderSkeletons()
             : activityNotifications.map(renderNotificationItem)}
+        </TabsContent>
+        <TabsContent value="group">
+          {loading
+            ? renderSkeletons()
+            : groupNotifications.map(renderNotificationItem)}
         </TabsContent>
       </Tabs>
     </PageLayout>

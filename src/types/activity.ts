@@ -26,3 +26,35 @@ export interface ActivitiesResponse {
     totalItems: number;
   };
 }
+
+export interface GroupActivitySplit {
+  activity_id: string | null;
+  user_id: string;
+  username: string;
+  full_name: string;
+  profile_pic: string | null;
+  amount: number;
+  status: "paid" | "pending";
+}
+
+export interface GroupActivity {
+  id: string;
+  paid_by: string;
+  paid_by_name: string;
+  total_amount: number;
+  note: string;
+  attachment: string | null;
+  split_type: "equal" | "custom";
+  member_count: number;
+  splits: GroupActivitySplit[];
+  created_at: string;
+}
+
+export interface GroupActivitiesResponse {
+  data: GroupActivity[];
+  pagination: {
+    limit: number;
+    page: number;
+    totalItems: number;
+  };
+}

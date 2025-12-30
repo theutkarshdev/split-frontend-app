@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import PageHeader from "./PageHeader";
 import { useLocation, useNavigate } from "react-router";
-import { HomeIcon, SearchIcon, User2Icon } from "lucide-react";
+import { HomeIcon, SearchIcon, User2Icon, UsersIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PageLayoutProps {
@@ -24,6 +24,7 @@ const PageLayout = ({ title, className, isNav=true, rightElement, children }: Pa
       isSearch: true,
     },
     { name: "Home", icon: HomeIcon, path: "/" },
+    { name: "Groups", icon: UsersIcon, path: "/groups" },
     { name: "Profile", icon: User2Icon, path: "/profile" },
   ];
 

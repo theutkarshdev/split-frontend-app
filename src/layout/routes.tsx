@@ -13,6 +13,11 @@ import ActivityDetail from "@/pages/activity/ActivityDetail";
 import NewLogin from "@/pages/NewLogin";
 import NewOtpPage from "@/pages/NewOtpPage";
 import EditUserProfile from "@/pages/profile/EditUserProfile";
+import GroupListPage from "@/pages/group/GroupList";
+import GroupCreate from "@/pages/group/GroupCreate";
+import GroupDetail from "@/pages/group/GroupDetail";
+import GroupActivityDetail from "@/pages/group/GroupActivityDetail";
+import GroupActivityCreate from "@/pages/group/GroupActivityCreate";
 
 export const routes: RouteObject[] = [
   {
@@ -66,6 +71,31 @@ export const routes: RouteObject[] = [
           {
             path: ":activityId",
             element: <ActivityDetail />,
+          },
+        ],
+      },
+      {
+        path: "groups",
+        children: [
+          {
+            index: true,
+            element: <GroupListPage />,
+          },
+          {
+            path: "create",
+            element: <GroupCreate />,
+          },
+          {
+            path: ":groupId",
+            element: <GroupDetail />,
+          },
+          {
+            path: ":groupId/:groupActivityId",
+            element: <GroupActivityDetail />,
+          },
+          {
+            path: ":groupId/create",
+            element: <GroupActivityCreate />,
           },
         ],
       },
