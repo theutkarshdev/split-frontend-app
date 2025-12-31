@@ -18,6 +18,7 @@ import GroupCreate from "@/pages/group/GroupCreate";
 import GroupDetail from "@/pages/group/GroupDetail";
 import GroupActivityDetail from "@/pages/group/GroupActivityDetail";
 import GroupActivityCreate from "@/pages/group/GroupActivityCreate";
+import GroupEdit from "@/pages/group/GroupEdit";
 
 export const routes: RouteObject[] = [
   {
@@ -92,6 +93,10 @@ export const routes: RouteObject[] = [
           {
             path: ":groupId/:groupActivityId",
             element: <GroupActivityDetail />,
+          },
+          {
+            path: ":groupId/edit",
+            element: <GroupEdit />,
           },
           {
             path: ":groupId/create",

@@ -3,13 +3,19 @@ import axiosInstance from "@/lib/axiosInstance";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   EllipsisVerticalIcon,
+  InfoIcon,
+  LogOutIcon,
+  PencilIcon,
   PlusIcon,
+  ReceiptTextIcon,
   ScaleIcon,
+  Trash2Icon,
   UsersIcon,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +25,8 @@ import {
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -56,6 +64,7 @@ interface MemberBalance {
   full_name: string;
   profile_pic: string | null;
   balance: number;
+  balance_type: "paid" | "owed";
 }
 
 interface GroupBalancesResponse {
@@ -76,8 +85,6 @@ const GroupActivityCard: React.FC<GroupActivityCardProps> = ({ activity }) => {
     hour: "2-digit",
     minute: "2-digit",
   });
-
-  const pendingSplits = activity.splits.filter((s) => s.status === "pending");
 
   return (
     <CustomCard
@@ -115,39 +122,6 @@ const GroupActivityCard: React.FC<GroupActivityCardProps> = ({ activity }) => {
           </CustomCard>
         )}
 
-        {/* Member Splits Preview */}
-        <div className="flex items-center gap-1 mt-2">
-          <div className="flex -space-x-2">
-            {activity.splits.slice(0, 4).map((split) => (
-              <Avatar
-                key={split.user_id}
-                className="size-6 border-2 border-card bg-card"
-              >
-                <AvatarImage
-                  src={split.profile_pic || undefined}
-                  alt={split.username}
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-xs">
-                  {getInitials(split.full_name, "?")}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-            {activity.splits.length > 4 && (
-              <Avatar className="size-6 border-2 border-card bg-muted">
-                <AvatarFallback className="text-xs bg-muted">
-                  +{activity.splits.length - 4}
-                </AvatarFallback>
-              </Avatar>
-            )}
-          </div>
-          <span className="text-xs text-muted-foreground ml-2">
-            {pendingSplits.length > 0
-              ? `${pendingSplits.length} pending`
-              : "All settled"}
-          </span>
-        </div>
-
         <div className="text-xs text-gray-500 mt-2 text-right">
           {activity.member_count} members | {formattedTime}
         </div>
@@ -165,11 +139,13 @@ const GroupDetail = () => {
   >([]);
   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
-  const [membersDrawerOpen, setMembersDrawerOpen] = useState(false);
   const [groupBalances, setGroupBalances] =
     useState<GroupBalancesResponse | null>(null);
   const [balancesLoading, setBalancesLoading] = useState(false);
-  const [balancesDrawerOpen, setBalancesDrawerOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("expenses");
+  const [leaveDrawerOpen, setLeaveDrawerOpen] = useState(false);
+  const [deleteDrawerOpen, setDeleteDrawerOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [groupDetailsLoading, setGroupDetailsLoading] = useState<boolean>(true);
   const [groupActivitiesLoading, setGroupActivitiesLoading] =
     useState<boolean>(true);
@@ -230,6 +206,8 @@ const GroupDetail = () => {
     if (groupId) {
       fetchGroupDetails(groupId);
       groupActivities(groupId);
+      fetchGroupMembers(groupId);
+      fetchGroupBalances(groupId);
     }
   }, [groupId]);
 
@@ -301,17 +279,31 @@ const GroupDetail = () => {
     );
   };
 
-  const handleMembersDrawerOpen = (open: boolean) => {
-    setMembersDrawerOpen(open);
-    if (open && groupId && groupMembers.length === 0) {
-      fetchGroupMembers(groupId);
+  const handleLeaveGroup = async () => {
+    if (!groupId) return;
+    try {
+      setActionLoading(true);
+      await axiosInstance.post(`/groups/${groupId}/leave`);
+      navigate("/groups");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setActionLoading(false);
+      setLeaveDrawerOpen(false);
     }
   };
 
-  const handleBalancesDrawerOpen = (open: boolean) => {
-    setBalancesDrawerOpen(open);
-    if (open && groupId && !groupBalances) {
-      fetchGroupBalances(groupId);
+  const handleDeleteGroup = async () => {
+    if (!groupId) return;
+    try {
+      setActionLoading(true);
+      await axiosInstance.delete(`/groups/${groupId}`);
+      navigate("/groups");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setActionLoading(false);
+      setDeleteDrawerOpen(false);
     }
   };
 
@@ -324,14 +316,28 @@ const GroupDetail = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handleMembersDrawerOpen(true)}>
-            <UsersIcon className="size-4 mr-2" />
-            View Members
+          <DropdownMenuItem onClick={() => setLeaveDrawerOpen(true)}>
+            <LogOutIcon className="size-4 mr-2" />
+            Leave Group
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleBalancesDrawerOpen(true)}>
-            <ScaleIcon className="size-4 mr-2" />
-            View Balances
-          </DropdownMenuItem>
+          {groupDetails?.is_admin && (
+            <>
+              <DropdownMenuItem
+                onClick={() => navigate(`/groups/${groupId}/edit`)}
+              >
+                <PencilIcon className="size-4 mr-2" />
+                Edit Group
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => setDeleteDrawerOpen(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2Icon className="size-4 mr-2" />
+                Delete Group
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -344,145 +350,100 @@ const GroupDetail = () => {
       className="flex flex-col !p-0"
       rightElement={renderRightElement()}
     >
-      {groupActivitiesLoading ? (
-        <div className="flex flex-col h-full p-5">
-          <div className="space-y-3 flex-1 overflow-auto">
-            {[...Array(4)].map((_, i) => (
-              <CustomCard
-                key={i}
-                radius={20}
-                pClassName="w-full bg-card"
-                className="p-3"
-              >
-                <Skeleton className="w-24 h-8 rounded-lg mb-3" />
-                <Skeleton className="w-full h-4 rounded-lg mb-2" />
-                <Skeleton className="w-32 h-3 rounded-lg mb-3" />
-                <div className="flex gap-1">
-                  {[...Array(4)].map((_, j) => (
-                    <Skeleton key={j} className="size-6 rounded-full" />
-                  ))}
-                </div>
-                <Skeleton className="w-24 h-3 rounded-lg mt-2 ml-auto" />
-              </CustomCard>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="p-5 grow flex flex-col overflow-auto relative">
-          {sortedDates.length === 0 ? (
-            <div className="text-center">
-              <NoDataFound errorMsg={"No activities found"} />
-              <Button
-                size="lg"
-                className="rounded-full mt-5"
-                onClick={() => navigate(`/groups/${groupId}/create`)}
-              >
-                <PlusIcon className="size-8" /> Add Activity
-              </Button>
-            </div>
-          ) : (
-            <div>
-              {sortedDates.map((date) => (
-                <div key={date}>
-                  <div className="sticky top-0 z-10 mb-2 text-center text-xs font-medium text-gray-500">
-                    <span className="bg-gray-200 dark:bg-gray-800 rounded-full px-3 py-1 inline-block">
-                      {date}
-                    </span>
-                  </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex flex-col h-full"
+      >
+        <TabsList className="grid w-full grid-cols-3 mx-auto rounded-none">
+          <TabsTrigger value="expenses" className="gap-1">
+            <ReceiptTextIcon className="size-4" />
+            Expenses
+          </TabsTrigger>
+          <TabsTrigger value="balances" className="gap-1">
+            <ScaleIcon className="size-4" />
+            Balances
+          </TabsTrigger>
+          <TabsTrigger value="info" className="gap-1">
+            <InfoIcon className="size-4" />
+            Info
+          </TabsTrigger>
+        </TabsList>
 
-                  {groupedByDate[date].map((activity) => (
-                    <GroupActivityCard key={activity.id} activity={activity} />
-                  ))}
-                </div>
-              ))}
-
-              {/* Add Activity Button */}
-              <Button
-                onClick={() => navigate(`/groups/${groupId}/create`)}
-                className="absolute bottom-4 right-4 rounded-full size-12"
-                size="icon"
-              >
-                <PlusIcon className="size-8" />
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Members Drawer */}
-      <Drawer open={membersDrawerOpen} onOpenChange={handleMembersDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle className="flex items-center gap-2">
-              <UsersIcon className="size-5" />
-              Group Members ({groupMembers.length})
-            </DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4 space-y-3 max-h-[60vh] overflow-auto">
-            {membersLoading ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="size-10 rounded-full" />
-                    <div className="flex-1">
-                      <Skeleton className="h-4 w-32 mb-1" />
-                      <Skeleton className="h-3 w-24" />
+        {/* Expenses Tab */}
+        <TabsContent value="expenses" className="flex-1 overflow-auto m-0">
+          {groupActivitiesLoading ? (
+            <div className="flex flex-col h-full p-5">
+              <div className="space-y-3 flex-1 overflow-auto">
+                {[...Array(4)].map((_, i) => (
+                  <CustomCard
+                    key={i}
+                    radius={20}
+                    pClassName="w-full bg-card"
+                    className="p-3"
+                  >
+                    <Skeleton className="w-24 h-8 rounded-lg mb-3" />
+                    <Skeleton className="w-full h-4 rounded-lg mb-2" />
+                    <Skeleton className="w-32 h-3 rounded-lg mb-3" />
+                    <div className="flex gap-1">
+                      {[...Array(4)].map((_, j) => (
+                        <Skeleton key={j} className="size-6 rounded-full" />
+                      ))}
                     </div>
-                  </div>
+                    <Skeleton className="w-24 h-3 rounded-lg mt-2 ml-auto" />
+                  </CustomCard>
                 ))}
               </div>
-            ) : groupMembers.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No members found
-              </p>
-            ) : (
-              groupMembers.map((member) => (
-                <div
-                  key={member.user_id}
-                  className="flex items-center justify-between py-2 border-b border-dashed last:border-b-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="size-10 border">
-                      <AvatarImage
-                        src={member.profile_pic || undefined}
-                        alt={member.username}
-                        className="object-cover"
-                      />
-                      <AvatarFallback>
-                        {getInitials(member.full_name, "U")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-semibold flex items-center gap-2">
-                        {member.full_name}
-                        {member.role === "admin" && (
-                          <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                            Admin
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        @{member.username}
-                      </p>
-                    </div>
-                  </div>
+            </div>
+          ) : (
+            <div className="p-5 grow flex flex-col overflow-auto relative h-full">
+              {sortedDates.length === 0 ? (
+                <div className="text-center">
+                  <NoDataFound errorMsg={"No activities found"} />
+                  <Button
+                    size="lg"
+                    className="rounded-full mt-5"
+                    onClick={() => navigate(`/groups/${groupId}/create`)}
+                  >
+                    <PlusIcon className="size-8" /> Add Activity
+                  </Button>
                 </div>
-              ))
-            )}
-          </div>
-        </DrawerContent>
-      </Drawer>
+              ) : (
+                <div>
+                  {sortedDates.map((date) => (
+                    <div key={date}>
+                      <div className="sticky top-0 z-10 mb-2 text-center text-xs font-medium text-gray-500">
+                        <span className="bg-gray-200 dark:bg-gray-800 rounded-full px-3 py-1 inline-block">
+                          {date}
+                        </span>
+                      </div>
 
-      {/* Balances Drawer */}
-      <Drawer open={balancesDrawerOpen} onOpenChange={handleBalancesDrawerOpen}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle className="flex items-center gap-2">
-              <ScaleIcon className="size-5" />
-              Group Balances
-            </DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4 space-y-3 max-h-[60vh] overflow-auto">
+                      {groupedByDate[date].map((activity) => (
+                        <GroupActivityCard
+                          key={activity.id}
+                          activity={activity}
+                        />
+                      ))}
+                    </div>
+                  ))}
+
+                  {/* Add Activity Button */}
+                  <Button
+                    onClick={() => navigate(`/groups/${groupId}/create`)}
+                    className="absolute bottom-4 right-4 rounded-full size-12"
+                    size="icon"
+                  >
+                    <PlusIcon className="size-8" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Balances Tab */}
+        <TabsContent value="balances" className="flex-1 overflow-auto m-0">
+          <div className="p-4 space-y-3">
             {balancesLoading ? (
               <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
@@ -541,25 +502,25 @@ const GroupDetail = () => {
                     <div className="text-right">
                       <p
                         className={`text-sm font-bold ${
-                          member.balance > 0
+                          member.balance === 0
+                            ? "text-muted-foreground"
+                            : member.balance_type === "paid"
                             ? "text-green-600"
-                            : member.balance < 0
-                            ? "text-red-600"
-                            : "text-muted-foreground"
+                            : "text-red-600"
                         }`}
                       >
-                        {member.balance > 0
+                        {member.balance === 0
+                          ? "₹0"
+                          : member.balance_type === "paid"
                           ? `+₹${member.balance.toLocaleString()}`
-                          : member.balance < 0
-                          ? `-₹${Math.abs(member.balance).toLocaleString()}`
-                          : "₹0"}
+                          : `-₹${member.balance.toLocaleString()}`}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
-                        {member.balance > 0
+                        {member.balance === 0
+                          ? "settled"
+                          : member.balance_type === "paid"
                           ? "gets back"
-                          : member.balance < 0
-                          ? "owes"
-                          : "settled"}
+                          : "owes"}
                       </p>
                     </div>
                   </div>
@@ -567,6 +528,199 @@ const GroupDetail = () => {
               </>
             )}
           </div>
+        </TabsContent>
+
+        {/* Info Tab */}
+        <TabsContent value="info" className="flex-1 overflow-auto m-0">
+          <div className="p-4">
+            {/* Group Info Section */}
+            {groupDetailsLoading ? (
+              <div className="mb-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <Skeleton className="size-16 rounded-full" />
+                  <div>
+                    <Skeleton className="h-5 w-32 mb-2" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-20 w-full rounded-lg mb-4" />
+                <Skeleton className="h-3 w-40" />
+              </div>
+            ) : groupDetails ? (
+              <div className="mb-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <Avatar className="size-16 border">
+                    <AvatarImage
+                      src={groupDetails.image}
+                      alt={groupDetails.name}
+                      className="object-cover"
+                    />
+                    <AvatarFallback>
+                      <UsersIcon className="size-8 text-primary" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-lg font-bold">{groupDetails.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Created by {groupDetails.creator_name}
+                    </p>
+                  </div>
+                </div>
+                {groupDetails.description && (
+                  <div className="bg-muted/50 rounded-lg p-3 mb-4">
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Description
+                    </p>
+                    <p className="text-sm">{groupDetails.description}</p>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Created on{" "}
+                  {new Date(groupDetails.created_at).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Failed to load group details
+              </p>
+            )}
+
+            {/* Members Section */}
+            <div className="border-t pt-4">
+              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <UsersIcon className="size-4" />
+                Members ({groupMembers.length})
+              </h4>
+              <div className="space-y-3">
+                {membersLoading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <Skeleton className="size-10 rounded-full" />
+                        <div className="flex-1">
+                          <Skeleton className="h-4 w-32 mb-1" />
+                          <Skeleton className="h-3 w-24" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : groupMembers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No members found
+                  </p>
+                ) : (
+                  groupMembers.map((member) => (
+                    <div
+                      key={member.user_id}
+                      className="flex items-center justify-between py-2 border-b border-dashed last:border-b-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="size-10 border">
+                          <AvatarImage
+                            src={member.profile_pic || undefined}
+                            alt={member.username}
+                            className="object-cover"
+                          />
+                          <AvatarFallback>
+                            {getInitials(member.full_name, "U")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-semibold flex items-center gap-2">
+                            {member.full_name}
+                            {member.role === "admin" && (
+                              <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                                Admin
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            @{member.username}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Leave Group Drawer */}
+      <Drawer open={leaveDrawerOpen} onOpenChange={setLeaveDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle className="flex items-center gap-2">
+              <LogOutIcon className="size-5" />
+              Leave Group
+            </DrawerTitle>
+            <DrawerDescription>
+              Are you sure you want to leave "{groupDetails?.name}"? You will
+              need an invitation to rejoin.
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter className="flex-row gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setLeaveDrawerOpen(false)}
+              disabled={actionLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleLeaveGroup}
+              disabled={actionLoading}
+            >
+              {actionLoading ? "Leaving..." : "Leave Group"}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Delete Group Drawer */}
+      <Drawer open={deleteDrawerOpen} onOpenChange={setDeleteDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle className="flex items-center gap-2 text-destructive">
+              <Trash2Icon className="size-5" />
+              Delete Group
+            </DrawerTitle>
+            <DrawerDescription>
+              Are you sure you want to delete "{groupDetails?.name}"? This
+              action cannot be undone and all group data will be permanently
+              removed.
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter className="flex-row gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setDeleteDrawerOpen(false)}
+              disabled={actionLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleDeleteGroup}
+              disabled={actionLoading}
+            >
+              {actionLoading ? "Deleting..." : "Delete Group"}
+            </Button>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </PageLayout>
