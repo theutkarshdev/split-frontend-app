@@ -396,7 +396,7 @@ const GroupDetail = () => {
               </div>
             </div>
           ) : (
-            <div className="p-5 grow flex flex-col overflow-auto relative h-full">
+            <div className="p-5 grow flex flex-col h-full relative">
               {sortedDates.length === 0 ? (
                 <div className="text-center">
                   <NoDataFound errorMsg={"No activities found"} />
@@ -409,7 +409,7 @@ const GroupDetail = () => {
                   </Button>
                 </div>
               ) : (
-                <div>
+                <div className="grow overflow-auto">
                   {sortedDates.map((date) => (
                     <div key={date}>
                       <div className="sticky top-0 z-10 mb-2 text-center text-xs font-medium text-gray-500">
@@ -430,7 +430,7 @@ const GroupDetail = () => {
                   {/* Add Activity Button */}
                   <Button
                     onClick={() => navigate(`/groups/${groupId}/create`)}
-                    className="absolute bottom-4 right-4 rounded-full size-12"
+                    className="absolute bottom-5 right-5 rounded-full size-12"
                     size="icon"
                   >
                     <PlusIcon className="size-8" />

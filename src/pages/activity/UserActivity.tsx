@@ -18,6 +18,7 @@ import CustomCard from "@/components/CustomCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/helpers";
+import type { ActivityGroup } from "@/types/activity";
 
 interface Activity {
   id: string;
@@ -29,6 +30,7 @@ interface Activity {
   note?: string;
   attachment?: string;
   to_user_id: string;
+  group?: ActivityGroup | null;
 }
 
 interface UserInfo {
@@ -66,6 +68,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
   status,
   note,
   attachment,
+  group,
   onStatusUpdate,
 }) => {
   const isOwed = type === "owed";
@@ -87,7 +90,20 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         isOwed ? "bg-card" : "bg-card/10 ml-auto"
       }`}
     >
-      <div onClick={() => navigate(id)}>
+      <div
+        onClick={() => {
+          if (group) {
+            navigate(`/groups/${group.id}/${group.activity_id}`);
+          } else {
+            navigate(id);
+          }
+        }}
+      >
+        {group && (
+          <div className="text-xs font-medium text-primary mb-1 truncate">
+            {group.name}
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold">₹{amount.toLocaleString()}</span>
           <span
@@ -95,8 +111,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               status === "accepted"
                 ? "text-green-600"
                 : status === "pending"
-                ? "text-yellow-600"
-                : "text-red-600"
+                  ? "text-yellow-600"
+                  : "text-red-600"
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -169,7 +185,7 @@ const UserActivity = () => {
   const fetchUserActivities = useCallback(async (pageNum: number) => {
     try {
       const res = await axiosInstance.get<ActivitiesData>(
-        `/activities/between/${id}?limit=${fix_limit}&page=${pageNum}`
+        `/activities/between/${id}?limit=${fix_limit}&page=${pageNum}`,
       );
 
       const newData = res.data;
@@ -204,14 +220,14 @@ const UserActivity = () => {
 
   const handleStatusUpdate = async (
     activity_id: string,
-    status: "accepted" | "rejected"
+    status: "accepted" | "rejected",
   ) => {
     try {
       // Optimistic update
       setActivitiesData((prev) => ({
         ...prev,
         data: prev.data.map((a) =>
-          a.id === activity_id ? { ...a, status } : a
+          a.id === activity_id ? { ...a, status } : a,
         ),
       }));
       await axiosInstance.patch(`/activities/${activity_id}/status`, {
@@ -238,14 +254,14 @@ const UserActivity = () => {
         acc[dateKey].push(txn);
         return acc;
       },
-      {}
+      {},
     );
 
     // Sort each date's activities ascending by time
     Object.keys(grouped).forEach((date) => {
       grouped[date].sort(
         (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       );
     });
 
@@ -256,9 +272,9 @@ const UserActivity = () => {
   const sortedDates = useMemo(
     () =>
       Object.keys(groupedByDate).sort(
-        (a, b) => new Date(a).getTime() - new Date(b).getTime()
+        (a, b) => new Date(a).getTime() - new Date(b).getTime(),
       ),
-    [groupedByDate]
+    [groupedByDate],
   );
 
   const user = activitiesData.user_info;
@@ -295,7 +311,7 @@ const UserActivity = () => {
       rootRef(node);
       scrollableRootRef.current = node;
     },
-    [rootRef]
+    [rootRef],
   );
 
   const handleRootScroll = useCallback(() => {

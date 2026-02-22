@@ -14,16 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerFooter,
-  DrawerClose,
-} from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Check, X, ChevronRight, Loader2, ImageIcon, Trash2Icon } from "lucide-react";
+import { Check, Loader2, ImageIcon, Trash2Icon } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router";
 import PageLayout from "@/components/PageLayout";
@@ -64,7 +56,10 @@ interface SplitTypeTabsProps {
   onSplitTypeChange: (type: SplitType) => void;
 }
 
-const SplitTypeTabs = ({ splitType, onSplitTypeChange }: SplitTypeTabsProps) => (
+const SplitTypeTabs = ({
+  splitType,
+  onSplitTypeChange,
+}: SplitTypeTabsProps) => (
   <div className="flex gap-2 mb-6">
     {(["equal", "exact", "percentage"] as SplitType[]).map((type) => (
       <Button
@@ -78,8 +73,8 @@ const SplitTypeTabs = ({ splitType, onSplitTypeChange }: SplitTypeTabsProps) => 
         {type === "exact"
           ? "Unequally"
           : type === "percentage"
-          ? "By %"
-          : "Equally"}
+            ? "By %"
+            : "Equally"}
       </Button>
     ))}
   </div>
@@ -114,7 +109,7 @@ const MemberSplitList = ({
           key={member.user_id}
           className={cn(
             "flex items-center gap-3 p-3 rounded-lg transition-colors",
-            member.selected ? "bg-input/30" : "bg-transparent"
+            member.selected ? "bg-input/30" : "bg-transparent",
           )}
         >
           <Avatar className="h-10 w-10">
@@ -223,14 +218,14 @@ const SplitSummary = ({
             "text-sm",
             Math.abs(amountRemaining) < 0.01
               ? "text-green-500"
-              : "text-destructive"
+              : "text-destructive",
           )}
         >
           {amountRemaining > 0.01
             ? `₹${amountRemaining.toFixed(2)} left`
             : amountRemaining < -0.01
-            ? `₹${Math.abs(amountRemaining).toFixed(2)} over`
-            : "Perfectly split!"}
+              ? `₹${Math.abs(amountRemaining).toFixed(2)} over`
+              : "Perfectly split!"}
         </p>
       </div>
     )}
@@ -245,14 +240,14 @@ const SplitSummary = ({
             "text-sm",
             Math.abs(totalPercentage - 100) < 0.01
               ? "text-green-500"
-              : "text-destructive"
+              : "text-destructive",
           )}
         >
           {totalPercentage < 99.99
             ? `${(100 - totalPercentage).toFixed(1)}% remaining`
             : totalPercentage > 100.01
-            ? `${(totalPercentage - 100).toFixed(1)}% over`
-            : "Perfectly split!"}
+              ? `${(totalPercentage - 100).toFixed(1)}% over`
+              : "Perfectly split!"}
         </p>
       </div>
     )}
@@ -282,24 +277,29 @@ const GroupActivityCreate = () => {
   // Members and split state
   const [memberSplits, setMemberSplits] = useState<MemberSplit[]>([]);
   const [splitType, setSplitType] = useState<SplitType>("equal");
-  const [splitDrawerOpen, setSplitDrawerOpen] = useState(false);
 
   // Attachment state
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
-  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(
+    null,
+  );
 
   // Handle attachment change
   const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!['image/jpeg', 'image/png', 'image/jpg', 'image/webp'].includes(file.type)) {
-        toast.error('Only JPG, PNG, or WebP images are allowed');
+      if (
+        !["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(
+          file.type,
+        )
+      ) {
+        toast.error("Only JPG, PNG, or WebP images are allowed");
         return;
       }
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size must be less than 5MB');
+        toast.error("File size must be less than 5MB");
         return;
       }
       setAttachmentFile(file);
@@ -334,7 +334,7 @@ const GroupActivityCreate = () => {
       try {
         setMembersLoading(true);
         const res = await axiosInstance.get<GroupMember[]>(
-          `/groups/${groupId}/members`
+          `/groups/${groupId}/members`,
         );
         // Initialize member splits with all members selected
         setMemberSplits(
@@ -346,7 +346,7 @@ const GroupActivityCreate = () => {
             selected: true,
             amount: 0,
             percentage: 0,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Failed to fetch members:", error);
@@ -372,7 +372,7 @@ const GroupActivityCreate = () => {
           percentage: m.selected
             ? parseFloat((100 / selectedMembers.length).toFixed(2))
             : 0,
-        }))
+        })),
       );
     }
   }, [totalAmount, splitType]);
@@ -380,7 +380,7 @@ const GroupActivityCreate = () => {
   // Selected members count
   const selectedMembersCount = useMemo(
     () => memberSplits.filter((m) => m.selected).length,
-    [memberSplits]
+    [memberSplits],
   );
 
   // Calculate total split amount
@@ -389,7 +389,7 @@ const GroupActivityCreate = () => {
       memberSplits
         .filter((m) => m.selected)
         .reduce((sum, m) => sum + m.amount, 0),
-    [memberSplits]
+    [memberSplits],
   );
 
   // Calculate total percentage
@@ -398,20 +398,20 @@ const GroupActivityCreate = () => {
       memberSplits
         .filter((m) => m.selected)
         .reduce((sum, m) => sum + m.percentage, 0),
-    [memberSplits]
+    [memberSplits],
   );
 
   // Amount remaining
   const amountRemaining = useMemo(
     () => totalAmount - totalSplitAmount,
-    [totalAmount, totalSplitAmount]
+    [totalAmount, totalSplitAmount],
   );
 
   // Toggle member selection
   const toggleMemberSelection = (userId: string) => {
     setMemberSplits((prev) => {
       const newSplits = prev.map((m) =>
-        m.user_id === userId ? { ...m, selected: !m.selected } : m
+        m.user_id === userId ? { ...m, selected: !m.selected } : m,
       );
 
       // Recalculate for equal split
@@ -438,8 +438,8 @@ const GroupActivityCreate = () => {
       prev.map((m) =>
         m.user_id === userId
           ? { ...m, amount: isNaN(amount) ? 0 : amount, selected: amount > 0 }
-          : m
-      )
+          : m,
+      ),
     );
   };
 
@@ -455,12 +455,12 @@ const GroupActivityCreate = () => {
                 (
                   (totalAmount * (isNaN(percentage) ? 0 : percentage)) /
                   100
-                ).toFixed(2)
+                ).toFixed(2),
               ),
               selected: percentage > 0,
             }
-          : m
-      )
+          : m,
+      ),
     );
   };
 
@@ -480,7 +480,7 @@ const GroupActivityCreate = () => {
           percentage: m.selected
             ? parseFloat((100 / selectedMembers.length).toFixed(2))
             : 0,
-        }))
+        })),
       );
     } else if (type === "exact" || type === "percentage") {
       // Reset amounts for manual input
@@ -490,7 +490,7 @@ const GroupActivityCreate = () => {
           amount: 0,
           percentage: 0,
           selected: true,
-        }))
+        })),
       );
     }
   };
@@ -519,8 +519,8 @@ const GroupActivityCreate = () => {
       if (Math.abs(amountRemaining) > 0.01) {
         toast.error(
           `Split amounts don't match. ₹${Math.abs(amountRemaining).toFixed(
-            2
-          )} ${amountRemaining > 0 ? "remaining" : "over"}`
+            2,
+          )} ${amountRemaining > 0 ? "remaining" : "over"}`,
         );
         return false;
       }
@@ -530,8 +530,8 @@ const GroupActivityCreate = () => {
       if (Math.abs(totalPercentage - 100) > 0.01) {
         toast.error(
           `Total percentage must equal 100%. Currently ${totalPercentage.toFixed(
-            1
-          )}%`
+            1,
+          )}%`,
         );
         return false;
       }
@@ -583,7 +583,7 @@ const GroupActivityCreate = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
 
       if (res.status === 200 || res.status === 201) {
@@ -599,21 +599,16 @@ const GroupActivityCreate = () => {
     }
   };
 
-  // Split summary text
-  const splitSummary = useMemo(() => {
-    if (selectedMembersCount === 0) return "Select members";
-    if (splitType === "equal") {
-      const perPerson = totalAmount / selectedMembersCount;
-      return `₹${perPerson.toFixed(2)}/person (${selectedMembersCount} people)`;
-    }
-    return `${selectedMembersCount} people selected`;
-  }, [splitType, selectedMembersCount, totalAmount]);
-
   return (
     <PageLayout title={step === 2 ? "Split Expense" : "Add New Expense"}>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (step === 2) {
+              form.handleSubmit(onSubmit)(e);
+            }
+          }}
           className="flex flex-col h-full"
         >
           {step === 1 && (
@@ -637,29 +632,6 @@ const GroupActivityCreate = () => {
                   </FormItem>
                 )}
               />
-
-              {/* Split By Field */}
-              <div className="space-y-2">
-                <FormLabel>Split by</FormLabel>
-                <CustomCard
-                  radius={10}
-                  className="p-2 bg-input/30 cursor-pointer hover:bg-input/50 transition-colors"
-                  onClick={() => {
-                    if (totalAmount > 0) {
-                      setSplitDrawerOpen(true);
-                    } else {
-                      toast.error("Please enter an amount first");
-                    }
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">
-                      {totalAmount > 0 ? splitSummary : "Split by"}
-                    </span>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                </CustomCard>
-              </div>
 
               {/* Notes Field */}
               <FormField
@@ -710,7 +682,9 @@ const GroupActivityCreate = () => {
                     >
                       <div className="flex flex-col items-center gap-2 text-muted-foreground">
                         <ImageIcon className="h-8 w-8" />
-                        <span className="text-sm">Tap to add receipt or image</span>
+                        <span className="text-sm">
+                          Tap to add receipt or image
+                        </span>
                       </div>
                     </CustomCard>
                     <input
@@ -773,7 +747,10 @@ const GroupActivityCreate = () => {
               <Button
                 type="button"
                 className="flex-1"
-                onClick={goToStep2}
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToStep2();
+                }}
                 disabled={!totalAmount || totalAmount <= 0}
               >
                 Next
@@ -793,60 +770,6 @@ const GroupActivityCreate = () => {
           </div>
         </form>
       </Form>
-
-      {/* Split By Drawer */}
-      <Drawer open={splitDrawerOpen} onOpenChange={setSplitDrawerOpen}>
-        <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[90vh] flex flex-col">
-          <DrawerHeader className="flex flex-row items-center justify-between">
-            <DrawerClose asChild>
-              <Button variant="ghost" size="icon">
-                <X className="h-5 w-5" />
-              </Button>
-            </DrawerClose>
-            <DrawerTitle>Split by</DrawerTitle>
-            <div className="w-10" /> {/* Spacer for centering */}
-          </DrawerHeader>
-
-          <div className="p-4 flex-1 flex flex-col overflow-auto">
-            <SplitTypeTabs
-              splitType={splitType}
-              onSplitTypeChange={handleSplitTypeChange}
-            />
-
-            <MemberSplitList
-              memberSplits={memberSplits}
-              splitType={splitType}
-              membersLoading={membersLoading}
-              onToggleMember={toggleMemberSelection}
-              onUpdateAmount={updateMemberAmount}
-              onUpdatePercentage={updateMemberPercentage}
-            />
-
-            <SplitSummary
-              splitType={splitType}
-              totalAmount={totalAmount}
-              selectedMembersCount={selectedMembersCount}
-              totalSplitAmount={totalSplitAmount}
-              amountRemaining={amountRemaining}
-              totalPercentage={totalPercentage}
-            />
-          </div>
-
-          <DrawerFooter className="flex-row gap-3">
-            <DrawerClose asChild>
-              <Button variant="outline" className="flex-1">
-                Cancel
-              </Button>
-            </DrawerClose>
-            <Button
-              className="flex-1"
-              onClick={() => setSplitDrawerOpen(false)}
-            >
-              OK
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
     </PageLayout>
   );
 };

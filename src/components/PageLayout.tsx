@@ -17,13 +17,14 @@ const PageLayout = ({ title, className, isNav=true, rightElement, children }: Pa
   const location = useLocation();
 
   const navItems = [
+    { name: "Home", icon: HomeIcon, path: "/" },
     {
       name: "Search",
       icon: SearchIcon,
       path: "/search?friend_filter=all",
       isSearch: true,
     },
-    { name: "Home", icon: HomeIcon, path: "/" },
+
     { name: "Groups", icon: UsersIcon, path: "/groups" },
     { name: "Profile", icon: User2Icon, path: "/profile" },
   ];

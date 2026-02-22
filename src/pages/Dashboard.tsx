@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  BellIcon,
-  CircleAlertIcon,
-  IndianRupeeIcon,
-  PlusIcon,
-} from "lucide-react";
+import { BellIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,11 +9,11 @@ import PageLayout from "@/components/PageLayout";
 import CustomCard from "@/components/CustomCard";
 import NoDataFound from "@/components/NoDataFound";
 import axiosInstance from "@/lib/axiosInstance";
-import { formatDateTime } from "@/lib/utils";
 import type { DashboardData, Profile } from "@/types/auth";
 import type { ActivitiesResponse, Activity } from "@/types/activity";
 import { ChartPieDonutText } from "@/components/PieChart";
 import { getInitials } from "@/lib/helpers";
+import ActivityCard from "@/components/ActivityCard";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -87,7 +82,7 @@ const Dashboard = () => {
     setActivitiesError(null);
     try {
       const res = await axiosInstance.get<ActivitiesResponse>(
-        `/activities/my-history?limit=5&page=${pageNum}`
+        `/activities/my-history?limit=5&page=${pageNum}`,
       );
 
       const newData = res.data?.data || [];
@@ -101,7 +96,7 @@ const Dashboard = () => {
       setActivities([]);
       setActivitiesError(
         error?.response?.data?.message ||
-          "Could not load activities. Please try again."
+          "Could not load activities. Please try again.",
       );
     } finally {
       setActivitiesLoading(false);
@@ -117,24 +112,7 @@ const Dashboard = () => {
   }, [fetchUnreadCount, fetchFriends, fetchHistory]);
 
   // --- Status Badge Renderer ---
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "rejected":
-        return (
-          <p className="text-xs flex items-center gap-1 text-red-400">
-            Rejected <CircleAlertIcon className="size-3" />
-          </p>
-        );
-      case "pending":
-        return (
-          <p className="text-xs flex items-center gap-1 text-yellow-600">
-            Pending <CircleAlertIcon className="size-3" />
-          </p>
-        );
-      default:
-        return null;
-    }
-  };
+
 
   return (
     <PageLayout className="p-0">
@@ -281,54 +259,7 @@ const Dashboard = () => {
             {/* Loaded Activities */}
             {!activitiesLoading &&
               activities.map((activity) => (
-                <CustomCard
-                  key={activity.id}
-                  radius={15}
-                  className="flex gap-2 items-center p-3 cursor-pointer"
-                  onClick={() =>
-                    activity.other_user &&
-                    navigate(
-                      `/activity/${activity.other_user.id}/${activity.id}`
-                    )
-                  }
-                >
-                  <Avatar className="size-10">
-                    <AvatarImage
-                      src={activity.other_user?.profile_pic || undefined}
-                      alt={activity.other_user?.full_name ?? "No Name"}
-                      className="object-cover"
-                    />
-                    <AvatarFallback>
-                      {getInitials(activity.other_user?.full_name)}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="grow overflow-hidden">
-                    <h3 className="text-md font-medium truncate">
-                      {activity.other_user?.username ?? "Unknown User"}
-                    </h3>
-                    <p className="text-xs capitalize opacity-65 truncate">
-                      {activity.other_user?.full_name ?? "No Name"}
-                    </p>
-                    <p className="text-[9px] text-gray-500">
-                      {formatDateTime(activity.created_at)}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <span
-                      className={`text-sm font-semibold flex items-center justify-end ${
-                        activity.type === "paid"
-                          ? "text-green-500"
-                          : "text-red-400"
-                      }`}
-                    >
-                      <IndianRupeeIcon className="size-3" />
-                      {activity.amount ?? 0}
-                    </span>
-                    {getStatusText(activity.status)}
-                  </div>
-                </CustomCard>
+                <ActivityCard key={activity.id} activity={activity} />
               ))}
           </div>
         </CustomCard>

@@ -1,61 +1,26 @@
 import { useEffect, useState, useCallback } from "react";
 import CustomCard from "@/components/CustomCard";
-import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
-import {
-  CircleAlertIcon,
-  IndianRupeeIcon,
-  SearchIcon,
-  SlidersVerticalIcon,
-} from "lucide-react";
+import { SearchIcon, SlidersVerticalIcon } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { Input } from "@/components/ui/input";
 import PageLayout from "@/components/PageLayout";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNavigate } from "react-router";
 import NoDataFound from "@/components/NoDataFound";
-// types
-interface OtherUser {
-  id: string;
-  full_name: string | null;
-  username: string | null;
-  profile_pic: string | null;
-}
-
-interface Activity {
-  id: string;
-  type: "paid" | "owed";
-  amount: number;
-  total_amount: number;
-  note: string | null;
-  attachment: string | null;
-  status: "accepted" | "rejected" | string;
-  created_at: string;
-  updated_at: string;
-  other_user: OtherUser | null;
-}
-
-interface ActivitiesResponse {
-  data: Activity[];
-  pagination: {
-    limit: number;
-    page: number;
-    totalItems: number;
-  };
-}
+import ActivityCard from "@/components/ActivityCard";
+import type { ActivitiesResponse, Activity } from "@/types/activity";
 
 const ActivityHistory: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
-  const navigate = useNavigate();
 
   const fetchHistory = useCallback(async (pageNum: number) => {
     setLoading(true);
     try {
       const res = await axiosInstance.get<ActivitiesResponse>(
-        `/activities/my-history?limit=20&page=${pageNum}`
+        `/activities/my-history?limit=20&page=${pageNum}`,
       );
 
       const newData = res.data?.data || [];
@@ -96,39 +61,6 @@ const ActivityHistory: React.FC = () => {
     disabled: false,
     rootMargin: "0px 0px 400px 0px",
   });
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "accepted":
-        return "";
-      case "rejected":
-        return (
-          <p className="text-xs flex items-center gap-1 text-red-400">
-            Rejected <CircleAlertIcon className="size-3" />
-          </p>
-        );
-      default:
-        return (
-          <p className="text-xs flex items-center gap-1 text-yellow-600">
-            Pending <CircleAlertIcon className="size-3" />
-          </p>
-        );
-    }
-  };
-
-  const formatDateTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return date
-      .toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-      .replace(",", " |");
-  };
 
   return (
     <PageLayout title={"My History"} className="space-y-4">
@@ -177,58 +109,9 @@ const ActivityHistory: React.FC = () => {
             <NoDataFound errorMsg={"No activities found."} />
           ) : (
             <div className="flex flex-col gap-2">
-              {activities.map((activity) => {
-                const username =
-                  activity.other_user?.username ?? "Unknown User";
-                const fullName = activity.other_user?.full_name ?? "No Name";
-                const profilePic = activity.other_user?.profile_pic ?? AvtarImg;
-
-                return (
-                  <CustomCard
-                    key={activity.id}
-                    radius={15}
-                    className="flex gap-2 items-center p-3"
-                    onClick={() =>
-                      activity.other_user &&
-                      navigate(
-                        `/activity/${activity?.other_user?.id}/${activity.id}`
-                      )
-                    }
-                  >
-                    <img
-                      className="size-10 aspect-square object-cover rounded-full"
-                      src={profilePic}
-                      alt={fullName}
-                      loading="lazy"
-                    />
-                    <div className="grow overflow-hidden">
-                      <h3 className="text-md font-medium truncate">
-                        {username}
-                      </h3>
-                      <p className="text-xs capitalize opacity-65 truncate">
-                        {fullName}
-                      </p>
-                      <p className="text-[9px] text-gray-500">
-                        {formatDateTime(activity.created_at)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span
-                        className={`text-sm font-semibold flex items-center justify-end ${
-                          activity.type === "paid"
-                            ? "text-green-500"
-                            : "text-red-400"
-                        }`}
-                      >
-                        <IndianRupeeIcon className="size-3" />
-                        {activity.amount ?? 0}
-                      </span>
-
-                      {getStatusText(activity.status)}
-                    </div>
-                  </CustomCard>
-                );
-              })}
+              {activities.map((activity) => (
+                <ActivityCard key={activity.id} activity={activity} />
+              ))}
 
               {/* Infinite scroll loader sentinel */}
               {hasNextPage && (

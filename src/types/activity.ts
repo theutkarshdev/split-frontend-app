@@ -5,6 +5,14 @@ export interface OtherUser {
   profile_pic: string | null;
 }
 
+export interface ActivityGroup {
+  id: string;
+  activity_id: string;
+  split_type: "equal" | "exact" | "percentage";
+  name: string;
+  image: string | null;
+}
+
 export interface Activity {
   id: string;
   type: "paid" | "owed";
@@ -15,6 +23,7 @@ export interface Activity {
   status: "accepted" | "rejected" | string;
   created_at: string;
   updated_at: string;
+  group: ActivityGroup | null;
   other_user: OtherUser | null;
 }
 
