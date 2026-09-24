@@ -15,15 +15,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
+import { Camera, CheckCircle2, Loader2, User, Wallet, XCircle } from "lucide-react";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/hooks/useAppContext";
 import { useNavigate } from "react-router";
 import PageLayout from "@/components/PageLayout";
-import type { AxiosError } from "axios";
+import CustomCard from "@/components/CustomCard";
 
-// ✅ User type
 interface UserData {
   full_name: string;
   id: string;
@@ -36,7 +35,6 @@ interface UserData {
   created_at: Date;
 }
 
-// ✅ Validation Schema
 const FormSchema = z.object({
   full_name: z
     .string()
@@ -50,8 +48,8 @@ const FormSchema = z.object({
       message:
         "Username can only include lowercase letters, numbers, and underscores.",
     })
-    .min(5, { message: "Username must be at least 5 characters." })
-    .max(15, { message: "Username must be at most 15 characters." }),
+    .min(3, { message: "Username must be at least 3 characters." })
+    .max(20, { message: "Username must be at most 20 characters." }),
   profile_pic: z
     .union([z.instanceof(File), z.string().url().optional(), z.undefined()])
     .refine(
@@ -59,14 +57,14 @@ const FormSchema = z.object({
         !val ||
         typeof val === "string" ||
         (val instanceof File &&
-          ["image/jpeg", "image/png", "image/jpg"].includes(val.type)),
+          ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(val.type)),
       {
-        message: "Only JPG or PNG images are allowed.",
+        message: "Only JPG, PNG or WEBP images are allowed.",
       }
     ),
 });
 
-function EditProfile() {
+function EditUserProfile() {
   const navigate = useNavigate();
   const { markProfileComplete } = useAppContext();
   const [loading, setLoading] = useState(false);
@@ -86,7 +84,6 @@ function EditProfile() {
     },
   });
 
-  // ✅ Fetch profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -101,22 +98,23 @@ function EditProfile() {
           });
         }
       } catch (error) {
-        const err = error as AxiosError<{ message?: string }>;
-        console.error(
-          "Profile fetch failed:",
-          err.response?.data?.message || err.message
-        );
+        console.error("Failed to load profile:", error);
       }
     };
 
     fetchProfile();
   }, [form]);
 
-  // ✅ Debounced username availability check
-  const checkUserName = (value: string) => {
+  const handleUsernameChange = (value: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    if (!value || value.length < 2) {
+    if (userData && value === userData.username) {
+      setUsernameAvailable(true);
+      form.clearErrors("username");
+      return;
+    }
+
+    if (value.length < 3) {
       setUsernameAvailable(null);
       return;
     }
@@ -140,15 +138,10 @@ function EditProfile() {
       } catch (error) {
         console.error(error);
         setUsernameAvailable(null);
-        form.setError("username", {
-          type: "manual",
-          message: "Error checking username",
-        });
       }
-    }, 500);
+    }, 400);
   };
 
-  // ✅ Submit handler
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
@@ -162,11 +155,12 @@ function EditProfile() {
             type: "manual",
             message: "This username is already taken",
           });
+          setLoading(false);
           return;
         }
       }
+
       const formData = new FormData();
-      // Only append if changed
       if (userData?.full_name !== data.full_name) {
         formData.append("full_name", data.full_name);
       }
@@ -176,7 +170,6 @@ function EditProfile() {
       if (userData?.username !== data.username) {
         formData.append("username", data.username);
       }
-
       if (data.profile_pic instanceof File) {
         formData.append("profile_pic", data.profile_pic);
       }
@@ -186,152 +179,209 @@ function EditProfile() {
       });
 
       if (res.status === 200) {
-        toast.success("Profile edit successfully!");
+        toast.success("Profile updated successfully!");
         markProfileComplete();
         navigate("/profile");
       }
     } catch (error) {
-      console.error("Profile completion failed:", error);
-      toast.error("Error editing profile");
+      console.error("Profile edit failed:", error);
+      toast.error("Failed to update profile. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <PageLayout title="Complete Profile" isNav={false}>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-          encType="multipart/form-data"
-        >
-          {/* ✅ Profile Picture */}
-          <FormField
-            control={form.control}
-            name="profile_pic"
-            render={({ field }) => {
-              // dynamically compute preview
-              const preview =
-                field.value instanceof File
-                  ? URL.createObjectURL(field.value)
-                  : typeof field.value === "string"
-                  ? field.value
-                  : userData?.profile_pic || AvtarImg;
+    <PageLayout
+      title="Edit Profile"
+      isNav={false}
+      className="pt-6 sm:pt-8 lg:pt-8 px-4 sm:px-6 lg:px-8 pb-12 max-w-xl mx-auto space-y-6"
+    >
+      <CustomCard radius={22} className="p-5 border border-border/80 shadow-md">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5"
+            encType="multipart/form-data"
+          >
+            {/* Avatar Upload */}
+            <FormField
+              control={form.control}
+              name="profile_pic"
+              render={({ field }) => {
+                const preview =
+                  field.value instanceof File
+                    ? URL.createObjectURL(field.value)
+                    : typeof field.value === "string"
+                    ? field.value
+                    : userData?.profile_pic || AvtarImg;
 
-              // cleanup URL object
-              useEffect(() => {
-                if (field.value instanceof File) {
-                  const url = URL.createObjectURL(field.value);
-                  return () => URL.revokeObjectURL(url);
-                }
-              }, [field.value]);
+                useEffect(() => {
+                  if (field.value instanceof File) {
+                    const url = URL.createObjectURL(field.value);
+                    return () => URL.revokeObjectURL(url);
+                  }
+                }, [field.value]);
 
-              return (
-                <FormItem>
-                  <FormControl>
-                    <div className="w-full bg-card py-5 rounded-xl">
-                      <div className="relative w-[30%] mx-auto">
+                return (
+                  <FormItem className="text-center">
+                    <FormControl>
+                      <div className="relative size-24 mx-auto my-2 group">
                         <img
                           src={preview}
                           alt="Profile preview"
-                          className="w-full rounded-full object-cover aspect-square"
+                          className="size-full rounded-full object-cover ring-4 ring-primary/20 shadow-md"
                         />
                         <label
-                          htmlFor="profile_pic_input"
-                          className="absolute bottom-0 left-2/3 bg-black rounded-full cursor-pointer shadow-md"
+                          htmlFor="profile_pic_edit"
+                          className="absolute bottom-0 right-0 size-8 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer shadow-md hover:scale-105 active:scale-95 transition-all"
+                          aria-label="Change photo"
                         >
-                          <Pencil className="size-8 p-2 text-white" />
+                          <Camera className="size-4" />
                         </label>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          id="profile_pic_edit"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) field.onChange(file);
+                          }}
+                        />
                       </div>
+                    </FormControl>
+                    <FormDescription className="text-[11px] text-muted-foreground">
+                      Tap the camera icon to update your profile photo
+                    </FormDescription>
+                    <FormMessage className="text-[11px]" />
+                  </FormItem>
+                );
+              }}
+            />
+
+            {/* Full Name */}
+            <FormField
+              control={form.control}
+              name="full_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    Full Name
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                       <Input
-                        type="file"
-                        accept="image/*"
-                        id="profile_pic_input"
-                        className="hidden"
-                        onChange={(e) =>
-                          field.onChange(e.target.files?.[0] ?? undefined)
-                        }
+                        placeholder="Your full name"
+                        {...field}
+                        className="pl-10 h-11 rounded-xl text-sm font-medium border-border/80 bg-muted/30 focus-visible:ring-primary"
                       />
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[11px]" />
                 </FormItem>
-              );
-            }}
-          />
+              )}
+            />
 
-          {/* ✅ Full Name */}
-          <FormField
-            control={form.control}
-            name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Username */}
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    Username
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
+                        @
+                      </span>
+                      <Input
+                        placeholder="username"
+                        {...field}
+                        className="pl-8 pr-10 h-12 rounded-xl text-sm font-medium border-border/80 bg-muted/30 focus-visible:ring-primary font-mono"
+                        onChange={(e) => {
+                          const val = e.target.value.toLowerCase().trim();
+                          field.onChange(val);
+                          handleUsernameChange(val);
+                        }}
+                      />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                        {usernameAvailable === true && (
+                          <CheckCircle2 className="size-4 text-emerald-500" />
+                        )}
+                        {usernameAvailable === false && (
+                          <XCircle className="size-4 text-rose-500" />
+                        )}
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs text-muted-foreground">
+                    Lowercase letters, numbers, and underscores only
+                  </FormDescription>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
 
-          {/* ✅ UPI ID */}
-          <FormField
-            control={form.control}
-            name="upi_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>UPI ID</FormLabel>
-                <FormControl>
-                  <Input placeholder="username@bank" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* UPI ID */}
+            <FormField
+              control={form.control}
+              name="upi_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    UPI ID (Payment Handle)
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                      <Input
+                        placeholder="username@bank"
+                        {...field}
+                        className="pl-10 h-12 rounded-xl text-sm font-medium border-border/80 bg-muted/30 focus-visible:ring-primary font-mono"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs text-muted-foreground">
+                    Used by friends to settle payments with you
+                  </FormDescription>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
 
-          {/* ✅ Username */}
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="user_name"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      checkUserName(e.target.value);
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Use lowercase letters, numbers, and underscores only.
-                </FormDescription>
-                {usernameAvailable && (
-                  <p className="text-green-600 text-sm">
-                    ✅ Username is available
-                  </p>
+            {/* Actions */}
+            <div className="flex gap-2.5 pt-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/profile")}
+                className="flex-1 rounded-xl h-12 px-6 text-sm font-semibold border-border/80 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1 rounded-xl h-12 px-6 text-sm font-semibold bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm cursor-pointer flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  "Save Changes"
                 )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button
-            type="submit"
-            className="w-full h-10"
-            disabled={!!form.formState.errors.username || loading}
-          >
-            {loading ? "Sending ..." : "Submit"}
-          </Button>
-        </form>
-      </Form>
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </CustomCard>
     </PageLayout>
   );
 }
 
-export default EditProfile;
+export default EditUserProfile;

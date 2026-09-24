@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useAppContext } from "@/hooks/useAppContext";
-import CustomCard from "./CustomCard";
 
 export function ModeSwitch() {
   const { theme, setTheme } = useAppContext();
@@ -19,20 +18,23 @@ export function ModeSwitch() {
   const isDark = theme === "dark" || (theme === "system" && systemPrefersDark);
 
   return (
-    <CustomCard radius={12} className="p-3 flex justify-between items-center">
-      <div className="text-sm font-normal flex gap-2 items-center">
-        <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-600 rounded-full text-primary grid place-content-center">
-          {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
+    <div className="flex justify-between items-center py-2.5">
+      <div className="flex items-center gap-3">
+        <div className="size-8.5 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-500 grid place-content-center shrink-0">
+          {isDark ? <Moon className="size-4.5" /> : <Sun className="size-4.5" />}
         </div>
-        <p className="text-sm font-medium">App Theme</p>
+        <div>
+          <p className="text-xs font-semibold text-foreground">App Appearance</p>
+          <p className="text-[10px] text-muted-foreground">
+            {isDark ? "Dark obsidian mode" : "Light porcelain mode"}
+          </p>
+        </div>
       </div>
 
       <Switch
         checked={isDark}
-        onCheckedChange={
-          (checked) => setTheme(checked ? "dark" : "light") // explicitly set, no more "system" here
-        }
+        onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
       />
-    </CustomCard>
+    </div>
   );
 }

@@ -15,15 +15,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
+import { Camera, CheckCircle2, Loader2, User, Wallet, XCircle } from "lucide-react";
 import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 import toast from "react-hot-toast";
 import { useAppContext } from "@/hooks/useAppContext";
 import { useNavigate } from "react-router";
 import PageLayout from "@/components/PageLayout";
-import type { AxiosError } from "axios";
+import CustomCard from "@/components/CustomCard";
 
-// ✅ User type
 interface UserData {
   full_name: string;
   id: string;
@@ -36,7 +35,6 @@ interface UserData {
   created_at: Date;
 }
 
-// ✅ Validation Schema
 const FormSchema = z.object({
   full_name: z
     .string()
@@ -50,8 +48,8 @@ const FormSchema = z.object({
       message:
         "Username can only include lowercase letters, numbers, and underscores.",
     })
-    .min(5, { message: "Username must be at least 5 characters." })
-    .max(15, { message: "Username must be at most 15 characters." }),
+    .min(3, { message: "Username must be at least 3 characters." })
+    .max(20, { message: "Username must be at most 20 characters." }),
   profile_pic: z
     .union([z.instanceof(File), z.string().url().optional(), z.undefined()])
     .refine(
@@ -59,16 +57,16 @@ const FormSchema = z.object({
         !val ||
         typeof val === "string" ||
         (val instanceof File &&
-          ["image/jpeg", "image/png", "image/jpg"].includes(val.type)),
+          ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(val.type)),
       {
-        message: "Only JPG or PNG images are allowed.",
+        message: "Only JPG, PNG or WEBP images are allowed.",
       }
     ),
 });
 
 function CompleteProfile() {
   const navigate = useNavigate();
-  const { markProfileComplete, auth } = useAppContext();
+  const { markProfileComplete } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
@@ -86,7 +84,6 @@ function CompleteProfile() {
     },
   });
 
-  // ✅ Fetch profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -101,29 +98,23 @@ function CompleteProfile() {
           });
         }
       } catch (error) {
-        const err = error as AxiosError<{ message?: string }>;
-        console.error(
-          "Profile fetch failed:",
-          err.response?.data?.message || err.message
-        );
+        console.error("Failed to load profile:", error);
       }
     };
 
     fetchProfile();
   }, [form]);
 
-  // ✅ Redirect if profile already complete
-  useEffect(() => {
-    if (!auth.is_new) {
-      navigate("/", { replace: true });
-    }
-  }, [auth.is_new, navigate]);
-
-  // ✅ Debounced username availability check
-  const checkUserName = (value: string) => {
+  const handleUsernameChange = (value: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    if (!value || value.length < 2) {
+    if (userData && value === userData.username) {
+      setUsernameAvailable(true);
+      form.clearErrors("username");
+      return;
+    }
+
+    if (value.length < 3) {
       setUsernameAvailable(null);
       return;
     }
@@ -147,190 +138,251 @@ function CompleteProfile() {
       } catch (error) {
         console.error(error);
         setUsernameAvailable(null);
-        form.setError("username", {
-          type: "manual",
-          message: "Error checking username",
-        });
       }
-    }, 500);
+    }, 400);
   };
 
-  // ✅ Submit handler
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/profile/check-username", {
-        params: { username: data.username },
-      });
-
-      if (!response.data.available) {
-        form.setError("username", {
-          type: "manual",
-          message: "This username is already taken",
+      if (userData?.username !== data.username) {
+        const response = await axiosInstance.get("/profile/check-username", {
+          params: { username: data.username },
         });
-        return;
+
+        if (!response.data.available) {
+          form.setError("username", {
+            type: "manual",
+            message: "This username is already taken",
+          });
+          setLoading(false);
+          return;
+        }
       }
 
       const formData = new FormData();
-      formData.append("full_name", data.full_name);
-      formData.append("upi_id", data.upi_id);
-      formData.append("username", data.username);
-
+      if (userData?.full_name !== data.full_name) {
+        formData.append("full_name", data.full_name);
+      }
+      if (userData?.upi_id !== data.upi_id) {
+        formData.append("upi_id", data.upi_id);
+      }
+      if (userData?.username !== data.username) {
+        formData.append("username", data.username);
+      }
       if (data.profile_pic instanceof File) {
         formData.append("profile_pic", data.profile_pic);
       }
 
-      console.log(data)
-
-      const res = await axiosInstance.post("/profile/complete", formData, {
+      const res = await axiosInstance.put("/profile/edit", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (res.status === 200) {
-        toast.success("Profile completed successfully!");
+        toast.success("Profile setup complete! Welcome to Spilly.");
         markProfileComplete();
         navigate("/");
       }
     } catch (error) {
       console.error("Profile completion failed:", error);
-      toast.error("Error completing profile");
+      toast.error("Failed to complete profile.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <PageLayout title="Complete Profile" isNav={false}>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-          encType="multipart/form-data"
-        >
-          {/* ✅ Profile Picture */}
-          <FormField
-            control={form.control}
-            name="profile_pic"
-            render={({ field }) => {
-              // dynamically compute preview
-              const preview =
-                field.value instanceof File
-                  ? URL.createObjectURL(field.value)
-                  : typeof field.value === "string"
-                  ? field.value
-                  : userData?.profile_pic || AvtarImg;
+    <PageLayout
+      title="Set Up Your Profile"
+      isNav={false}
+      className="p-4 sm:p-6 lg:p-8 max-w-xl mx-auto space-y-6"
+    >
+      {/* Onboarding Welcome Banner */}
+      <div className="text-center py-2 space-y-1">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-1">
+          <User className="size-3.5" /> Quick Onboarding
+        </div>
+        <h2 className="text-lg font-bold tracking-tight text-foreground">
+          Almost there! Complete your profile
+        </h2>
+        <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+          Add your details so your friends can recognize you and send payments.
+        </p>
+      </div>
 
-              // cleanup URL object
-              useEffect(() => {
-                if (field.value instanceof File) {
-                  const url = URL.createObjectURL(field.value);
-                  return () => URL.revokeObjectURL(url);
-                }
-              }, [field.value]);
+      <CustomCard radius={22} className="p-5 border border-border/80 shadow-md">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-5"
+            encType="multipart/form-data"
+          >
+            {/* Avatar Upload */}
+            <FormField
+              control={form.control}
+              name="profile_pic"
+              render={({ field }) => {
+                const preview =
+                  field.value instanceof File
+                    ? URL.createObjectURL(field.value)
+                    : typeof field.value === "string"
+                    ? field.value
+                    : userData?.profile_pic || AvtarImg;
 
-              return (
-                <FormItem>
-                  <FormControl>
-                    <div className="w-full bg-card py-5 rounded-xl">
-                      <div className="relative w-[30%] mx-auto">
+                useEffect(() => {
+                  if (field.value instanceof File) {
+                    const url = URL.createObjectURL(field.value);
+                    return () => URL.revokeObjectURL(url);
+                  }
+                }, [field.value]);
+
+                return (
+                  <FormItem className="text-center">
+                    <FormControl>
+                      <div className="relative size-24 mx-auto my-2 group">
                         <img
                           src={preview}
                           alt="Profile preview"
-                          className="w-full rounded-full object-cover aspect-square"
+                          className="size-full rounded-full object-cover ring-4 ring-primary/20 shadow-md"
                         />
                         <label
-                          htmlFor="profile_pic_input"
-                          className="absolute bottom-0 left-2/3 bg-black rounded-full cursor-pointer shadow-md"
+                          htmlFor="profile_pic_complete"
+                          className="absolute bottom-0 right-0 size-8 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer shadow-md hover:scale-105 active:scale-95 transition-all"
+                          aria-label="Upload photo"
                         >
-                          <Pencil className="size-8 p-2 text-white" />
+                          <Camera className="size-4" />
                         </label>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          id="profile_pic_complete"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) field.onChange(file);
+                          }}
+                        />
                       </div>
+                    </FormControl>
+                    <FormDescription className="text-[11px] text-muted-foreground">
+                      Upload your profile photo
+                    </FormDescription>
+                    <FormMessage className="text-[11px]" />
+                  </FormItem>
+                );
+              }}
+            />
+
+            {/* Full Name */}
+            <FormField
+              control={form.control}
+              name="full_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    Full Name
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                       <Input
-                        type="file"
-                        accept="image/*"
-                        id="profile_pic_input"
-                        className="hidden"
-                        onChange={(e) =>
-                          field.onChange(e.target.files?.[0] ?? undefined)
-                        }
+                        placeholder="e.g. Rahul Sharma"
+                        {...field}
+                        className="pl-10 h-11 rounded-xl text-sm font-medium border-border/80 bg-muted/30 focus-visible:ring-primary"
                       />
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[11px]" />
                 </FormItem>
-              );
-            }}
-          />
+              )}
+            />
 
-          {/* ✅ Full Name */}
-          <FormField
-            control={form.control}
-            name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Username */}
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    Unique Username
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">
+                        @
+                      </span>
+                      <Input
+                        placeholder="username"
+                        {...field}
+                        className="pl-8 pr-10 h-12 rounded-xl text-sm font-medium border-border/80 bg-muted/30 focus-visible:ring-primary font-mono"
+                        onChange={(e) => {
+                          const val = e.target.value.toLowerCase().trim();
+                          field.onChange(val);
+                          handleUsernameChange(val);
+                        }}
+                      />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                        {usernameAvailable === true && (
+                          <CheckCircle2 className="size-4 text-emerald-500" />
+                        )}
+                        {usernameAvailable === false && (
+                          <XCircle className="size-4 text-rose-500" />
+                        )}
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs text-muted-foreground">
+                    Friends will search for you using this handle
+                  </FormDescription>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
 
-          {/* ✅ UPI ID */}
-          <FormField
-            control={form.control}
-            name="upi_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>UPI ID</FormLabel>
-                <FormControl>
-                  <Input placeholder="username@bank" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* UPI ID */}
+            <FormField
+              control={form.control}
+              name="upi_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    UPI ID (Payment Handle)
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                      <Input
+                        placeholder="yourname@okhdfcbank"
+                        {...field}
+                        className="pl-10 h-12 rounded-xl text-sm font-medium border-border/80 bg-muted/30 focus-visible:ring-primary font-mono"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs text-muted-foreground">
+                    Used for receiving expense settlement payments
+                  </FormDescription>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
 
-          {/* ✅ Username */}
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="user_name"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      checkUserName(e.target.value);
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Use lowercase letters, numbers, and underscores only.
-                </FormDescription>
-                {usernameAvailable && (
-                  <p className="text-green-600 text-sm">
-                    ✅ Username is available
-                  </p>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button
-            type="submit"
-            className="w-full h-10"
-            disabled={!!form.formState.errors.username || loading}
-          >
-            {loading ? "Sending ..." : "Submit"}
-          </Button>
-        </form>
-      </Form>
+            {/* Action */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm cursor-pointer flex items-center justify-center gap-2 mt-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Saving Profile...
+                </>
+              ) : (
+                "Complete Setup & Enter Spilly"
+              )}
+            </Button>
+          </form>
+        </Form>
+      </CustomCard>
     </PageLayout>
   );
 }

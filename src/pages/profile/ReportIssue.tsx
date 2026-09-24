@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import axiosInstance from "@/lib/axiosInstance";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 const schema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -52,7 +53,7 @@ const ReportIssue = ({
       await axiosInstance.post("/profile/report", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success("Issue reported successfully!");
+      toast.success("Issue reported successfully! Our team will review it.");
       methods.reset();
       setShowReportDrawer(false);
     } catch (error) {
@@ -64,11 +65,13 @@ const ReportIssue = ({
 
   return (
     <Drawer open={showReportDrawer} onOpenChange={setShowReportDrawer}>
-      <DrawerContent className="!rounded-t-4xl">
-        <DrawerHeader className="items-start border-b">
-          <DrawerTitle>Report an Issue</DrawerTitle>
-          <DrawerDescription className="text-left">
-            Please describe your issue.
+      <DrawerContent className="max-w-md mx-auto rounded-t-[2rem] border-t border-border/80 dark:border-white/10 p-0 overflow-hidden">
+        <DrawerHeader className="text-left px-5 pt-4 pb-2 border-b border-border/60">
+          <DrawerTitle className="text-base font-bold tracking-tight">
+            Report an Issue / Feedback
+          </DrawerTitle>
+          <DrawerDescription className="text-xs text-muted-foreground">
+            Let us know what went wrong or how we can improve Spilly.
           </DrawerDescription>
         </DrawerHeader>
         <FormProvider {...methods}>
@@ -81,16 +84,18 @@ const ReportIssue = ({
               control={methods.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    Description
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder="Describe your issue..."
+                      placeholder="Describe what happened or steps to reproduce..."
                       disabled={loading}
-                      className="h-40"
+                      className="h-32 text-sm rounded-xl bg-muted/30 border-border/70 focus-visible:ring-primary resize-none p-3"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -99,20 +104,34 @@ const ReportIssue = ({
               control={methods.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Attachment</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-foreground">
+                    Screenshot / Attachment (Optional)
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="file"
+                      accept="image/*"
                       onChange={(e) => field.onChange(e.target.files)}
                       disabled={loading}
+                      className="text-xs h-11 rounded-xl bg-muted/30 border-border/70 cursor-pointer file:cursor-pointer"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Submitting..." : "Submit"}
+            <Button
+              type="submit"
+              className="w-full h-12 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm cursor-pointer flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Submitting...
+                </>
+              ) : (
+                "Submit Report"
+              )}
             </Button>
           </form>
         </FormProvider>
