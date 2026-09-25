@@ -9,6 +9,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PieChart as PieChartIcon } from "lucide-react";
 
 type DashboardEntry = {
   username: string;
@@ -38,7 +39,6 @@ export function ChartPieDonutText({
   loading: boolean;
   data: DashboardPayload;
 }) {
-  // Build dynamic chart config and data from payload
   const [selectedPie, setSelectedPie] = useState<string | null>(null);
 
   const { chartConfig, pieData, total } = useMemo(() => {
@@ -46,8 +46,10 @@ export function ChartPieDonutText({
       chartConfig: { visitors: { label: "Amount" } } as ChartConfig,
       pieData: [] as Array<{
         username: string;
+        fullName: string;
         visitors: number;
         fill: string;
+        type: string;
       }>,
       total: 0,
     };
@@ -58,10 +60,8 @@ export function ChartPieDonutText({
 
     const config: ChartConfig = { visitors: { label: "Amount" } };
 
-    // Assign a color per entry (cycle through palette if needed)
     const mapped = data.data.map((item, idx) => {
       const colorVar = PIE_COLORS[idx % PIE_COLORS.length];
-      // ChartStyle maps --color-<key> from config.color
       config[item.username] = {
         label: item.fullName.split(" ")[0] || item.username,
         color: colorVar,
@@ -70,17 +70,15 @@ export function ChartPieDonutText({
         username: item.username,
         fullName: item.fullName,
         visitors: Math.max(0, Number(item.amount) || 0),
-        fill: `var(--color-${item.username})`,
+        fill: colorVar,
         type: item.type,
       };
     });
 
-    // Filter data based on selectedPie
     const filteredData = selectedPie
       ? mapped.filter((item) => item.username === selectedPie)
       : mapped;
 
-    // Calculate total for filtered data
     const filteredTotal = selectedPie
       ? filteredData.reduce((a, c) => a + (c.visitors || 0), 0)
       : typeof data.totalAmount === "number"
@@ -96,24 +94,20 @@ export function ChartPieDonutText({
 
   if (loading) {
     return (
-      <div className="h-full w-full grid grid-cols-[1fr_1fr] items-center">
+      <div className="h-full w-full grid grid-cols-[1.1fr_0.9fr] items-center p-3">
         <div className="flex items-center justify-center">
-          <div className="relative h-40 w-40">
+          <div className="relative size-32">
             <Skeleton className="h-full w-full rounded-full" />
-            <div className="absolute inset-10">
-              <Skeleton className="h-full w-full rounded-full" />
-            </div>
+            <div className="absolute inset-6 bg-card rounded-full" />
           </div>
         </div>
-        <div className="px-4">
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <Skeleton className="h-2 w-2 rounded-sm" />
-                <Skeleton className="h-3 w-28" />
-              </div>
-            ))}
-          </div>
+        <div className="px-2 space-y-2">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Skeleton className="size-2 rounded-full" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -121,8 +115,12 @@ export function ChartPieDonutText({
 
   if (!pieData.length) {
     return (
-      <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
-        No data to display
+      <div className="h-full w-full flex flex-col items-center justify-center text-center p-4">
+        <div className="size-10 rounded-full bg-muted/60 grid place-content-center text-muted-foreground mb-2">
+          <PieChartIcon className="size-5" />
+        </div>
+        <p className="text-xs font-medium text-foreground/80">All settled up</p>
+        <p className="text-[11px] text-muted-foreground">No active balance with friends</p>
       </div>
     );
   }
@@ -130,23 +128,25 @@ export function ChartPieDonutText({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-square h-full w-full"
+      className="aspect-square h-full w-full max-h-[190px]"
     >
       <PieChart>
         <Pie
           data={pieData}
           dataKey="visitors"
           nameKey="username"
-          innerRadius={55}
-          strokeWidth={5}
-          paddingAngle={3}
-          cornerRadius={5}
-          cx={"25%"}
+          innerRadius={48}
+          outerRadius={68}
+          strokeWidth={3}
+          stroke="var(--color-card)"
+          paddingAngle={4}
+          cornerRadius={4}
+          cx={"32%"}
+          cy={"50%"}
         >
           <Label
             content={({ viewBox }) => {
               if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                // Determine color based on selected data type if a pie is selected
                 let paidType = data?.type;
                 if (selectedPie && data?.data) {
                   const selectedUser = data.data.find(
@@ -156,8 +156,8 @@ export function ChartPieDonutText({
                     paidType = selectedUser.type;
                   }
                 }
-                const colorClass =
-                  paidType === "paid" ? "fill-green-500" : "fill-red-400";
+                const isPaid = paidType === "paid";
+
                 return (
                   <text
                     x={viewBox.cx}
@@ -167,17 +167,19 @@ export function ChartPieDonutText({
                   >
                     <tspan
                       x={viewBox.cx}
-                      y={viewBox.cy}
-                      className={`text-lg font-bold ${colorClass}`}
+                      y={(viewBox.cy || 0) - 8}
+                      className={`text-base font-extrabold tracking-tight ${
+                        isPaid ? "fill-emerald-500 dark:fill-emerald-400" : "fill-rose-500 dark:fill-rose-400"
+                      }`}
                     >
-                      ₹ {total.toLocaleString()}
+                      ₹{total.toLocaleString()}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
-                      y={(viewBox.cy || 0) + 24}
-                      className="fill-muted-foreground"
+                      y={(viewBox.cy || 0) + 12}
+                      className="fill-muted-foreground text-[10px] font-medium uppercase tracking-wider"
                     >
-                      {paidType === "owed" ? "Total Owed" : "Total Paid"}
+                      {isPaid ? "Paid" : "Owed"}
                     </tspan>
                   </text>
                 );
@@ -197,15 +199,18 @@ export function ChartPieDonutText({
                 const sliceType = (item && (item.payload as any)?.type) as
                   | string
                   | undefined;
-                const colorClass =
-                  sliceType === "paid" ? "text-green-500" : "text-red-400";
+                const isPaid = sliceType === "paid";
                 return (
-                  <div className="flex justify-between w-full">
-                    <span>{item?.payload?.fullName.split(" ")[0]}</span>
+                  <div className="flex justify-between items-center gap-4 w-full">
+                    <span className="font-medium text-xs">
+                      {item?.payload?.fullName?.split(" ")[0] || item?.payload?.username}
+                    </span>
                     <span
-                      className={`font-mono font-medium tabular-nums ${colorClass}`}
+                      className={`font-semibold text-xs tabular-nums ${
+                        isPaid ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"
+                      }`}
                     >
-                      ₹ {amt.toLocaleString()}
+                      ₹{amt.toLocaleString()}
                     </span>
                   </div>
                 );
@@ -218,8 +223,8 @@ export function ChartPieDonutText({
           verticalAlign="middle"
           layout="vertical"
           content={() => (
-            <div>
-              <ul>
+            <div className="max-h-[140px] overflow-y-auto pr-1">
+              <ul className="space-y-1">
                 {data?.data?.map((user, index) => {
                   const isActive = selectedPie === user.username;
                   const isFiltered =
@@ -229,29 +234,34 @@ export function ChartPieDonutText({
                     <li
                       onClick={() => {
                         if (selectedPie === user.username) {
-                          setSelectedPie(null); // Reset if clicking the same item
+                          setSelectedPie(null);
                         } else {
                           setSelectedPie(user.username);
                         }
                       }}
                       key={`item-${user.username}`}
-                      className={`flex items-center gap-2 cursor-pointer p-1 rounded transition-all ${
+                      className={`flex items-center justify-between gap-1.5 cursor-pointer py-1 px-2 rounded-lg text-xs transition-all duration-150 ${
                         isActive
-                          ? "shadow-sm"
+                          ? "bg-primary/10 text-primary font-medium"
                           : isFiltered
-                          ? "opacity-40 hover:opacity-70"
-                          : "hover:bg-muted/30"
+                          ? "opacity-35 hover:opacity-75"
+                          : "hover:bg-muted/50 text-foreground/80"
                       }`}
                     >
-                      <div
-                        className="size-2 rounded-xs shrink-0"
-                        style={{
-                          backgroundColor:
-                            PIE_COLORS[index % PIE_COLORS.length],
-                        }}
-                      />
-                      <span className="text-xs">
-                        {user.fullName.split(" ")[0] || user.username}
+                      <div className="flex items-center gap-1.5 truncate">
+                        <span
+                          className="size-2 rounded-full shrink-0"
+                          style={{
+                            backgroundColor:
+                              PIE_COLORS[index % PIE_COLORS.length],
+                          }}
+                        />
+                        <span className="truncate max-w-[65px]">
+                          {user.fullName?.split(" ")[0] || user.username}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium opacity-80 shrink-0">
+                        ₹{Number(user.amount || 0).toLocaleString()}
                       </span>
                     </li>
                   );
@@ -259,12 +269,12 @@ export function ChartPieDonutText({
               </ul>
             </div>
           )}
-          className="grid grid-cols-1 gap-y-2"
           wrapperStyle={{
             position: "absolute",
             top: "50%",
-            left: "75%",
-            transform: "translate(-50%, -50%)",
+            left: "65%",
+            width: "35%",
+            transform: "translateY(-50%)",
           }}
         />
       </PieChart>

@@ -14,11 +14,9 @@ const AuthLayout = () => {
   }
 
   return (
-    <div className="flex justify-center">
-      <main className="w-full min-h-svh overflow-x-hidden bg-slate-50 dark:bg-black">
-        <Outlet />
-      </main>
-    </div>
+    <main className="w-full min-h-svh bg-background text-foreground overflow-x-hidden">
+      <Outlet />
+    </main>
   );
 };
 

@@ -14,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border border-border/80 bg-background text-foreground shadow-xs hover:bg-muted hover:text-foreground dark:bg-card dark:border-white/15 dark:text-foreground dark:hover:bg-muted/80",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
@@ -22,10 +22,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: "h-11 px-5 py-2.5 text-sm font-semibold rounded-xl has-[>svg]:px-4 cursor-pointer active:scale-[0.98]",
+        sm: "h-9 rounded-xl gap-1.5 px-3.5 text-xs font-semibold has-[>svg]:px-3 cursor-pointer active:scale-[0.98]",
+        lg: "h-12 rounded-xl px-7 text-base font-semibold has-[>svg]:px-5 cursor-pointer active:scale-[0.98]",
+        icon: "size-10 rounded-xl cursor-pointer active:scale-[0.98]",
       },
     },
     defaultVariants: {

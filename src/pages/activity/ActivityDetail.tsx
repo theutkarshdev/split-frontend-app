@@ -6,9 +6,10 @@ import CustomCard from "@/components/CustomCard";
 import PageLayout from "@/components/PageLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { CheckIcon, XIcon } from "lucide-react";
+import { Check, X, ArrowRight, Receipt, Calendar, Hash, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import AvtarImg from "@/assets/Profile_avatar_placeholder_large.png";
 
 type User = {
   id: string;
@@ -86,49 +87,16 @@ const ActivityDetail = () => {
   if (loading) {
     return (
       <PageLayout title="Activity Details" isNav={false}>
-        <div className="space-y-5">
-          {/* Amount Card Skeleton */}
-          <div className="p-5 space-y-3 bg-card border rounded-2xl">
-            <div className="grid grid-cols-2 mb-4">
-              <div>
-                <Skeleton className="h-5 w-20 mb-2" />
-                <Skeleton className="h-8 w-24" />
-              </div>
-              <div className="border-l-2 pl-6">
-                <Skeleton className="h-5 w-28 mb-2" />
-                <Skeleton className="h-8 w-24" />
-              </div>
+        <div className="p-4 space-y-4">
+          <CustomCard radius={20} className="p-5 space-y-4">
+            <Skeleton className="h-8 w-32 mx-auto rounded-lg" />
+            <Skeleton className="h-4 w-48 mx-auto rounded" />
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+              <Skeleton className="h-14 rounded-xl" />
+              <Skeleton className="h-14 rounded-xl" />
             </div>
-            <Skeleton className="h-5 w-3/4" />
-          </div>
-
-          {/* User Card Skeleton */}
-          <div className="p-5 space-y-5 bg-card border rounded-2xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <Skeleton className="h-4 w-16 mb-2" />
-                <Skeleton className="h-5 w-32 mb-1" />
-                <Skeleton className="h-3 w-24" />
-              </div>
-              <Skeleton className="h-12 w-12 rounded-full" />
-            </div>
-            <Skeleton className="h-8 w-28" />
-            <div className="flex items-center justify-between pt-4">
-              <div>
-                <Skeleton className="h-4 w-16 mb-2" />
-                <Skeleton className="h-5 w-32 mb-1" />
-                <Skeleton className="h-3 w-24" />
-              </div>
-              <Skeleton className="h-12 w-12 rounded-full" />
-            </div>
-            <Skeleton className="h-3 w-48 mt-3" />
-          </div>
-
-          {/* Attachment Skeleton */}
-          <div className="p-5 bg-card border rounded-2xl">
-            <Skeleton className="h-4 w-32 mb-3" />
-            <Skeleton className="h-52 w-full rounded-lg" />
-          </div>
+          </CustomCard>
+          <Skeleton className="h-40 w-full rounded-2xl" />
         </div>
       </PageLayout>
     );
@@ -137,8 +105,16 @@ const ActivityDetail = () => {
   if (error) {
     return (
       <PageLayout title="Activity Details" isNav={false}>
-        <div className="text-center text-red-500 font-medium py-10">
-          {error}
+        <div className="p-6 text-center space-y-3">
+          <p className="text-sm font-medium text-rose-500">{error}</p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="rounded-xl"
+          >
+            Go Back
+          </Button>
         </div>
       </PageLayout>
     );
@@ -147,7 +123,9 @@ const ActivityDetail = () => {
   if (!activityData) {
     return (
       <PageLayout title="Activity Details" isNav={false}>
-        <div className="text-center text-gray-500 py-10">No data found.</div>
+        <div className="p-6 text-center text-muted-foreground text-sm">
+          No activity details found.
+        </div>
       </PageLayout>
     );
   }
@@ -158,165 +136,226 @@ const ActivityDetail = () => {
   const toUser = isPaid ? activityData.other_user : activityData.current_user;
 
   return (
-    <PageLayout title="Activity Details" isNav={false}>
-      <div className="space-y-5">
-        {/* Amount Details */}
-        <CustomCard radius={19} pClassName="relative" className="p-5">
-          <div className="grid grid-cols-2 mb-3">
-            <div>
-              <h2 className="text-sm font-bold mb-1">Amount</h2>
-              <p
-                className={`text-2xl font-bold mb-3 ${
-                  activityData.type === "paid"
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
-              >
-                ₹ {activityData.amount.toString().slice(0, 8)}
-              </p>
+    <PageLayout
+      title="Activity Details"
+      isNav={false}
+      className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto space-y-6"
+    >
+      {/* Luxury Receipt Card */}
+      <CustomCard radius={24} className="p-6 border border-border/80 shadow-md relative overflow-hidden">
+        {/* Top Receipt Notch / Indicator */}
+        <div className="flex items-center justify-between pb-4 border-b border-dashed border-border">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-full bg-primary/10 grid place-content-center text-primary">
+              <Receipt className="size-4" />
             </div>
-            <div className="border-l-2 pl-5">
-              <h2 className="text-sm font-bold mb-1">Total Amount</h2>
-              <p className="text-2xl font-bold mb-3">
-                ₹ {activityData.total_amount.toString().slice(0, 8)}
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                Transaction Receipt
+              </span>
+              <p className="text-xs font-semibold text-foreground">
+                {isPaid ? "Payment logged" : "Expense shared"}
               </p>
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <h2 className="text-sm font-bold mb-1">Status: </h2>
-            <p
-              className={`text-sm ${
-                activityData.status === "accepted"
-                  ? "text-green-600"
-                  : activityData.status === "pending"
-                  ? "text-yellow-600"
-                  : "text-red-600"
-              }`}
-            >
-              {activityData.status}
+          <span
+            className={`text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize ${
+              activityData.status === "accepted"
+                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                : activityData.status === "pending"
+                ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                : "bg-rose-500/15 text-rose-500"
+            }`}
+          >
+            {activityData.status}
+          </span>
+        </div>
+
+        {/* Amount Hero */}
+        <div className="py-6 text-center">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            {isPaid ? "You Paid" : "You Owe"}
+          </span>
+          <h2
+            className={`text-3xl font-extrabold tracking-tight mt-1 ${
+              isPaid
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-rose-600 dark:text-rose-400"
+            }`}
+          >
+            ₹{activityData.amount.toLocaleString()}
+          </h2>
+          {activityData.note && (
+            <p className="text-xs text-foreground/85 font-medium mt-2 max-w-xs mx-auto">
+              "{activityData.note}"
+            </p>
+          )}
+        </div>
+
+        {/* Bill Breakdown Grid */}
+        <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-muted/30 border border-border/60">
+          <div>
+            <span className="text-[10px] uppercase font-semibold text-muted-foreground">
+              Total Expense
+            </span>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              ₹{activityData.total_amount.toLocaleString()}
             </p>
           </div>
-
-          {activityData.note && (
-            <div className="flex gap-2">
-              <h2 className="text-sm font-bold mb-1">Note: </h2>
-              <p className="text-sm">{activityData.note}</p>
-            </div>
-          )}
-
-          {activityData.status === "pending" && isOwed && (
-            <div className="flex [&_button]:grow gap-3 border-t border-dashed pt-5 mt-5">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  handleStatusUpdate(activityData.id, "rejected");
-                }}
-              >
-                <XIcon />
-                Reject
-              </Button>
-              <Button
-                onClick={() => {
-                  handleStatusUpdate(activityData.id, "accepted");
-                }}
-              >
-                <CheckIcon />
-                Accept
-              </Button>
-            </div>
-          )}
-        </CustomCard>
-
-        {/* User Details */}
-        <CustomCard radius={19} className="p-5">
-          {/* To */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-bold mb-1">To</h2>
-              <p className="text-md font-bold">{toUser.full_name}</p>
-              <p className="text-xs text-gray-500">@{toUser.username}</p>
-            </div>
-            <img
-              className="size-12 object-cover rounded-full border"
-              src={toUser.profile_pic}
-              alt={toUser.username}
-            />
+          <div className="border-l border-border/60 pl-3">
+            <span className="text-[10px] uppercase font-semibold text-muted-foreground">
+              Their Share
+            </span>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              ₹{(activityData.total_amount - activityData.amount).toLocaleString()}
+            </p>
           </div>
+        </div>
 
-          <div className="flex text-sm font-normal gap-2 pt-3 pb-5">
-            <button
-              onClick={() => navigate(`/activity/${activityData.other_user.id}`, { replace: true })}
-              className="border text-xs font-normal px-3 py-2 rounded-md cursor-pointer hover:bg-muted transition"
+        {/* Pending Approval Action Buttons */}
+        {activityData.status === "pending" && isOwed && (
+          <div className="flex gap-2 pt-4 mt-4 border-t border-dashed border-border">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-xl h-10 text-xs font-semibold text-rose-500 border-rose-500/30 hover:bg-rose-500/10 cursor-pointer"
+              onClick={() => handleStatusUpdate(activityData.id, "rejected")}
             >
-              View History
-            </button>
+              <X className="size-4 mr-1" /> Reject
+            </Button>
+            <Button
+              className="flex-1 rounded-xl h-10 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs"
+              onClick={() => handleStatusUpdate(activityData.id, "accepted")}
+            >
+              <Check className="size-4 mr-1" /> Accept
+            </Button>
           </div>
+        )}
+      </CustomCard>
 
-          <hr />
+      {/* Participants Card */}
+      <CustomCard radius={20} className="p-4 space-y-4">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Participants
+        </h3>
 
-          {/* From */}
-          <div className="pt-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-bold mb-1">From</h2>
-              <p className="text-md font-bold">{fromUser.full_name}</p>
-              <p className="text-xs text-gray-500">@{fromUser.username}</p>
-            </div>
+        {/* Payer */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <img
-              className="size-12 object-cover rounded-full border"
-              src={fromUser.profile_pic}
+              className="size-10 rounded-full object-cover border border-border"
+              src={fromUser.profile_pic || AvtarImg}
               alt={fromUser.username}
             />
+            <div>
+              <p className="text-xs font-bold text-foreground">
+                {fromUser.full_name || fromUser.username}
+              </p>
+              <span className="text-[11px] text-muted-foreground">
+                Paid total amount
+              </span>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            Paid
+          </span>
+        </div>
+
+        <div className="flex items-center justify-center my-1">
+          <div className="h-px bg-border/60 grow" />
+          <ArrowRight className="size-3 text-muted-foreground mx-2" />
+          <div className="h-px bg-border/60 grow" />
+        </div>
+
+        {/* Payee */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              className="size-10 rounded-full object-cover border border-border"
+              src={toUser.profile_pic || AvtarImg}
+              alt={toUser.username}
+            />
+            <div>
+              <p className="text-xs font-bold text-foreground">
+                {toUser.full_name || toUser.username}
+              </p>
+              <span className="text-[11px] text-muted-foreground">
+                Share to settle
+              </span>
+            </div>
+          </div>
+          <span className="text-xs font-semibold text-rose-500">
+            Owes
+          </span>
+        </div>
+
+        {/* View history shortcut */}
+        <Button
+          variant="outline"
+          onClick={() =>
+            navigate(`/activity/${activityData.other_user.id}`, {
+              replace: true,
+            })
+          }
+          className="w-full rounded-xl text-sm font-semibold h-11 px-5 border-border/80 cursor-pointer mt-2"
+        >
+          View Full Chat History
+        </Button>
+      </CustomCard>
+
+      {/* Receipt Image Attachment */}
+      {activityData.attachment && (
+        <CustomCard radius={20} className="p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <FileText className="size-4 text-muted-foreground" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Receipt Attachment
+            </h3>
           </div>
 
-          <div className="pt-3 text-xs text-gray-500">
-            <p>Date: {new Date(activityData.created_at).toLocaleString()}</p>
-            <p>Ref No: {activityData.id}</p>
+          <div
+            onClick={() => setShowImageDialog(true)}
+            className="rounded-xl overflow-hidden border border-border/80 cursor-pointer group relative"
+          >
+            <img
+              className="w-full h-48 object-cover group-hover:scale-102 transition-transform duration-200"
+              src={activityData.attachment}
+              alt="Receipt"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
+              Tap to view full receipt
+            </div>
           </div>
-        </CustomCard>
 
-        {/* Attachment */}
-        {activityData.attachment && (
-          <CustomCard radius={19} className="p-5">
-            <h2 className="text-sm font-bold mb-3">Receipt Image:</h2>
-            <CustomCard radius={19}>
+          <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+            <DialogContent className="max-w-md p-3 bg-card border rounded-2xl">
               <img
-                className="w-full h-60 object-cover rounded-lg cursor-pointer"
                 src={activityData.attachment}
-                alt="Receipt"
-                loading="lazy"
-                onClick={() => setShowImageDialog(true)}
+                className="w-full max-h-[70vh] object-contain rounded-xl"
+                alt="Full Receipt"
               />
-            </CustomCard>
-            <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
-              <DialogContent
-                showCloseButton={false}
-                className="w-full max-w-3xl p-4 h-svh bg-zinc-200 dark:bg-zinc-800 border-none shadow-none rounded-none flex flex-col items-center justify-center"
-              >
-                <CustomCard radius={19} pClassName="flex-1 p-0 w-full">
-                  <div className="h-[calc(100svh-5.7rem)] overflow-auto grid place-items-center">
-                    <img
-                      src={activityData.attachment}
-                      className="w-full"
-                      alt="Full Receipt"
-                    />
-                  </div>
-                </CustomCard>
+              <DialogClose asChild>
+                <Button className="w-full mt-2 rounded-xl text-sm font-semibold h-11">
+                  Close Receipt
+                </Button>
+              </DialogClose>
+            </DialogContent>
+          </Dialog>
+        </CustomCard>
+      )}
 
-                <DialogClose asChild>
-                  <Button
-                    type="button"
-                    aria-label="Close dialog"
-                    className="w-full h-[2.7rem]"
-                  >
-                    Close <XIcon className="size-5" />
-                  </Button>
-                </DialogClose>
-              </DialogContent>
-            </Dialog>
-          </CustomCard>
-        )}
-      </div>
+      {/* Meta Information */}
+      <CustomCard radius={16} className="p-3 text-[11px] text-muted-foreground space-y-1 bg-muted/20">
+        <div className="flex items-center gap-1.5">
+          <Calendar className="size-3" />
+          <span>Logged on {new Date(activityData.created_at).toLocaleString()}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Hash className="size-3" />
+          <span className="truncate">Ref: {activityData.id}</span>
+        </div>
+      </CustomCard>
     </PageLayout>
   );
 };
